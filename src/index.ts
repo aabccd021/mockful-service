@@ -126,6 +126,11 @@ async function fetchGoogleToken(
   }
 
   const code = formData.get("code");
+
+  if (code === null) {
+    return errorMessage("Parameter code is required.");
+  }
+
   if (typeof code !== "string") {
     return errorMessage("Invalid code", code, "Expected string");
   }
