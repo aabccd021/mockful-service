@@ -4,14 +4,14 @@ import { cloneStore, googleLogin, initStore } from "./index.ts";
 describe("googleLogin", () => {
   describe("get", () => {
     const validUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    validUrl.searchParams.append("response_type", "code");
-    validUrl.searchParams.append("client_id", "123");
-    validUrl.searchParams.append(
+    validUrl.searchParams.set("response_type", "code");
+    validUrl.searchParams.set("client_id", "123");
+    validUrl.searchParams.set(
       "redirect_uri",
       "https://example.com/login/callback",
     );
-    validUrl.searchParams.append("code_challenge_method", "S256");
-    validUrl.searchParams.append(
+    validUrl.searchParams.set("code_challenge_method", "S256");
+    validUrl.searchParams.set(
       "code_challenge",
       "0123456789abcdef0123456789abcdef0123456789a",
     );
@@ -159,14 +159,14 @@ describe("googleLogin", () => {
 
   describe("post", async () => {
     const validUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    validUrl.searchParams.append("response_type", "code");
-    validUrl.searchParams.append("client_id", "123");
-    validUrl.searchParams.append(
+    validUrl.searchParams.set("response_type", "code");
+    validUrl.searchParams.set("client_id", "123");
+    validUrl.searchParams.set(
       "redirect_uri",
       "https://example.com/login/callback",
     );
-    validUrl.searchParams.append("code_challenge_method", "S256");
-    validUrl.searchParams.append(
+    validUrl.searchParams.set("code_challenge_method", "S256");
+    validUrl.searchParams.set(
       "code_challenge",
       "0123456789abcdef0123456789abcdef0123456789a",
     );
