@@ -73,5 +73,18 @@ describe("googleLogin", () => {
         "Parameter code_challenge_method is required when code_challenge is provided.",
       );
     });
+
+    test("code_challenge_method is provided but code_challenge is null", async () => {
+      const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+      url.searchParams.append("response_type", "code");
+      url.searchParams.append("client_id", "123");
+      url.searchParams.append("redirect_uri", "https://example.com");
+      url.searchParams.append("code_challenge_method", "S256");
+      const response = await googleLogin(new Request(url));
+      expect(response.status).toBe(400);
+      expect(response.text()).resolves.toBe(
+        "Parameter code_challenge is required when code_challenge_method is provided.",
+      );
+    });
   });
 });
