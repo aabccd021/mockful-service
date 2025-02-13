@@ -175,21 +175,27 @@ describe("googleLogin", () => {
     const getResponse = await googleLogin(new Request(validUrl), {
       store: defaultStore,
     });
-    const code = getResponse.headers.get("auth-mock-code") ?? "";
+    const validCode = getResponse.headers.get("auth-mock-code") ?? "";
 
     test("success", async () => {
       const postResponse = await googleLogin(
         new Request(validUrl, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ code, google_auth_id_token_sub: "kita" }),
+          body: new URLSearchParams({
+            code: validCode,
+            google_auth_id_token_sub: "kita",
+          }),
         }),
         { store: cloneStore(defaultStore) },
       );
       expect(postResponse.status).toBe(303);
-      expect(postResponse.headers.get("Location")).toBe(
-        `/login/callback?code=${code}`,
+      const newUrl = new URL(
+        postResponse.headers.get("Location") ?? "",
+        "https://example.com",
       );
+      expect(newUrl.pathname).toBe("/login/callback");
+      expect(newUrl.searchParams.get("code")).toBe(validCode);
     });
 
     test("no code", async () => {
@@ -217,7 +223,7 @@ describe("googleLogin", () => {
         }),
         { store: cloneStore(defaultStore) },
       );
-      expect(invalidCode).not.toBe(code);
+      expect(invalidCode).not.toBe(validCode);
       expect(postResponse.status).toBe(400);
     });
 
@@ -226,7 +232,7 @@ describe("googleLogin", () => {
         new Request(validUrl, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ code }),
+          body: new URLSearchParams({ code: validCode }),
         }),
         { store: cloneStore(defaultStore) },
       );
