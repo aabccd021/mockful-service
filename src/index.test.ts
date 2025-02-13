@@ -161,4 +161,18 @@ describe("googleLogin", () => {
       'Invalid code_challenge_method: "S512". Expected "S256" or "plain".',
     );
   });
+
+  test("success", async () => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("client_id", "123");
+    url.searchParams.append("redirect_uri", "https://example.com");
+    url.searchParams.append("code_challenge_method", "S256");
+    url.searchParams.append(
+      "code_challenge",
+      "0123456789abcdef0123456789abcdef0123456789a",
+    );
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(200);
+  });
 });
