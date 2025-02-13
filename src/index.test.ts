@@ -384,8 +384,6 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
     );
 
     expect(response.status).toBe(400);
-    expect(response.text()).resolves.toBe(
-      'Invalid grant_type: "null". Expected "authorization_code".',
-    );
+    expect(response.text()).resolves.toBe("Parameter grant_type is required.");
   });
 });

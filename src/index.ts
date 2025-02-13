@@ -113,6 +113,11 @@ async function fetchGoogleToken(
   const formData = await req.formData();
 
   const grantType = formData.get("grant_type");
+
+  if (grantType === null) {
+    return errorMessage("Parameter grant_type is required.");
+  }
+
   if (grantType !== "authorization_code") {
     return errorMessage(
       `Invalid grant_type: "${grantType}".`,
