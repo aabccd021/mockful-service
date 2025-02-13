@@ -188,7 +188,7 @@ async function fetchGoogleToken(
 
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
-    return errorMessage("Authorization header is required");
+    return errorMessage("Authorization header is required.");
   }
 
   const [prefix, credentials] = authHeader.split(" ");

@@ -490,6 +490,22 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     expect(response.text()).resolves.toBe("Parameter grant_type is required.");
   });
 
+  test("empty auth header", async () => {
+    const valid = await getValid(getUrl());
+    valid.header.delete("Authorization");
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: valid.header,
+        body: valid.body,
+      },
+      { store: valid.store },
+    );
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe("Authorization header is required.");
+  });
+
   test("invalid grant_type", async () => {
     const valid = await getValid(getUrl());
     valid.body.set("grant_type", "refresh_token");
