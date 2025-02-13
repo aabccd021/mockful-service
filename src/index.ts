@@ -114,8 +114,8 @@ async function fetchGoogleToken(
     return errorMessage("Parameter code is required.");
   }
 
-  if (typeof code !== "string") {
-    return errorMessage("Invalid code. Expected string.");
+  if (code instanceof File) {
+    return errorMessage("Invalid code of type file. Expected a string.");
   }
 
   const store = option?.store ?? defaulStore;
@@ -133,7 +133,7 @@ async function fetchGoogleToken(
     }
 
     if (typeof codeVerifier !== "string") {
-      return errorMessage("Invalid code_verifier. Expected string.");
+      return errorMessage("Invalid code_verifier. Expected a string.");
     }
 
     const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
@@ -162,7 +162,7 @@ async function fetchGoogleToken(
   }
 
   if (typeof redirectUri !== "string") {
-    return errorMessage("Invalid redirect_uri. Expected string.");
+    return errorMessage("Invalid redirect_uri. Expected a string.");
   }
 
   if (redirectUri !== authSession.redirectUri) {
@@ -381,7 +381,7 @@ async function handleLoginPost(
 
   const code = formData.get("code");
   if (typeof code !== "string") {
-    return errorMessage("Invalid code. Expected string.");
+    return errorMessage("Invalid code. Expected a string.");
   }
 
   const store = option?.store ?? defaulStore;
@@ -396,7 +396,7 @@ async function handleLoginPost(
 
   const googleAuthIdTokenSub = formData.get("google_auth_id_token_sub");
   if (typeof googleAuthIdTokenSub !== "string") {
-    return errorMessage("Invalid google_auth_id_token_sub. Expected string.");
+    return errorMessage("Invalid google_auth_id_token_sub. Expected a string.");
   }
 
   store.authSessions.set(code, {

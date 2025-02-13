@@ -662,6 +662,33 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
       'Auth session not found for code: "123".',
     );
   });
+
+  test("code is file", async () => {
+    const valid = await getValid(getUrl());
+    const invalidBody = new FormData();
+
+    for (const [key, value] of valid.body) {
+      invalidBody.set(key, value);
+    }
+
+    invalidBody.set("code", new File([], "foo.txt"));
+
+    valid.header.delete("Content-Type");
+
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: valid.header,
+        body: invalidBody,
+      },
+      { store: valid.store },
+    );
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      "Invalid code of type file. Expected a string.",
+    );
+  });
 });
 
 describe("fetch", () => {
