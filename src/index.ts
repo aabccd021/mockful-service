@@ -372,7 +372,13 @@ function handleLoginGet(req: Request, option?: { store?: Store }): Response {
       </body>
     </html>
   `;
-  return new Response(loginForm, { headers: { "Content-Type": "text/html" } });
+  return new Response(loginForm, {
+    headers: {
+      "Content-Type": "text/html",
+      // for testing
+      "Auth-Mock-Code": code,
+    },
+  });
 }
 
 async function handleLoginPost(

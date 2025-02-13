@@ -5,7 +5,10 @@ describe("googleLogin", () => {
   const validUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   validUrl.searchParams.append("response_type", "code");
   validUrl.searchParams.append("client_id", "123");
-  validUrl.searchParams.append("redirect_uri", "https://example.com");
+  validUrl.searchParams.append(
+    "redirect_uri",
+    "https://example.com/login/callback",
+  );
   validUrl.searchParams.append("code_challenge_method", "S256");
   validUrl.searchParams.append(
     "code_challenge",
@@ -14,8 +17,26 @@ describe("googleLogin", () => {
 
   test("success", async () => {
     const store = init();
-    const response = await googleLogin(new Request(validUrl), { store });
-    expect(response.status).toBe(200);
+    const getResponse = await googleLogin(new Request(validUrl), { store });
+    expect(getResponse.status).toBe(200);
+    const code = getResponse.headers.get("auth-mock-code") ?? "";
+    const postResponse = await googleLogin(
+      new Request(validUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          code,
+          google_auth_id_token_sub: "kita",
+        }),
+      }),
+      { store },
+    );
+    expect(postResponse.status).toBe(303);
+    expect(postResponse.headers.get("Location")).toBe(
+      `/login/callback?state=null&scope=null&code=${code}`,
+    );
   });
 
   test("success without code_challenge", async () => {
