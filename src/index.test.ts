@@ -663,3 +663,11 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     );
   });
 });
+
+describe("fetch", () => {
+  test("invalid URL", () => {
+    expect(fetch("https://doesnt-exists.com")).rejects.toThrow(
+      "Unable to connect. Is the computer able to access the url?",
+    );
+  });
+});
