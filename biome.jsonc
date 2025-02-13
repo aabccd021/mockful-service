@@ -28,7 +28,8 @@
         "all": true
       },
       "complexity": {
-        "all": true
+        "all": true,
+        "noExcessiveCognitiveComplexity": "off"
       },
       "suspicious": {
         "all": true,
@@ -42,7 +43,8 @@
         "noSecrets": "off"
       },
       "style": {
-        "all": true
+        "all": true,
+        "useNamingConvention": "off"
       }
     }
   }

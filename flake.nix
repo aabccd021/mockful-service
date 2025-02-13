@@ -2,12 +2,15 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     treefmt-nix.url = "github:numtide/treefmt-nix";
+    build-node-modules.url = "github:aabccd021/build-node-modules";
   };
 
-  outputs = { self, nixpkgs, treefmt-nix }:
+  outputs = { self, nixpkgs, treefmt-nix, build-node-modules }:
     let
 
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
+
+      nodeModules = build-node-modules.lib.buildNodeModules pkgs ./package.json ./package-lock.json;
 
       treefmtEval = treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
@@ -22,7 +25,9 @@
 
       tsc = pkgs.runCommandNoCCLocal "tsc" { } ''
         cp -Lr ${./src} ./src
+        cp -L ${./package.json} ./package.json
         cp -L ${./tsconfig.json} ./tsconfig.json
+        cp -Lr ${nodeModules} ./node_modules
         ${pkgs.typescript}/bin/tsc
         touch $out
       '';
@@ -32,6 +37,7 @@
         cp -L ${./biome.jsonc} ./biome.jsonc
         cp -L ${./package.json} ./package.json
         cp -L ${./tsconfig.json} ./tsconfig.json
+        cp -Lr ${nodeModules} ./node_modules
         ${pkgs.biome}/bin/biome check --error-on-warnings
         touch $out
       '';
@@ -40,6 +46,7 @@
         cp -Lr ${./src} ./src
         cp -L ${./package.json} ./package.json
         cp -L ${./tsconfig.json} ./tsconfig.json
+        cp -Lr ${nodeModules} ./node_modules
         ${pkgs.bun}/bin/bun test
         touch $out
       '';
@@ -68,6 +75,7 @@
         formatting = treefmtEval.config.build.check self;
         tsc = tsc;
         biome = biome;
+        nodeModules = nodeModules;
         publish = publish;
         tests = tests;
       };
