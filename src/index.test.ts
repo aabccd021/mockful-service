@@ -1,28 +1,28 @@
 import { describe, expect, test } from "bun:test";
 import { type Store, fetch, googleLogin, initStore } from "./index.ts";
 
-async function getIdTokenSub(response: Response): Promise<string> {
-  const body: unknown = await response.json();
-
+function getIdTokenSub(body: unknown): string {
   if (body === null) {
     throw new Error("Response body is null");
   }
 
   if (typeof body !== "object") {
-    throw new Error("Response body is not an object");
+    throw new Error(`Response body is not an object: ${JSON.stringify(body)}`);
   }
 
   if (!("id_token" in body)) {
-    throw new Error("id_token is not in the response body");
+    throw new Error(
+      `id_token is not in the response body: ${JSON.stringify(body)}`,
+    );
   }
 
   if (typeof body.id_token !== "string") {
-    throw new Error("id_token is not a string");
+    throw new Error(`id_token is not a string: ${body.id_token}`);
   }
 
   const idTokenPayload = body.id_token.split(".")[1];
   if (idTokenPayload === undefined) {
-    throw new Error(`Id token payload is undefined: ${body.id_token}`);
+    throw new Error("Id token payload is undefined");
   }
 
   const idTokenPayloadBytes = Uint8Array.fromBase64(idTokenPayload, {
@@ -37,15 +37,15 @@ async function getIdTokenSub(response: Response): Promise<string> {
   }
 
   if (typeof idToken !== "object") {
-    throw new Error("idToken is not an object");
+    throw new Error(`idToken is not an object: ${JSON.stringify(idToken)}`);
   }
 
   if (!("sub" in idToken)) {
-    throw new Error("sub is not in the idToken");
+    throw new Error(`sub is not in the idToken: ${JSON.stringify(idToken)}`);
   }
 
   if (typeof idToken.sub !== "string") {
-    throw new Error("sub is not a string");
+    throw new Error(`sub is not a string: ${idToken.sub}`);
   }
 
   return idToken.sub;
@@ -383,7 +383,8 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(getIdTokenSub(response)).resolves.toBe("kita");
+    const body: unknown = await response.json();
+    expect(getIdTokenSub(body)).toBe("kita");
   });
 
   test("s256 success", async () => {
@@ -399,7 +400,8 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(getIdTokenSub(response)).resolves.toBe("kita");
+    const body: unknown = await response.json();
+    expect(getIdTokenSub(body)).toBe("kita");
   });
 
   test("s256 empty code_verifier", async () => {
