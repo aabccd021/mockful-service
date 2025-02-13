@@ -387,6 +387,29 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     expect(getIdTokenSub(body)).toBe("kita");
   });
 
+  test("success without scope", async () => {
+    const url = getUrl();
+    url.searchParams.delete("scope");
+    const valid = await getValid(url);
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: valid.header,
+        body: valid.body,
+      },
+      { store: valid.store },
+    );
+
+    expect(response.status).toBe(200);
+    const body: object = await response.json();
+    expect(body).toEqual({
+      access_token: "mock_access_token",
+      expires_in: 3600,
+      token_type: "Bearer",
+    });
+  });
+
   test("s256 success", async () => {
     const valid = await validS256();
     const response = await fetch(

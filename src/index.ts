@@ -211,15 +211,19 @@ async function fetchGoogleToken(
     ? generateGoogleIdToken(clientId, authSession.sub)
     : undefined;
 
-  const responseBody = {
+  const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
     access_token: "mock_access_token",
-    scope: authSession.scope,
+    scope: authSession.scope ?? undefined,
     token_type: "Bearer",
     expires_in: 3600,
   };
 
-  return new Response(JSON.stringify(responseBody), {
+  const cleanResponseBody = Object.fromEntries(
+    Object.entries(responseBody).filter(([_, value]) => value !== undefined),
+  );
+
+  return new Response(JSON.stringify(cleanResponseBody), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
