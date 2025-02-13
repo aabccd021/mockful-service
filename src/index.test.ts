@@ -363,5 +363,8 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
     );
 
     expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      `Invalid grant_type: "refresh_token". Expected "authorization_code".`,
+    );
   });
 });

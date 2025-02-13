@@ -115,8 +115,8 @@ async function fetchGoogleToken(
   const grantType = formData.get("grant_type");
   if (grantType !== "authorization_code") {
     return errorMessage(
-      `Invalid grant_type: "${grantType}"`,
-      `Expected "authorization_code"`,
+      `Invalid grant_type: "${grantType}".`,
+      `Expected "authorization_code".`,
     );
   }
 
@@ -214,14 +214,6 @@ async function fetchGoogleToken(
   }
 
   const scopes = authSession.scope?.split(" ") ?? [];
-
-  const scopesOtherThanOpenId = scopes.filter((scope) => scope !== "openid");
-  if (scopesOtherThanOpenId.length > 0) {
-    console.warn(
-      `Currently oauth2-mock does not support scopes other than "openid"`,
-      "Some resources may not be accessible",
-    );
-  }
 
   const idToken = scopes.includes("openid")
     ? generateGoogleIdToken(clientId, authSession.sub)
