@@ -57,16 +57,6 @@ describe("googleLogin", () => {
       );
     });
 
-    test("state length is not 43", async () => {
-      const url = validUrl();
-      url.searchParams.set("state", "123");
-      const response = await googleLogin(new Request(url));
-      expect(response.status).toBe(400);
-      expect(response.text()).resolves.toBe(
-        "Invalid state length: 3. Expected 43.",
-      );
-    });
-
     test("state is not URL-safe", async () => {
       const url = validUrl();
       url.searchParams.set(
@@ -77,6 +67,16 @@ describe("googleLogin", () => {
       expect(response.status).toBe(400);
       expect(response.text()).resolves.toBe(
         `Invalid state character: "[". Expected URL-safe character.`,
+      );
+    });
+
+    test("code_challenge length is not 43", async () => {
+      const url = validUrl();
+      url.searchParams.set("code_challenge", "123");
+      const response = await googleLogin(new Request(url));
+      expect(response.status).toBe(400);
+      expect(response.text()).resolves.toBe(
+        "Invalid code_challenge length: 3. Expected 43.",
       );
     });
 
@@ -171,10 +171,7 @@ describe("googleLogin", () => {
         "redirect_uri",
         "https://example.com/login/callback",
       );
-      url.searchParams.set(
-        "state",
-        "0123456789abcdef0123456789abcdef0123456789a",
-      );
+      url.searchParams.set("state", "1234");
       url.searchParams.set("code_challenge_method", "S256");
       url.searchParams.set(
         "code_challenge",
@@ -211,9 +208,7 @@ describe("googleLogin", () => {
       );
       expect(newUrl.pathname).toBe("/login/callback");
       expect(newUrl.searchParams.get("code")).toBe(valid.code);
-      expect(newUrl.searchParams.get("state")).toBe(
-        "0123456789abcdef0123456789abcdef0123456789a",
-      );
+      expect(newUrl.searchParams.get("state")).toBe("1234");
     });
 
     test("no code", async () => {
