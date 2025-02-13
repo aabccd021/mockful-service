@@ -47,18 +47,8 @@ export function initStore(): Store {
   };
 }
 
-function errorMessage(...message: unknown[]): Response {
-  const text = message.map((m) =>
-    typeof m === "string" ||
-    typeof m === "number" ||
-    typeof m === "bigint" ||
-    typeof m === "boolean" ||
-    m === null ||
-    m === undefined
-      ? `${m}`
-      : JSON.stringify(m),
-  );
-  return new Response(text.join(" "), {
+function errorMessage(...message: string[]): Response {
+  return new Response(message.join(" "), {
     status: 400,
     headers: { "Content-Type": "text/plain" },
   });
@@ -125,7 +115,7 @@ async function fetchGoogleToken(
   }
 
   if (typeof code !== "string") {
-    return errorMessage("Invalid code", code, "Expected string");
+    return errorMessage("Invalid code. Expected string.");
   }
 
   const store = option?.store ?? defaulStore;
@@ -143,11 +133,7 @@ async function fetchGoogleToken(
     }
 
     if (typeof codeVerifier !== "string") {
-      return errorMessage(
-        "Invalid code_verifier",
-        codeVerifier,
-        "Expected string",
-      );
+      return errorMessage("Invalid code_verifier. Expected string.");
     }
 
     const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
@@ -176,7 +162,7 @@ async function fetchGoogleToken(
   }
 
   if (typeof redirectUri !== "string") {
-    return errorMessage("Invalid redirect_uri", redirectUri, "Expected string");
+    return errorMessage("Invalid redirect_uri. Expected string.");
   }
 
   if (redirectUri !== authSession.redirectUri) {
@@ -391,7 +377,7 @@ async function handleLoginPost(
 
   const code = formData.get("code");
   if (typeof code !== "string") {
-    return errorMessage("Invalid code", code);
+    return errorMessage("Invalid code. Expected string.");
   }
 
   const store = option?.store ?? defaulStore;
@@ -406,10 +392,7 @@ async function handleLoginPost(
 
   const googleAuthIdTokenSub = formData.get("google_auth_id_token_sub");
   if (typeof googleAuthIdTokenSub !== "string") {
-    return errorMessage(
-      "Invalid google_auth_id_token_sub",
-      googleAuthIdTokenSub,
-    );
+    return errorMessage("Invalid google_auth_id_token_sub. Expected string.");
   }
 
   store.authSessions.set(code, {
