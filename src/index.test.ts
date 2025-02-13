@@ -260,6 +260,7 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
   );
   validUrl.searchParams.set("code_challenge_method", "S256");
   validUrl.searchParams.set("code_challenge", codeChallenge);
+  validUrl.searchParams.set("scope", "openid");
 
   const defaultStore = initStore();
   const getResponse = await googleLogin(new Request(validUrl), {
@@ -290,7 +291,7 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
   });
 
   test("success", async () => {
-    await mockFetch(
+    const response = await mockFetch(
       "https://oauth2.googleapis.com/token",
       {
         method: "POST",
@@ -299,5 +300,54 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
       },
       { store: cloneStore(defaultStore) },
     );
+
+    expect(response.status).toBe(200);
+    const body: unknown = await response.json();
+
+    if (body === null) {
+      throw new Error("Response body is null");
+    }
+
+    if (typeof body !== "object") {
+      throw new Error("Response body is not an object");
+    }
+
+    if (!("id_token" in body)) {
+      throw new Error("id_token is not in the response body");
+    }
+
+    if (typeof body.id_token !== "string") {
+      throw new Error("id_token is not a string");
+    }
+
+    const idTokenPayload = body.id_token.split(".")[1];
+    if (idTokenPayload === undefined) {
+      throw new Error(`Id token payload is undefined: ${body.id_token}`);
+    }
+
+    const idTokenPayloadBytes = Uint8Array.fromBase64(idTokenPayload, {
+      alphabet: "base64url",
+    });
+    const idToken: unknown = JSON.parse(
+      new TextDecoder().decode(idTokenPayloadBytes),
+    );
+
+    if (idToken === null) {
+      throw new Error("idToken is null");
+    }
+
+    if (typeof idToken !== "object") {
+      throw new Error("idToken is not an object");
+    }
+
+    if (!("sub" in idToken)) {
+      throw new Error("sub is not in the idToken");
+    }
+
+    if (typeof idToken.sub !== "string") {
+      throw new Error("sub is not a string");
+    }
+
+    expect(idToken.sub).toBe("kita");
   });
 });
