@@ -23,9 +23,7 @@ describe("googleLogin", () => {
     const postResponse = await googleLogin(
       new Request(validUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
           code,
           google_auth_id_token_sub: "kita",
