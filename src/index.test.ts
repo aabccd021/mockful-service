@@ -258,7 +258,6 @@ describe("googleLogin", () => {
       const postResponse = await googleLogin(
         new Request(valid.url, {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: valid.body,
         }),
         { store: valid.store },
@@ -280,7 +279,6 @@ describe("googleLogin", () => {
       const postResponse = await googleLogin(
         new Request(valid.url, {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: valid.body,
         }),
         { store: valid.store },
@@ -295,7 +293,6 @@ describe("googleLogin", () => {
       const postResponse = await googleLogin(
         new Request(valid.url, {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: valid.body,
         }),
         { store: valid.store },
@@ -310,7 +307,6 @@ describe("googleLogin", () => {
       const postResponse = await googleLogin(
         new Request(valid.url, {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: valid.body,
         }),
         { store: valid.store },
@@ -350,7 +346,6 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     );
 
     const header = new Headers({
-      "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${authHeader}`,
     });
 
