@@ -240,7 +240,7 @@ function getCodeChallenge(
 
   if (method === "plain") {
     return errorMessage(
-      `Currently oauth2-mock does not support code_challenge_method "plain."`,
+      'Currently oauth2-mock does not support code_challenge_method "plain."',
     );
   }
 
