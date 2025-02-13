@@ -44,7 +44,7 @@ describe("googleLogin", () => {
     );
   });
 
-  test("state is not base64url", async () => {
+  test("state is not URL-safe", async () => {
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.searchParams.append("response_type", "code");
     url.searchParams.append("client_id", "123");
@@ -58,5 +58,18 @@ describe("googleLogin", () => {
     expect(response.text()).resolves.toBe(
       `Invalid state character: "[". Expected URL-safe character.`,
     );
+  });
+
+  test("state is URL-safe", async () => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("client_id", "123");
+    url.searchParams.append("redirect_uri", "https://example.com");
+    url.searchParams.append(
+      "state",
+      "0123456789abcdef0123456789abcdef0123456789a",
+    );
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(200);
   });
 });
