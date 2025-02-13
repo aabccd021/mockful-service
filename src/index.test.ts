@@ -258,11 +258,7 @@ describe("googleLogin", () => {
 });
 
 describe("fetch https://oauth2.googleapis.com/token", () => {
-  async function getValid(): Promise<{
-    store: Store;
-    header: Headers;
-    body: URLSearchParams;
-  }> {
+  function getUrl(): { url: URL; codeVerifier: string } {
     const codeVerifier = crypto
       .getRandomValues(new Uint8Array(32))
       .toBase64({ alphabet: "base64url", omitPadding: true });
@@ -281,6 +277,20 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     url.searchParams.set("code_challenge", codeChallenge);
     url.searchParams.set("scope", "openid");
 
+    return { url, codeVerifier };
+  }
+
+  async function getValid({
+    url,
+    codeVerifier,
+  }: {
+    url: URL;
+    codeVerifier: string;
+  }): Promise<{
+    store: Store;
+    header: Headers;
+    body: URLSearchParams;
+  }> {
     const store = initStore();
     const getResponse = await googleLogin(new Request(url), { store });
     const code = getResponse.headers.get("auth-mock-code") ?? "";
@@ -311,7 +321,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
   }
 
   test("success", async () => {
-    const valid = await getValid();
+    const valid = await getValid(getUrl());
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
       {
@@ -373,7 +383,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
   });
 
   test("empty grant_type", async () => {
-    const valid = await getValid();
+    const valid = await getValid(getUrl());
     valid.body.delete("grant_type");
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
@@ -389,7 +399,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
   });
 
   test("invalid grant_type", async () => {
-    const valid = await getValid();
+    const valid = await getValid(getUrl());
     valid.body.set("grant_type", "refresh_token");
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
@@ -407,7 +417,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
   });
 
   test("empty code", async () => {
-    const valid = await getValid();
+    const valid = await getValid(getUrl());
     valid.body.delete("code");
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
@@ -423,7 +433,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
   });
 
   test("invalid code", async () => {
-    const valid = await getValid();
+    const valid = await getValid(getUrl());
     valid.body.set("code", "123");
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
