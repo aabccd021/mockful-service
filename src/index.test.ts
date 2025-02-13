@@ -1,28 +1,28 @@
 import { describe, expect, test } from "bun:test";
-import { cloneStore, fetch, googleLogin, initStore } from "./index.ts";
+import { type Store, fetch, googleLogin, initStore } from "./index.ts";
 
 describe("googleLogin", () => {
-  describe("get", () => {
-    const validUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    validUrl.searchParams.set("response_type", "code");
-    validUrl.searchParams.set("client_id", "123");
-    validUrl.searchParams.set(
-      "redirect_uri",
-      "https://example.com/login/callback",
-    );
-    validUrl.searchParams.set("code_challenge_method", "S256");
-    validUrl.searchParams.set(
+  function validUrl(): URL {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.set("response_type", "code");
+    url.searchParams.set("client_id", "123");
+    url.searchParams.set("redirect_uri", "https://example.com/login/callback");
+    url.searchParams.set("code_challenge_method", "S256");
+    url.searchParams.set(
       "code_challenge",
       "0123456789abcdef0123456789abcdef0123456789a",
     );
+    return url;
+  }
 
+  describe("get", () => {
     test("success", async () => {
-      const getResponse = await googleLogin(new Request(validUrl));
+      const getResponse = await googleLogin(new Request(validUrl()));
       expect(getResponse.status).toBe(200);
     });
 
     test("success without code_challenge", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.delete("code_challenge_method");
       url.searchParams.delete("code_challenge");
       const response = await googleLogin(new Request(url));
@@ -30,7 +30,7 @@ describe("googleLogin", () => {
     });
 
     test("response_type is code", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.set("response_type", "token");
       const response = await googleLogin(new Request(url));
       expect(response.status).toBe(400);
@@ -40,7 +40,7 @@ describe("googleLogin", () => {
     });
 
     test("client_id is required", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.delete("client_id");
       const response = await googleLogin(new Request(url));
       expect(response.status).toBe(400);
@@ -48,7 +48,7 @@ describe("googleLogin", () => {
     });
 
     test("redirect_uri is required", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.delete("redirect_uri");
       const response = await googleLogin(new Request(url));
       expect(response.status).toBe(400);
@@ -58,7 +58,7 @@ describe("googleLogin", () => {
     });
 
     test("state length is not 43", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.set("state", "123");
       const response = await googleLogin(new Request(url));
       expect(response.status).toBe(400);
@@ -68,7 +68,7 @@ describe("googleLogin", () => {
     });
 
     test("state is not URL-safe", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.set(
         "state",
         "[123456789abcdef0123456789abcdef0123456789a",
@@ -81,7 +81,7 @@ describe("googleLogin", () => {
     });
 
     test("code_challenge_method is null but code_challenge is provided", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.delete("code_challenge_method");
       const response = await googleLogin(new Request(url));
       expect(response.status).toBe(400);
@@ -91,7 +91,7 @@ describe("googleLogin", () => {
     });
 
     test("code_challenge_method is provided but code_challenge is null", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.delete("code_challenge");
       const response = await googleLogin(new Request(url));
       expect(response.status).toBe(400);
@@ -101,7 +101,7 @@ describe("googleLogin", () => {
     });
 
     test("plain code_challenge_method is not supported", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.set("code_challenge_method", "plain");
       const response = await googleLogin(new Request(url));
       expect(response.status).toBe(400);
@@ -111,7 +111,7 @@ describe("googleLogin", () => {
     });
 
     test("s256 code_challenge length is not 43", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.set("code_challenge", "123");
       const response = await googleLogin(new Request(url));
       expect(response.status).toBe(400);
@@ -121,7 +121,7 @@ describe("googleLogin", () => {
     });
 
     test("s256 code_challenge is not URL-safe", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.set(
         "code_challenge",
         "[123456789abcdef0123456789abcdef0123456789a",
@@ -134,7 +134,7 @@ describe("googleLogin", () => {
     });
 
     test("s256 code_challenge is URL-safe but not base64url", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.set(
         "code_challenge",
         "~123456789abcdef0123456789abcdef0123456789a",
@@ -147,7 +147,7 @@ describe("googleLogin", () => {
     });
 
     test("unknown code_challenge_method is provided", async () => {
-      const url = new URL(validUrl);
+      const url = validUrl();
       url.searchParams.set("code_challenge_method", "S512");
       const response = await googleLogin(new Request(url));
       expect(response.status).toBe(400);
@@ -157,149 +157,167 @@ describe("googleLogin", () => {
     });
   });
 
-  describe("post", async () => {
-    const validUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    validUrl.searchParams.set("response_type", "code");
-    validUrl.searchParams.set("client_id", "123");
-    validUrl.searchParams.set(
-      "redirect_uri",
-      "https://example.com/login/callback",
-    );
-    validUrl.searchParams.set("code_challenge_method", "S256");
-    validUrl.searchParams.set(
-      "code_challenge",
-      "0123456789abcdef0123456789abcdef0123456789a",
-    );
+  describe("post", () => {
+    async function getValid(): Promise<{
+      url: URL;
+      code: string;
+      store: Store;
+      body: URLSearchParams;
+    }> {
+      const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+      url.searchParams.set("response_type", "code");
+      url.searchParams.set("client_id", "123");
+      url.searchParams.set(
+        "redirect_uri",
+        "https://example.com/login/callback",
+      );
+      url.searchParams.set("code_challenge_method", "S256");
+      url.searchParams.set(
+        "code_challenge",
+        "0123456789abcdef0123456789abcdef0123456789a",
+      );
 
-    const defaultStore = initStore();
-    const getResponse = await googleLogin(new Request(validUrl), {
-      store: defaultStore,
-    });
-    const validCode = getResponse.headers.get("auth-mock-code") ?? "";
+      const store = initStore();
+      const getResponse = await googleLogin(new Request(url), { store });
+      const code = getResponse.headers.get("auth-mock-code") ?? "";
+
+      const body = new URLSearchParams({
+        code,
+        google_auth_id_token_sub: "kita",
+      });
+
+      return { url, code, store, body };
+    }
 
     test("success", async () => {
+      const valid = await getValid();
       const postResponse = await googleLogin(
-        new Request(validUrl, {
+        new Request(valid.url, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            code: validCode,
-            google_auth_id_token_sub: "kita",
-          }),
+          body: valid.body,
         }),
-        { store: cloneStore(defaultStore) },
+        { store: valid.store },
       );
+      expect(postResponse.text()).resolves.toBe("");
       expect(postResponse.status).toBe(303);
       const newUrl = new URL(
         postResponse.headers.get("Location") ?? "",
         "https://example.com",
       );
       expect(newUrl.pathname).toBe("/login/callback");
-      expect(newUrl.searchParams.get("code")).toBe(validCode);
+      expect(newUrl.searchParams.get("code")).toBe(valid.code);
     });
 
     test("no code", async () => {
+      const valid = await getValid();
+      valid.body.delete("code");
       const postResponse = await googleLogin(
-        new Request(validUrl, {
+        new Request(valid.url, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ google_auth_id_token_sub: "kita" }),
+          body: valid.body,
         }),
-        { store: cloneStore(defaultStore) },
+        { store: valid.store },
       );
       expect(postResponse.status).toBe(400);
     });
 
     test("invalid code", async () => {
+      const valid = await getValid();
       const invalidCode = "123";
+      valid.body.set("code", invalidCode);
       const postResponse = await googleLogin(
-        new Request(validUrl, {
+        new Request(valid.url, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            code: invalidCode,
-            google_auth_id_token_sub: "kita",
-          }),
+          body: valid.body,
         }),
-        { store: cloneStore(defaultStore) },
+        { store: valid.store },
       );
-      expect(invalidCode).not.toBe(validCode);
+      expect(invalidCode).not.toBe(valid.code);
       expect(postResponse.status).toBe(400);
     });
 
     test("no google_auth_id_token_sub", async () => {
+      const valid = await getValid();
+      valid.body.delete("google_auth_id_token_sub");
       const postResponse = await googleLogin(
-        new Request(validUrl, {
+        new Request(valid.url, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ code: validCode }),
+          body: valid.body,
         }),
-        { store: cloneStore(defaultStore) },
+        { store: valid.store },
       );
       expect(postResponse.status).toBe(400);
     });
   });
 });
 
-describe("fetch https://oauth2.googleapis.com/token", async () => {
-  const codeVerifier = crypto
-    .getRandomValues(new Uint8Array(32))
-    .toBase64({ alphabet: "base64url", omitPadding: true });
+describe("fetch https://oauth2.googleapis.com/token", () => {
+  async function getValid(): Promise<{
+    store: Store;
+    header: Headers;
+    body: URLSearchParams;
+  }> {
+    const codeVerifier = crypto
+      .getRandomValues(new Uint8Array(32))
+      .toBase64({ alphabet: "base64url", omitPadding: true });
 
-  const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
-  const codeChallenge = new Bun.CryptoHasher("sha256")
-    .update(codeChallengeBytes)
-    .digest()
-    .toBase64({ alphabet: "base64url", omitPadding: true });
+    const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
+    const codeChallenge = new Bun.CryptoHasher("sha256")
+      .update(codeChallengeBytes)
+      .digest()
+      .toBase64({ alphabet: "base64url", omitPadding: true });
 
-  const validUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-  validUrl.searchParams.set("response_type", "code");
-  validUrl.searchParams.set("client_id", "mock_client_id");
-  validUrl.searchParams.set(
-    "redirect_uri",
-    "https://example.com/login/callback",
-  );
-  validUrl.searchParams.set("code_challenge_method", "S256");
-  validUrl.searchParams.set("code_challenge", codeChallenge);
-  validUrl.searchParams.set("scope", "openid");
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.set("response_type", "code");
+    url.searchParams.set("client_id", "mock_client_id");
+    url.searchParams.set("redirect_uri", "https://example.com/login/callback");
+    url.searchParams.set("code_challenge_method", "S256");
+    url.searchParams.set("code_challenge", codeChallenge);
+    url.searchParams.set("scope", "openid");
 
-  const defaultStore = initStore();
-  const getResponse = await googleLogin(new Request(validUrl), {
-    store: defaultStore,
-  });
-  const code = getResponse.headers.get("auth-mock-code") ?? "";
-  await googleLogin(
-    new Request(validUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ code, google_auth_id_token_sub: "kita" }),
-    }),
-    { store: defaultStore },
-  );
+    const store = initStore();
+    const getResponse = await googleLogin(new Request(url), { store });
+    const code = getResponse.headers.get("auth-mock-code") ?? "";
+    await googleLogin(
+      new Request(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ code, google_auth_id_token_sub: "kita" }),
+      }),
+      { store },
+    );
 
-  const authHeader = btoa("mock_client_id:mock_client_secret");
+    const authHeader = btoa("mock_client_id:mock_client_secret");
 
-  const validHeader = new Headers({
-    "Content-Type": "application/x-www-form-urlencoded",
-    Authorization: `Basic ${authHeader}`,
-  });
+    const header = new Headers({
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${authHeader}`,
+    });
 
-  const validBody = new URLSearchParams({
-    grant_type: "authorization_code",
-    code,
-    redirect_uri: "https://example.com/login/callback",
-    code_verifier: codeVerifier,
-  });
+    const body = new URLSearchParams({
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: "https://example.com/login/callback",
+      code_verifier: codeVerifier,
+    });
+
+    return { store, header, body };
+  }
 
   test("success", async () => {
+    const valid = await getValid();
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
       {
         method: "POST",
-        headers: validHeader,
-        body: new URLSearchParams(validBody),
+        headers: valid.header,
+        body: valid.body,
       },
-      { store: cloneStore(defaultStore) },
+      { store: valid.store },
     );
 
     expect(response.status).toBe(200);
@@ -353,37 +371,32 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
   });
 
   test("empty grant_type", async () => {
+    const valid = await getValid();
+    valid.body.delete("grant_type");
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
       {
         method: "POST",
-        headers: validHeader,
-        body: new URLSearchParams({
-          code,
-          redirect_uri: "https://example.com/login/callback",
-          code_verifier: codeVerifier,
-        }),
+        headers: valid.header,
+        body: valid.body,
       },
-      { store: cloneStore(defaultStore) },
+      { store: valid.store },
     );
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe("Parameter grant_type is required.");
   });
 
   test("invalid grant_type", async () => {
+    const valid = await getValid();
+    valid.body.set("grant_type", "refresh_token");
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
       {
         method: "POST",
-        headers: validHeader,
-        body: new URLSearchParams({
-          grant_type: "refresh_token",
-          code,
-          redirect_uri: "https://example.com/login/callback",
-          code_verifier: codeVerifier,
-        }),
+        headers: valid.header,
+        body: valid.body,
       },
-      { store: cloneStore(defaultStore) },
+      { store: valid.store },
     );
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
@@ -392,37 +405,32 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
   });
 
   test("empty code", async () => {
+    const valid = await getValid();
+    valid.body.delete("code");
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
       {
         method: "POST",
-        headers: validHeader,
-        body: new URLSearchParams({
-          grant_type: "authorization_code",
-          redirect_uri: "https://example.com/login/callback",
-          code_verifier: codeVerifier,
-        }),
+        headers: valid.header,
+        body: valid.body,
       },
-      { store: cloneStore(defaultStore) },
+      { store: valid.store },
     );
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe("Parameter code is required.");
   });
 
   test("invalid code", async () => {
+    const valid = await getValid();
+    valid.body.set("code", "123");
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
       {
         method: "POST",
-        headers: validHeader,
-        body: new URLSearchParams({
-          grant_type: "authorization_code",
-          code: "123",
-          redirect_uri: "https://example.com/login/callback",
-          code_verifier: codeVerifier,
-        }),
+        headers: valid.header,
+        body: valid.body,
       },
-      { store: cloneStore(defaultStore) },
+      { store: valid.store },
     );
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(

@@ -35,7 +35,7 @@ type AuthSession = {
   readonly scope: string | null;
 };
 
-type Store = {
+export type Store = {
   readonly authSessions: Map<string, AuthSession>;
   readonly loginSessions: Map<string, LoginSession>;
 };
@@ -44,13 +44,6 @@ export function initStore(): Store {
   return {
     authSessions: new Map<string, AuthSession>(),
     loginSessions: new Map<string, LoginSession>(),
-  };
-}
-
-export function cloneStore(store: Store): Store {
-  return {
-    authSessions: new Map(store.authSessions),
-    loginSessions: new Map(store.loginSessions),
   };
 }
 
@@ -409,7 +402,7 @@ async function handleLoginPost(
 
   const loginSession = store.loginSessions.get(code);
   if (loginSession === undefined) {
-    return errorMessage(`Login session not found for code: "${code}"`);
+    return errorMessage(code, `Login session not found for code: "${code}"`);
   }
   store.loginSessions.delete(code);
 
