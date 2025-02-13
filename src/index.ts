@@ -137,6 +137,11 @@ async function fetchGoogleToken(
 
   if (authSession.codeChallenge?.method === "S256") {
     const codeVerifier = formData.get("code_verifier");
+
+    if (codeVerifier === null) {
+      return errorMessage("Parameter code_verifier is required.");
+    }
+
     if (typeof codeVerifier !== "string") {
       return errorMessage(
         "Invalid code_verifier",

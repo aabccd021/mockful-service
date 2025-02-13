@@ -308,23 +308,6 @@ describe("googleLogin", () => {
 });
 
 describe("fetch https://oauth2.googleapis.com/token", () => {
-  function s256CodeChallenge(): {
-    codeVerifier: string;
-    codeChallenge: string;
-  } {
-    const codeVerifier = crypto
-      .getRandomValues(new Uint8Array(32))
-      .toBase64({ alphabet: "base64url", omitPadding: true });
-
-    const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
-    const codeChallenge = new Bun.CryptoHasher("sha256")
-      .update(codeChallengeBytes)
-      .digest()
-      .toBase64({ alphabet: "base64url", omitPadding: true });
-
-    return { codeVerifier, codeChallenge };
-  }
-
   function getUrl(): URL {
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.searchParams.set("response_type", "code");
@@ -368,6 +351,27 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     return { store, header, body };
   }
 
+  async function validS256(): Promise<{
+    store: Store;
+    header: Headers;
+    body: URLSearchParams;
+  }> {
+    const url = getUrl();
+    const codeVerifier = crypto
+      .getRandomValues(new Uint8Array(32))
+      .toBase64({ alphabet: "base64url", omitPadding: true });
+    const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
+    const codeChallenge = new Bun.CryptoHasher("sha256")
+      .update(codeChallengeBytes)
+      .digest()
+      .toBase64({ alphabet: "base64url", omitPadding: true });
+    url.searchParams.set("code_challenge_method", "S256");
+    url.searchParams.set("code_challenge", codeChallenge);
+    const valid = await getValid(url);
+    valid.body.set("code_verifier", codeVerifier);
+    return valid;
+  }
+
   test("success", async () => {
     const url = getUrl();
     const valid = await getValid(url);
@@ -386,12 +390,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
   });
 
   test("s256 success", async () => {
-    const url = getUrl();
-    const { codeVerifier, codeChallenge } = s256CodeChallenge();
-    url.searchParams.set("code_challenge_method", "S256");
-    url.searchParams.set("code_challenge", codeChallenge);
-    const valid = await getValid(url);
-    valid.body.set("code_verifier", codeVerifier);
+    const valid = await validS256();
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
       {
