@@ -24,10 +24,7 @@ describe("googleLogin", () => {
       new Request(validUrl, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          code,
-          google_auth_id_token_sub: "kita",
-        }),
+        body: new URLSearchParams({ code, google_auth_id_token_sub: "kita" }),
       }),
       { store },
     );
