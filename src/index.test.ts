@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { googleLogin } from "./index.ts";
+import { googleLogin, init } from "./index.ts";
 
 describe("googleLogin", () => {
   const validUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
@@ -13,7 +13,8 @@ describe("googleLogin", () => {
   );
 
   test("success", async () => {
-    const response = await googleLogin(new Request(validUrl));
+    const store = init();
+    const response = await googleLogin(new Request(validUrl), { store });
     expect(response.status).toBe(200);
   });
 

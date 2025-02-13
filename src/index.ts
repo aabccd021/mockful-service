@@ -35,19 +35,19 @@ type AuthSession = {
   readonly scope: string | null;
 };
 
-type MockAuth = {
+type Store = {
   readonly authSessions: Map<string, AuthSession>;
   readonly loginSessions: Map<string, LoginSession>;
 };
 
-const initMockAuth = (): MockAuth => {
+export function init(): Store {
   return {
     authSessions: new Map<string, AuthSession>(),
     loginSessions: new Map<string, LoginSession>(),
   };
-};
+}
 
-const defaultMockAuth = initMockAuth();
+const defaultMockAuth = init();
 
 const base64urlChars =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
@@ -82,7 +82,7 @@ function generateGoogleIdToken(clientId: string, sub: string): string {
 
 async function fetchGoogleToken(
   req: Request,
-  option?: { mockAuth?: MockAuth },
+  option?: { store?: Store },
 ): Promise<Response> {
   const formData = await req.formData();
 
@@ -101,13 +101,13 @@ async function fetchGoogleToken(
     return new Response(null, { status: 400 });
   }
 
-  const mockAuth = option?.mockAuth ?? defaultMockAuth;
-  const authSession = mockAuth.authSessions.get(code);
+  const store = option?.store ?? defaultMockAuth;
+  const authSession = store.authSessions.get(code);
   if (authSession === undefined) {
     console.error(`Auth session not found for code: "${code}"`);
     return new Response(null, { status: 400 });
   }
-  mockAuth.authSessions.delete(code);
+  store.authSessions.delete(code);
 
   if (authSession.codeChallenge?.method === "S256") {
     const codeVerifier = formData.get("code_verifier");
@@ -283,10 +283,7 @@ function getCodeChallenge(
   );
 }
 
-function handleLoginGet(
-  req: Request,
-  option?: { mockAuth?: MockAuth },
-): Response {
+function handleLoginGet(req: Request, option?: { store?: Store }): Response {
   const searchParams = new URL(req.url).searchParams;
 
   const responseType = searchParams.get("response_type");
@@ -335,8 +332,8 @@ function handleLoginGet(
 
   const code = crypto.randomUUID();
 
-  const mockAuth = option?.mockAuth ?? defaultMockAuth;
-  mockAuth.loginSessions.set(code, {
+  const store = option?.store ?? defaultMockAuth;
+  store.loginSessions.set(code, {
     clientId,
     redirectUri,
     state,
@@ -380,7 +377,7 @@ function handleLoginGet(
 
 async function handleLoginPost(
   req: Request,
-  option?: { mockAuth?: MockAuth },
+  option?: { store?: Store },
 ): Promise<Response> {
   const formData = await req.formData();
 
@@ -389,13 +386,13 @@ async function handleLoginPost(
     return new Response(null, { status: 400 });
   }
 
-  const mockAuth = option?.mockAuth ?? defaultMockAuth;
+  const store = option?.store ?? defaultMockAuth;
 
-  const loginSession = mockAuth.loginSessions.get(code);
+  const loginSession = store.loginSessions.get(code);
   if (loginSession === undefined) {
     return new Response(null, { status: 400 });
   }
-  mockAuth.loginSessions.delete(code);
+  store.loginSessions.delete(code);
 
   const { clientId, redirectUri, codeChallenge, scope } = loginSession;
 
@@ -404,7 +401,7 @@ async function handleLoginPost(
     return new Response(null, { status: 400 });
   }
 
-  mockAuth.authSessions.set(code, {
+  store.authSessions.set(code, {
     sub: googleAuthIdTokenSub,
     codeChallenge: codeChallenge,
     clientId: clientId,
@@ -430,13 +427,16 @@ async function handleLoginPost(
   });
 }
 
-export async function googleLogin(req: Request): Promise<Response> {
+export async function googleLogin(
+  req: Request,
+  option?: { store?: Store },
+): Promise<Response> {
   if (req.method === "GET") {
-    return handleLoginGet(req);
+    return handleLoginGet(req, option);
   }
 
   if (req.method === "POST") {
-    return await handleLoginPost(req);
+    return await handleLoginPost(req, option);
   }
 
   return new Response(null, { status: 400 });
