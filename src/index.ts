@@ -186,7 +186,7 @@ async function fetchGoogleToken(
   }
 
   if (credentials === undefined) {
-    return errorMessage("Credentials not found in Authorization header");
+    return errorMessage("Credentials not found in Authorization header.");
   }
 
   const [clientId, clientSecret] = atob(credentials).split(":");
