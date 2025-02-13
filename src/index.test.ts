@@ -211,6 +211,9 @@ describe("googleLogin", () => {
       );
       expect(newUrl.pathname).toBe("/login/callback");
       expect(newUrl.searchParams.get("code")).toBe(valid.code);
+      expect(newUrl.searchParams.get("state")).toBe(
+        "0123456789abcdef0123456789abcdef0123456789a",
+      );
     });
 
     test("no code", async () => {
