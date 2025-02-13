@@ -2,9 +2,32 @@ import { describe, expect, test } from "bun:test";
 import { googleLogin } from "./index.ts";
 
 describe("googleLogin", () => {
+  const baseUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  baseUrl.searchParams.append("response_type", "code");
+  baseUrl.searchParams.append("client_id", "123");
+  baseUrl.searchParams.append("redirect_uri", "https://example.com");
+  baseUrl.searchParams.append("code_challenge_method", "S256");
+  baseUrl.searchParams.append(
+    "code_challenge",
+    "0123456789abcdef0123456789abcdef0123456789a",
+  );
+
+  test("success", async () => {
+    const response = await googleLogin(new Request(baseUrl));
+    expect(response.status).toBe(200);
+  });
+
+  test("success without code_challenge", async () => {
+    const url = new URL(baseUrl);
+    url.searchParams.delete("code_challenge_method");
+    url.searchParams.delete("code_challenge");
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(200);
+  });
+
   test("response_type is code", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "token");
+    const url = new URL(baseUrl);
+    url.searchParams.set("response_type", "token");
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
@@ -13,17 +36,16 @@ describe("googleLogin", () => {
   });
 
   test("client_id is required", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
+    const url = new URL(baseUrl);
+    url.searchParams.delete("client_id");
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe("Parameter client_id is required.");
   });
 
   test("redirect_uri is required", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
+    const url = new URL(baseUrl);
+    url.searchParams.delete("redirect_uri");
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
@@ -32,11 +54,8 @@ describe("googleLogin", () => {
   });
 
   test("state length is not 43", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append("state", "123");
+    const url = new URL(baseUrl);
+    url.searchParams.set("state", "123");
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
@@ -45,11 +64,8 @@ describe("googleLogin", () => {
   });
 
   test("state is not URL-safe", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append(
+    const url = new URL(baseUrl);
+    url.searchParams.set(
       "state",
       "[123456789abcdef0123456789abcdef0123456789a",
     );
@@ -61,11 +77,8 @@ describe("googleLogin", () => {
   });
 
   test("code_challenge_method is null but code_challenge is provided", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append("code_challenge", "123");
+    const url = new URL(baseUrl);
+    url.searchParams.delete("code_challenge_method");
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
@@ -74,11 +87,8 @@ describe("googleLogin", () => {
   });
 
   test("code_challenge_method is provided but code_challenge is null", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append("code_challenge_method", "S256");
+    const url = new URL(baseUrl);
+    url.searchParams.delete("code_challenge");
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
@@ -87,12 +97,8 @@ describe("googleLogin", () => {
   });
 
   test("plain code_challenge_method is not supported", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append("code_challenge_method", "plain");
-    url.searchParams.append("code_challenge", "123");
+    const url = new URL(baseUrl);
+    url.searchParams.set("code_challenge_method", "plain");
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
@@ -101,12 +107,8 @@ describe("googleLogin", () => {
   });
 
   test("s256 code_challenge length is not 43", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append("code_challenge_method", "S256");
-    url.searchParams.append("code_challenge", "123");
+    const url = new URL(baseUrl);
+    url.searchParams.set("code_challenge", "123");
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
@@ -115,12 +117,8 @@ describe("googleLogin", () => {
   });
 
   test("s256 code_challenge is not URL-safe", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append("code_challenge_method", "S256");
-    url.searchParams.append(
+    const url = new URL(baseUrl);
+    url.searchParams.set(
       "code_challenge",
       "[123456789abcdef0123456789abcdef0123456789a",
     );
@@ -132,12 +130,8 @@ describe("googleLogin", () => {
   });
 
   test("s256 code_challenge is URL-safe but not base64url", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append("code_challenge_method", "S256");
-    url.searchParams.append(
+    const url = new URL(baseUrl);
+    url.searchParams.set(
       "code_challenge",
       "~123456789abcdef0123456789abcdef0123456789a",
     );
@@ -149,39 +143,12 @@ describe("googleLogin", () => {
   });
 
   test("unknown code_challenge_method is provided", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append("code_challenge_method", "S512");
-    url.searchParams.append("code_challenge", "123");
+    const url = new URL(baseUrl);
+    url.searchParams.set("code_challenge_method", "S512");
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
       'Invalid code_challenge_method: "S512". Expected "S256" or "plain".',
     );
-  });
-
-  test("success", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append("code_challenge_method", "S256");
-    url.searchParams.append(
-      "code_challenge",
-      "0123456789abcdef0123456789abcdef0123456789a",
-    );
-    const response = await googleLogin(new Request(url));
-    expect(response.status).toBe(200);
-  });
-
-  test("success without code_challenge", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    const response = await googleLogin(new Request(url));
-    expect(response.status).toBe(200);
   });
 });
