@@ -60,16 +60,18 @@ describe("googleLogin", () => {
     );
   });
 
-  test("state is URL-safe", async () => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.append("response_type", "code");
-    url.searchParams.append("client_id", "123");
-    url.searchParams.append("redirect_uri", "https://example.com");
-    url.searchParams.append(
-      "state",
-      "0123456789abcdef0123456789abcdef0123456789a",
-    );
-    const response = await googleLogin(new Request(url));
-    expect(response.status).toBe(200);
+  describe("code_challenge", () => {
+    test("code_challenge_method is null but code_challenge is provided", async () => {
+      const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+      url.searchParams.append("response_type", "code");
+      url.searchParams.append("client_id", "123");
+      url.searchParams.append("redirect_uri", "https://example.com");
+      url.searchParams.append("code_challenge", "123");
+      const response = await googleLogin(new Request(url));
+      expect(response.status).toBe(400);
+      expect(response.text()).resolves.toBe(
+        "Parameter code_challenge_method is required when code_challenge is provided.",
+      );
+    });
   });
 });

@@ -228,19 +228,19 @@ function getCodeChallenge(
     }
 
     return errorMessage(
-      "code_challenge_method is required when code_challenge is provided",
+      "Parameter code_challenge_method is required when code_challenge is provided.",
     );
   }
 
   if (value === null) {
     return errorMessage(
-      "code_challenge is required when code_challenge_method is provided",
+      "Parameter code_challenge is required when code_challenge_method is provided.",
     );
   }
 
   if (method === "plain") {
     return errorMessage(
-      `Currently oauth2-mock does not support code_challenge_method "plain"`,
+      `Currently oauth2-mock does not support code_challenge_method "plain."`,
     );
   }
 
