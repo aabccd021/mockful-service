@@ -52,20 +52,23 @@ function getIdTokenSub(body: unknown): string {
 }
 
 describe("googleLogin", () => {
-  function validUrl(): URL {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-    url.searchParams.set("response_type", "code");
-    url.searchParams.set("client_id", "123");
-    url.searchParams.set("redirect_uri", "https://example.com/login/callback");
-    url.searchParams.set("code_challenge_method", "S256");
-    url.searchParams.set(
-      "code_challenge",
-      "0123456789abcdef0123456789abcdef0123456789a",
-    );
-    return url;
-  }
-
   describe("get", () => {
+    function validUrl(): URL {
+      const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+      url.searchParams.set("response_type", "code");
+      url.searchParams.set("client_id", "123");
+      url.searchParams.set(
+        "redirect_uri",
+        "https://example.com/login/callback",
+      );
+      url.searchParams.set("code_challenge_method", "S256");
+      url.searchParams.set(
+        "code_challenge",
+        "0123456789abcdef0123456789abcdef0123456789a",
+      );
+      return url;
+    }
+
     test("success", async () => {
       const getResponse = await googleLogin(new Request(validUrl()));
       expect(getResponse.status).toBe(200);
@@ -665,15 +668,12 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
 
   test("code is file", async () => {
     const valid = await getValid(getUrl());
+    valid.header.delete("Content-Type");
     const invalidBody = new FormData();
-
     for (const [key, value] of valid.body) {
       invalidBody.set(key, value);
     }
-
     invalidBody.set("code", new File([], "foo.txt"));
-
-    valid.header.delete("Content-Type");
 
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
@@ -684,9 +684,60 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
       },
       { store: valid.store },
     );
+
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
       "Invalid code of type file. Expected a string.",
+    );
+  });
+
+  test("code_verifier is file", async () => {
+    const valid = await validS256();
+    valid.header.delete("Content-Type");
+    const invalidBody = new FormData();
+    for (const [key, value] of valid.body) {
+      invalidBody.set(key, value);
+    }
+    invalidBody.set("code_verifier", new File([], "foo.txt"));
+
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: valid.header,
+        body: invalidBody,
+      },
+      { store: valid.store },
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      "Invalid code_verifier of type file. Expected a string.",
+    );
+  });
+
+  test("redirect_uri is file", async () => {
+    const valid = await getValid(getUrl());
+    valid.header.delete("Content-Type");
+    const invalidBody = new FormData();
+    for (const [key, value] of valid.body) {
+      invalidBody.set(key, value);
+    }
+    invalidBody.set("redirect_uri", new File([], "foo.txt"));
+
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: valid.header,
+        body: invalidBody,
+      },
+      { store: valid.store },
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      "Invalid redirect_uri of type file. Expected a string.",
     );
   });
 });

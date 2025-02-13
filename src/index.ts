@@ -132,8 +132,10 @@ async function fetchGoogleToken(
       return errorMessage("Parameter code_verifier is required.");
     }
 
-    if (typeof codeVerifier !== "string") {
-      return errorMessage("Invalid code_verifier. Expected a string.");
+    if (codeVerifier instanceof File) {
+      return errorMessage(
+        "Invalid code_verifier of type file. Expected a string.",
+      );
     }
 
     const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
@@ -161,8 +163,10 @@ async function fetchGoogleToken(
     return errorMessage("Parameter redirect_uri is required.");
   }
 
-  if (typeof redirectUri !== "string") {
-    return errorMessage("Invalid redirect_uri. Expected a string.");
+  if (redirectUri instanceof File) {
+    return errorMessage(
+      "Invalid redirect_uri of type file. Expected a string.",
+    );
   }
 
   if (redirectUri !== authSession.redirectUri) {
