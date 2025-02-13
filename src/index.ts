@@ -194,8 +194,8 @@ async function fetchGoogleToken(
   const [prefix, credentials] = authHeader.split(" ");
   if (prefix !== "Basic") {
     return errorMessage(
-      `Invalid Authorization header prefix: "${prefix}`,
-      `Expected "Basic"`,
+      `Invalid Authorization header prefix: "${prefix}".`,
+      `Expected "Basic".`,
     );
   }
 

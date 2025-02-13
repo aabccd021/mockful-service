@@ -308,6 +308,8 @@ describe("googleLogin", () => {
 });
 
 describe("fetch https://oauth2.googleapis.com/token", () => {
+  const authHeader = btoa("mock_client_id:mock_client_secret");
+
   function getUrl(): URL {
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.searchParams.set("response_type", "code");
@@ -333,8 +335,6 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
       }),
       { store },
     );
-
-    const authHeader = btoa("mock_client_id:mock_client_secret");
 
     const header = new Headers({
       "Content-Type": "application/x-www-form-urlencoded",
@@ -504,6 +504,24 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     );
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe("Authorization header is required.");
+  });
+
+  test("invalid auth header", async () => {
+    const valid = await getValid(getUrl());
+    valid.header.set("Authorization", `NOT_BASIC ${authHeader}`);
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: valid.header,
+        body: valid.body,
+      },
+      { store: valid.store },
+    );
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      'Invalid Authorization header prefix: "NOT_BASIC". Expected "Basic".',
+    );
   });
 
   test("invalid grant_type", async () => {
