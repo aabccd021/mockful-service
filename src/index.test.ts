@@ -272,7 +272,7 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ code, google_auth_id_token_sub: "kita" }),
     }),
-    { store: cloneStore(defaultStore) },
+    { store: defaultStore },
   );
 
   const authHeader = btoa("mock_client_id:mock_client_secret");
