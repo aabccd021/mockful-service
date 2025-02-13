@@ -255,8 +255,8 @@ function getCodeChallenge(
     for (const char of value) {
       if (!base64urlChars.includes(char)) {
         return errorMessage(
-          `Invalid code_challenge character: "${char}"`,
-          "Expected base64url character",
+          `Invalid code_challenge character: "${char}".`,
+          "Expected base64url character.",
         );
       }
     }
