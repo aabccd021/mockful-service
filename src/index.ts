@@ -292,7 +292,10 @@ function handleLoginGet(req: Request): Response {
   const state = searchParams.get("state");
   if (state !== null) {
     if (state.length !== 43) {
-      return errorMessage(`Invalid state length: ${state.length}`);
+      return errorMessage(
+        `Invalid state length: ${state.length}.`,
+        "Expected 43",
+      );
     }
 
     for (const char of state) {
