@@ -385,6 +385,12 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     expect(response.status).toBe(200);
     const body: unknown = await response.json();
     expect(getIdTokenSub(body)).toBe("kita");
+    expect(body).toMatchObject({
+      access_token: "mock_access_token",
+      expires_in: 3600,
+      token_type: "Bearer",
+      id_token: expect.any(String),
+    });
   });
 
   test("success without scope", async () => {
