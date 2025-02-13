@@ -687,7 +687,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
 
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
-      "Invalid code of type file. Expected a string.",
+      'Invalid code type: "file". Expected "string".',
     );
   });
 
@@ -712,7 +712,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
 
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
-      "Invalid code_verifier of type file. Expected a string.",
+      'Invalid code_verifier type: "file". Expected "string".',
     );
   });
 
@@ -737,7 +737,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
 
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe(
-      "Invalid redirect_uri of type file. Expected a string.",
+      'Invalid redirect_uri type: "file". Expected "string".',
     );
   });
 });

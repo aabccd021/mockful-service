@@ -115,7 +115,7 @@ async function fetchGoogleToken(
   }
 
   if (code instanceof File) {
-    return errorMessage("Invalid code of type file. Expected a string.");
+    return errorMessage('Invalid code type: "file". Expected "string".');
   }
 
   const store = option?.store ?? defaulStore;
@@ -134,7 +134,7 @@ async function fetchGoogleToken(
 
     if (codeVerifier instanceof File) {
       return errorMessage(
-        "Invalid code_verifier of type file. Expected a string.",
+        'Invalid code_verifier type: "file". Expected "string".',
       );
     }
 
@@ -165,7 +165,7 @@ async function fetchGoogleToken(
 
   if (redirectUri instanceof File) {
     return errorMessage(
-      "Invalid redirect_uri of type file. Expected a string.",
+      'Invalid redirect_uri type: "file". Expected "string".',
     );
   }
 
