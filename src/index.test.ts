@@ -11,4 +11,12 @@ describe("googleLogin", () => {
       'Invalid response_type: "token". Expected "code"',
     );
   });
+
+  test("client_id is required", async () => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("response_type", "code");
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe("Parameter client_id is required");
+  });
 });
