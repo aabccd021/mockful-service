@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { googleLogin, init } from "./index.ts";
+import { googleLogin, initStore } from "./index.ts";
 
 describe("googleLogin", () => {
   const validUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
@@ -16,7 +16,7 @@ describe("googleLogin", () => {
   );
 
   test("success", async () => {
-    const store = init();
+    const store = initStore();
     const getResponse = await googleLogin(new Request(validUrl), { store });
     expect(getResponse.status).toBe(200);
     const code = getResponse.headers.get("auth-mock-code") ?? "";

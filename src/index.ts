@@ -40,14 +40,14 @@ type Store = {
   readonly loginSessions: Map<string, LoginSession>;
 };
 
-export function init(): Store {
+export function initStore(): Store {
   return {
     authSessions: new Map<string, AuthSession>(),
     loginSessions: new Map<string, LoginSession>(),
   };
 }
 
-const defaultMockAuth = init();
+const defaulStore = initStore();
 
 const base64urlChars =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
@@ -101,7 +101,7 @@ async function fetchGoogleToken(
     return new Response(null, { status: 400 });
   }
 
-  const store = option?.store ?? defaultMockAuth;
+  const store = option?.store ?? defaulStore;
   const authSession = store.authSessions.get(code);
   if (authSession === undefined) {
     console.error(`Auth session not found for code: "${code}"`);
@@ -332,7 +332,7 @@ function handleLoginGet(req: Request, option?: { store?: Store }): Response {
 
   const code = crypto.randomUUID();
 
-  const store = option?.store ?? defaultMockAuth;
+  const store = option?.store ?? defaulStore;
   store.loginSessions.set(code, {
     clientId,
     redirectUri,
@@ -392,7 +392,7 @@ async function handleLoginPost(
     return new Response(null, { status: 400 });
   }
 
-  const store = option?.store ?? defaultMockAuth;
+  const store = option?.store ?? defaulStore;
 
   const loginSession = store.loginSessions.get(code);
   if (loginSession === undefined) {
