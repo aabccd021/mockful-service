@@ -147,4 +147,18 @@ describe("googleLogin", () => {
       `Invalid code_challenge character: "~". Expected base64url character.`,
     );
   });
+
+  test("unknown code_challenge_method is provided", async () => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("client_id", "123");
+    url.searchParams.append("redirect_uri", "https://example.com");
+    url.searchParams.append("code_challenge_method", "S512");
+    url.searchParams.append("code_challenge", "123");
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      'Invalid code_challenge_method: "S512". Expected "S256" or "plain".',
+    );
+  });
 });

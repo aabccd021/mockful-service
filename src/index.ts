@@ -264,8 +264,8 @@ function getCodeChallenge(
   }
 
   return errorMessage(
-    `Invalid code_challenge_method: "${method}`,
-    `Expected "S256" or "plain"`,
+    `Invalid code_challenge_method: "${method}".`,
+    `Expected "S256" or "plain".`,
   );
 }
 
