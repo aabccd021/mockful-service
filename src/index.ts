@@ -200,8 +200,8 @@ async function fetchGoogleToken(
 
   if (clientSecret !== "mock_client_secret") {
     return errorMessage(
-      `Invalid client_secret. Expected "mock_client_secret"`,
-      "Never use production client_secret in tests",
+      `Invalid client_secret. Expected "mock_client_secret".`,
+      "Never use production client_secret in tests.",
     );
   }
 
