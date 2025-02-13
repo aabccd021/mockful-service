@@ -60,45 +60,57 @@ describe("googleLogin", () => {
     );
   });
 
-  describe("code_challenge", () => {
-    test("code_challenge_method is null but code_challenge is provided", async () => {
-      const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-      url.searchParams.append("response_type", "code");
-      url.searchParams.append("client_id", "123");
-      url.searchParams.append("redirect_uri", "https://example.com");
-      url.searchParams.append("code_challenge", "123");
-      const response = await googleLogin(new Request(url));
-      expect(response.status).toBe(400);
-      expect(response.text()).resolves.toBe(
-        "Parameter code_challenge_method is required when code_challenge is provided.",
-      );
-    });
+  test("code_challenge_method is null but code_challenge is provided", async () => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("client_id", "123");
+    url.searchParams.append("redirect_uri", "https://example.com");
+    url.searchParams.append("code_challenge", "123");
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      "Parameter code_challenge_method is required when code_challenge is provided.",
+    );
+  });
 
-    test("code_challenge_method is provided but code_challenge is null", async () => {
-      const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-      url.searchParams.append("response_type", "code");
-      url.searchParams.append("client_id", "123");
-      url.searchParams.append("redirect_uri", "https://example.com");
-      url.searchParams.append("code_challenge_method", "S256");
-      const response = await googleLogin(new Request(url));
-      expect(response.status).toBe(400);
-      expect(response.text()).resolves.toBe(
-        "Parameter code_challenge is required when code_challenge_method is provided.",
-      );
-    });
+  test("code_challenge_method is provided but code_challenge is null", async () => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("client_id", "123");
+    url.searchParams.append("redirect_uri", "https://example.com");
+    url.searchParams.append("code_challenge_method", "S256");
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      "Parameter code_challenge is required when code_challenge_method is provided.",
+    );
+  });
 
-    test("plain code_challenge_method is not supported", async () => {
-      const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-      url.searchParams.append("response_type", "code");
-      url.searchParams.append("client_id", "123");
-      url.searchParams.append("redirect_uri", "https://example.com");
-      url.searchParams.append("code_challenge_method", "plain");
-      url.searchParams.append("code_challenge", "123");
-      const response = await googleLogin(new Request(url));
-      expect(response.status).toBe(400);
-      expect(response.text()).resolves.toBe(
-        'Currently oauth2-mock does not support code_challenge_method "plain."',
-      );
-    });
+  test("plain code_challenge_method is not supported", async () => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("client_id", "123");
+    url.searchParams.append("redirect_uri", "https://example.com");
+    url.searchParams.append("code_challenge_method", "plain");
+    url.searchParams.append("code_challenge", "123");
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      'Currently oauth2-mock does not support code_challenge_method "plain."',
+    );
+  });
+
+  test("s256 code_challenge length is not 43", async () => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("client_id", "123");
+    url.searchParams.append("redirect_uri", "https://example.com");
+    url.searchParams.append("code_challenge_method", "S256");
+    url.searchParams.append("code_challenge", "123");
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      "Invalid code_challenge length: 3. Expected 43.",
+    );
   });
 });

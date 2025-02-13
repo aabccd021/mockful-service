@@ -238,6 +238,7 @@ function getCodeChallenge(
     );
   }
 
+  // TODO: support "plain" code_challenge_method
   if (method === "plain") {
     return errorMessage(
       'Currently oauth2-mock does not support code_challenge_method "plain."',
@@ -247,8 +248,8 @@ function getCodeChallenge(
   if (method === "S256") {
     if (value.length !== 43) {
       return errorMessage(
-        `Invalid code_challenge length: ${value.length}`,
-        "Expected 43",
+        `Invalid code_challenge length: ${value.length}.`,
+        "Expected 43.",
       );
     }
     for (const char of value) {
