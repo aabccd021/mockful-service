@@ -186,14 +186,6 @@ async function fetchGoogleToken(
     );
   }
 
-  const contentType = req.headers.get("Content-Type");
-  if (contentType !== "application/x-www-form-urlencoded") {
-    return errorMessage(
-      `Invalid Content-Type: "${contentType}`,
-      `Expected "application/x-www-form-urlencoded"`,
-    );
-  }
-
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
     return errorMessage("Authorization header is required");
