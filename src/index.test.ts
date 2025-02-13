@@ -308,7 +308,10 @@ describe("googleLogin", () => {
 });
 
 describe("fetch https://oauth2.googleapis.com/token", () => {
-  function getUrl(): { url: URL; codeVerifier: string } {
+  function s256CodeChallenge(): {
+    codeVerifier: string;
+    codeChallenge: string;
+  } {
     const codeVerifier = crypto
       .getRandomValues(new Uint8Array(32))
       .toBase64({ alphabet: "base64url", omitPadding: true });
@@ -319,24 +322,20 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
       .digest()
       .toBase64({ alphabet: "base64url", omitPadding: true });
 
+    return { codeVerifier, codeChallenge };
+  }
+
+  function getUrl(): URL {
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     url.searchParams.set("response_type", "code");
     url.searchParams.set("client_id", "mock_client_id");
     url.searchParams.set("redirect_uri", "https://example.com/login/callback");
-    url.searchParams.set("code_challenge_method", "S256");
-    url.searchParams.set("code_challenge", codeChallenge);
     url.searchParams.set("scope", "openid");
 
-    return { url, codeVerifier };
+    return url;
   }
 
-  async function getValid({
-    url,
-    codeVerifier,
-  }: {
-    url: URL;
-    codeVerifier: string;
-  }): Promise<{
+  async function getValid(url: URL): Promise<{
     store: Store;
     header: Headers;
     body: URLSearchParams;
@@ -364,14 +363,35 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
       grant_type: "authorization_code",
       code,
       redirect_uri: "https://example.com/login/callback",
-      code_verifier: codeVerifier,
     });
 
     return { store, header, body };
   }
 
   test("success", async () => {
-    const valid = await getValid(getUrl());
+    const url = getUrl();
+    const valid = await getValid(url);
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: valid.header,
+        body: valid.body,
+      },
+      { store: valid.store },
+    );
+
+    expect(response.status).toBe(200);
+    expect(getIdTokenSub(response)).resolves.toBe("kita");
+  });
+
+  test("success s256", async () => {
+    const url = getUrl();
+    const { codeVerifier, codeChallenge } = s256CodeChallenge();
+    url.searchParams.set("code_challenge_method", "S256");
+    url.searchParams.set("code_challenge", codeChallenge);
+    const valid = await getValid(url);
+    valid.body.set("code_verifier", codeVerifier);
     const response = await fetch(
       "https://oauth2.googleapis.com/token",
       {
