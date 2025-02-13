@@ -47,6 +47,13 @@ export function initStore(): Store {
   };
 }
 
+export function cloneStore(store: Store): Store {
+  return {
+    authSessions: new Map(store.authSessions),
+    loginSessions: new Map(store.loginSessions),
+  };
+}
+
 const defaulStore = initStore();
 
 const base64urlChars =
