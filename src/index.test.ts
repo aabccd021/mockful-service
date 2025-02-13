@@ -220,5 +220,17 @@ describe("googleLogin", () => {
       expect(invalidCode).not.toBe(code);
       expect(postResponse.status).toBe(400);
     });
+
+    test("no google_auth_id_token_sub", async () => {
+      const postResponse = await googleLogin(
+        new Request(validUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ code }),
+        }),
+        { store: cloneStore(defaultStore) },
+      );
+      expect(postResponse.status).toBe(400);
+    });
   });
 });
