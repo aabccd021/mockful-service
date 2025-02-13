@@ -402,4 +402,25 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
     expect(response.status).toBe(400);
     expect(response.text()).resolves.toBe("Parameter code is required.");
   });
+
+  test("invalid code", async () => {
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: validHeader,
+        body: new URLSearchParams({
+          grant_type: "authorization_code",
+          code: "123",
+          redirect_uri: "https://example.com/login/callback",
+          code_verifier: codeVerifier,
+        }),
+      },
+      { store: cloneStore(defaultStore) },
+    );
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toBe(
+      'Auth session not found for code: "123".',
+    );
+  });
 });

@@ -138,7 +138,7 @@ async function fetchGoogleToken(
   const store = option?.store ?? defaulStore;
   const authSession = store.authSessions.get(code);
   if (authSession === undefined) {
-    return errorMessage(`Auth session not found for code: "${code}"`);
+    return errorMessage(`Auth session not found for code: "${code}".`);
   }
   store.authSessions.delete(code);
 
