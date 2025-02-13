@@ -170,11 +170,16 @@ async function fetchGoogleToken(
   }
 
   const redirectUri = formData.get("redirect_uri");
-  if (
-    redirectUri === null ||
-    typeof redirectUri !== "string" ||
-    redirectUri !== authSession.redirectUri
-  ) {
+
+  if (redirectUri === null) {
+    return errorMessage("Parameter redirect_uri is required.");
+  }
+
+  if (typeof redirectUri !== "string") {
+    return errorMessage("Invalid redirect_uri", redirectUri, "Expected string");
+  }
+
+  if (redirectUri !== authSession.redirectUri) {
     return errorMessage(
       `Invalid redirect_uri: "${redirectUri}", expected "${authSession.redirectUri}"`,
     );
