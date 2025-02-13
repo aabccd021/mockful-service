@@ -61,15 +61,17 @@ const base64urlChars =
 
 const urlSafeChars = `${base64urlChars}.~`;
 
-const _fetch: typeof globalThis.fetch = (url, reqInit) => {
+export function fetch(
+  url: Request | string | URL,
+  reqInit?: RequestInit,
+  option?: { store?: Store },
+): Promise<Response> {
   const req = url instanceof Request ? url : new Request(url, reqInit);
   if (req.url === "https://oauth2.googleapis.com/token") {
-    return fetchGoogleToken(req);
+    return fetchGoogleToken(req, option);
   }
   return globalThis.fetch(url, reqInit);
-};
-
-export const fetch = _fetch satisfies typeof globalThis.fetch;
+}
 
 function generateGoogleIdToken(clientId: string, sub: string): string {
   const idToken = {

@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { cloneStore, googleLogin, initStore } from "./index.ts";
+import {
+  cloneStore,
+  googleLogin,
+  initStore,
+  fetch as mockFetch,
+} from "./index.ts";
 
 describe("googleLogin", () => {
   describe("get", () => {
@@ -232,5 +237,67 @@ describe("googleLogin", () => {
       );
       expect(postResponse.status).toBe(400);
     });
+  });
+});
+
+describe("fetch https://oauth2.googleapis.com/token", async () => {
+  const codeVerifier = crypto
+    .getRandomValues(new Uint8Array(32))
+    .toBase64({ alphabet: "base64url", omitPadding: true });
+
+  const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
+  const codeChallenge = new Bun.CryptoHasher("sha256")
+    .update(codeChallengeBytes)
+    .digest()
+    .toBase64({ alphabet: "base64url", omitPadding: true });
+
+  const validUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  validUrl.searchParams.set("response_type", "code");
+  validUrl.searchParams.set("client_id", "mock_client_id");
+  validUrl.searchParams.set(
+    "redirect_uri",
+    "https://example.com/login/callback",
+  );
+  validUrl.searchParams.set("code_challenge_method", "S256");
+  validUrl.searchParams.set("code_challenge", codeChallenge);
+
+  const defaultStore = initStore();
+  const getResponse = await googleLogin(new Request(validUrl), {
+    store: defaultStore,
+  });
+  const code = getResponse.headers.get("auth-mock-code") ?? "";
+  await googleLogin(
+    new Request(validUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ code, google_auth_id_token_sub: "kita" }),
+    }),
+    { store: cloneStore(defaultStore) },
+  );
+
+  const authHeader = btoa("mock_client_id:mock_client_secret");
+
+  const validHeader = new Headers({
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Basic ${authHeader}`,
+  });
+
+  const validBody = new URLSearchParams({
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: "https://example.com/login/callback",
+    code_verifier: codeVerifier,
+  });
+
+  test("success", async () => {
+    await mockFetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: validHeader,
+        body: new URLSearchParams(validBody),
+      },
+      { store: cloneStore(defaultStore) },
+    );
   });
 });
