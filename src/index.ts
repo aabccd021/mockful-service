@@ -275,18 +275,18 @@ function handleLoginGet(req: Request): Response {
   if (responseType !== "code") {
     return errorMessage(
       `Invalid response_type: "${responseType}".`,
-      `Expected "code"`,
+      `Expected "code".`,
     );
   }
 
   const clientId = searchParams.get("client_id");
   if (clientId === null) {
-    return errorMessage("Parameter client_id is required");
+    return errorMessage("Parameter client_id is required.");
   }
 
   const redirectUri = searchParams.get("redirect_uri");
   if (redirectUri === null) {
-    return errorMessage("Parameter redirect_uri is required");
+    return errorMessage("Parameter redirect_uri is required.");
   }
 
   const state = searchParams.get("state");
@@ -294,15 +294,15 @@ function handleLoginGet(req: Request): Response {
     if (state.length !== 43) {
       return errorMessage(
         `Invalid state length: ${state.length}.`,
-        "Expected 43",
+        "Expected 43.",
       );
     }
 
     for (const char of state) {
       if (!urlSafeChars.includes(char)) {
         return errorMessage(
-          `Invalid state character: "${char}"`,
-          "Expected URL-safe character",
+          `Invalid state character: "${char}".`,
+          "Expected URL-safe character.",
         );
       }
     }
