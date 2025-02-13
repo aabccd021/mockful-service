@@ -171,6 +171,10 @@ describe("googleLogin", () => {
         "redirect_uri",
         "https://example.com/login/callback",
       );
+      url.searchParams.set(
+        "state",
+        "0123456789abcdef0123456789abcdef0123456789a",
+      );
       url.searchParams.set("code_challenge_method", "S256");
       url.searchParams.set(
         "code_challenge",
