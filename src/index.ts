@@ -181,7 +181,8 @@ async function fetchGoogleToken(
 
   if (redirectUri !== authSession.redirectUri) {
     return errorMessage(
-      `Invalid redirect_uri: "${redirectUri}", expected "${authSession.redirectUri}"`,
+      `Invalid redirect_uri: "${redirectUri}".`,
+      `Expected "${authSession.redirectUri}".`,
     );
   }
 
