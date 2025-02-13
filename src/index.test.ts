@@ -203,5 +203,22 @@ describe("googleLogin", () => {
       );
       expect(postResponse.status).toBe(400);
     });
+
+    test("invalid code", async () => {
+      const invalidCode = "123";
+      const postResponse = await googleLogin(
+        new Request(validUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            code: invalidCode,
+            google_auth_id_token_sub: "kita",
+          }),
+        }),
+        { store: cloneStore(defaultStore) },
+      );
+      expect(invalidCode).not.toBe(code);
+      expect(postResponse.status).toBe(400);
+    });
   });
 });
