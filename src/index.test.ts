@@ -357,9 +357,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     body: URLSearchParams;
   }> {
     const url = getUrl();
-    const codeVerifier = crypto
-      .getRandomValues(new Uint8Array(32))
-      .toBase64({ alphabet: "base64url", omitPadding: true });
+    const codeVerifier = "0123456789abcdef0123456789abcdef0123456789a";
     const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
     const codeChallenge = new Bun.CryptoHasher("sha256")
       .update(codeChallengeBytes)
@@ -436,8 +434,8 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
       { store: valid.store },
     );
     expect(response.status).toBe(400);
-    expect(response.text()).resolves.toStartWith(
-      `Hash of code_verifier does not match code_challenge. code_verifier: "123". code_challenge: "`,
+    expect(response.text()).resolves.toBe(
+      `Hash of code_verifier does not match code_challenge. code_verifier: "123". code_challenge: "JjuXQb_IRZi49WiMVIGIfIST1AsLVX3i8vmwMpE5xds".`,
     );
   });
 
