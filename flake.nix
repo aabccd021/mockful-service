@@ -47,7 +47,7 @@
         cp -L ${./package.json} ./package.json
         cp -L ${./tsconfig.json} ./tsconfig.json
         cp -Lr ${nodeModules} ./node_modules
-        ${pkgs.bun}/bin/bun test
+        ${pkgs.bun}/bin/bun test --coverage 
         touch $out
       '';
 
