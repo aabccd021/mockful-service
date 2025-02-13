@@ -345,4 +345,23 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
 
     expect(idToken.sub).toBe("kita");
   });
+
+  test("invalid grant_type", async () => {
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: validHeader,
+        body: new URLSearchParams({
+          grant_type: "refresh_token",
+          code,
+          redirect_uri: "https://example.com/login/callback",
+          code_verifier: codeVerifier,
+        }),
+      },
+      { store: cloneStore(defaultStore) },
+    );
+
+    expect(response.status).toBe(400);
+  });
 });

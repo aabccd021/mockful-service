@@ -54,6 +54,23 @@ export function cloneStore(store: Store): Store {
   };
 }
 
+function errorMessage(...message: unknown[]): Response {
+  const text = message.map((m) =>
+    typeof m === "string" ||
+    typeof m === "number" ||
+    typeof m === "bigint" ||
+    typeof m === "boolean" ||
+    m === null ||
+    m === undefined
+      ? `${m}`
+      : JSON.stringify(m),
+  );
+  return new Response(text.join(" "), {
+    status: 400,
+    headers: { "Content-Type": "text/plain" },
+  });
+}
+
 const defaulStore = initStore();
 
 const base64urlChars =
@@ -97,32 +114,32 @@ async function fetchGoogleToken(
 
   const grantType = formData.get("grant_type");
   if (grantType !== "authorization_code") {
-    console.error(
+    return errorMessage(
       `Invalid grant_type: "${grantType}"`,
       `Expected "authorization_code"`,
     );
-    return new Response(null, { status: 400 });
   }
 
   const code = formData.get("code");
   if (typeof code !== "string") {
-    console.error("Invalid code", code, "Expected string");
-    return new Response(null, { status: 400 });
+    return errorMessage("Invalid code", code, "Expected string");
   }
 
   const store = option?.store ?? defaulStore;
   const authSession = store.authSessions.get(code);
   if (authSession === undefined) {
-    console.error(`Auth session not found for code: "${code}"`);
-    return new Response(null, { status: 400 });
+    return errorMessage(`Auth session not found for code: "${code}"`);
   }
   store.authSessions.delete(code);
 
   if (authSession.codeChallenge?.method === "S256") {
     const codeVerifier = formData.get("code_verifier");
     if (typeof codeVerifier !== "string") {
-      console.error("Invalid code_verifier", codeVerifier, "Expected string");
-      return new Response(null, { status: 400 });
+      return errorMessage(
+        "Invalid code_verifier",
+        codeVerifier,
+        "Expected string",
+      );
     }
 
     const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
@@ -136,12 +153,11 @@ async function fetchGoogleToken(
     });
 
     if (authSession.codeChallenge.value !== expectedCodeChallenge) {
-      console.error(
+      return errorMessage(
         "Hash of code_verifier does not match code_challenge",
         `code_verifier: "${codeVerifier}"`,
         `code_challenge: "${authSession.codeChallenge.value}"`,
       );
-      return new Response(null, { status: 400 });
     }
   }
 
@@ -151,57 +167,50 @@ async function fetchGoogleToken(
     typeof redirectUri !== "string" ||
     redirectUri !== authSession.redirectUri
   ) {
-    console.error(
+    return errorMessage(
       `Invalid redirect_uri: "${redirectUri}", expected "${authSession.redirectUri}"`,
     );
-    return new Response(null, { status: 400 });
   }
 
   const contentType = req.headers.get("Content-Type");
   if (contentType !== "application/x-www-form-urlencoded") {
-    console.error(
+    return errorMessage(
       `Invalid Content-Type: "${contentType}`,
       `Expected "application/x-www-form-urlencoded"`,
     );
-    return new Response(null, { status: 400 });
   }
 
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
-    console.error("Authorization header is required");
-    return new Response(null, { status: 400 });
+    return errorMessage("Authorization header is required");
   }
 
   const [prefix, credentials] = authHeader.split(" ");
   if (prefix !== "Basic") {
-    console.error(
+    return errorMessage(
       `Invalid Authorization header prefix: "${prefix}`,
       `Expected "Basic"`,
     );
-    return new Response(null, { status: 400 });
   }
 
   if (credentials === undefined) {
-    console.error("Credentials not found in Authorization header");
-    return new Response(null, { status: 400 });
+    return errorMessage("Credentials not found in Authorization header");
   }
 
   const [clientId, clientSecret] = atob(credentials).split(":");
 
   if (clientId !== authSession.clientId) {
-    console.error(
+    return errorMessage(
       `Invalid client_id: "${clientId}`,
       `Expected "${authSession.clientId}"`,
     );
-    return new Response(null, { status: 400 });
   }
 
   if (clientSecret !== "mock_client_secret") {
-    console.error(
+    return errorMessage(
       `Invalid client_secret. Expected "mock_client_secret"`,
       "Never use production client_secret in tests",
     );
-    return new Response(null, { status: 400 });
   }
 
   const scopes = authSession.scope?.split(" ") ?? [];
@@ -229,13 +238,6 @@ async function fetchGoogleToken(
   return new Response(JSON.stringify(responseBody), {
     status: 200,
     headers: { "Content-Type": "application/json" },
-  });
-}
-
-function errorMessage(...message: string[]): Response {
-  return new Response(message.join(" "), {
-    status: 400,
-    headers: { "Content-Type": "text/plain" },
   });
 }
 
@@ -398,14 +400,14 @@ async function handleLoginPost(
 
   const code = formData.get("code");
   if (typeof code !== "string") {
-    return new Response(null, { status: 400 });
+    return errorMessage("Invalid code", code);
   }
 
   const store = option?.store ?? defaulStore;
 
   const loginSession = store.loginSessions.get(code);
   if (loginSession === undefined) {
-    return new Response(null, { status: 400 });
+    return errorMessage(`Login session not found for code: "${code}"`);
   }
   store.loginSessions.delete(code);
 
@@ -413,7 +415,10 @@ async function handleLoginPost(
 
   const googleAuthIdTokenSub = formData.get("google_auth_id_token_sub");
   if (typeof googleAuthIdTokenSub !== "string") {
-    return new Response(null, { status: 400 });
+    return errorMessage(
+      "Invalid google_auth_id_token_sub",
+      googleAuthIdTokenSub,
+    );
   }
 
   store.authSessions.set(code, {
