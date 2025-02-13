@@ -385,7 +385,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     expect(getIdTokenSub(response)).resolves.toBe("kita");
   });
 
-  test("success s256", async () => {
+  test("s256 success", async () => {
     const url = getUrl();
     const { codeVerifier, codeChallenge } = s256CodeChallenge();
     url.searchParams.set("code_challenge_method", "S256");
