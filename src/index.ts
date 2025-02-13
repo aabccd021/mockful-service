@@ -418,8 +418,9 @@ async function handleLoginPost(
   const forwardedParamNames = ["state", "code", "scope", "authUser", "prompt"];
 
   const forwardedParams = Object.fromEntries(
-    Object.entries(loginSession).filter(([key]) =>
-      forwardedParamNames.includes(key),
+    Object.entries(loginSession).filter(
+      ([key, value]) =>
+        forwardedParamNames.includes(key) && typeof value === "string",
     ),
   );
 

@@ -35,7 +35,7 @@ describe("googleLogin", () => {
     );
     expect(postResponse.status).toBe(303);
     expect(postResponse.headers.get("Location")).toBe(
-      `/login/callback?state=null&scope=null&code=${code}`,
+      `/login/callback?code=${code}`,
     );
   });
 
