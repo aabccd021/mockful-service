@@ -423,6 +423,24 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     );
   });
 
+  test("s256 invalid code_verifier", async () => {
+    const valid = await validS256();
+    valid.body.set("code_verifier", "123");
+    const response = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: valid.header,
+        body: valid.body,
+      },
+      { store: valid.store },
+    );
+    expect(response.status).toBe(400);
+    expect(response.text()).resolves.toStartWith(
+      `Hash of code_verifier does not match code_challenge. code_verifier: "123". code_challenge: "`,
+    );
+  });
+
   test("empty grant_type", async () => {
     const valid = await getValid(getUrl());
     valid.body.delete("grant_type");

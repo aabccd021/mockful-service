@@ -162,9 +162,9 @@ async function fetchGoogleToken(
 
     if (authSession.codeChallenge.value !== expectedCodeChallenge) {
       return errorMessage(
-        "Hash of code_verifier does not match code_challenge",
-        `code_verifier: "${codeVerifier}"`,
-        `code_challenge: "${authSession.codeChallenge.value}"`,
+        "Hash of code_verifier does not match code_challenge.",
+        `code_verifier: "${codeVerifier}".`,
+        `code_challenge: "${authSession.codeChallenge.value}".`,
       );
     }
   }
