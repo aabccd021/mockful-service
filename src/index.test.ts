@@ -329,7 +329,6 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     await googleLogin(
       new Request(url, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ code, google_auth_id_token_sub: "kita" }),
       }),
       { store },
