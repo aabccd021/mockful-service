@@ -52,7 +52,7 @@ const _fetch: typeof globalThis.fetch = (url, reqInit) => {
   return globalThis.fetch(url, reqInit);
 };
 
-export const fetch: typeof globalThis.fetch = _fetch;
+export const fetch = _fetch satisfies typeof globalThis.fetch;
 
 function generateGoogleIdToken(clientId: string, sub: string): string {
   const idToken = {
