@@ -52,6 +52,16 @@ function getIdTokenSub(body: unknown): string {
 }
 
 describe("googleLogin", () => {
+  test("invalid method", async () => {
+    const response = await googleLogin(
+      new Request("https://accounts.google.com/o/oauth2/v2/auth", {
+        method: "PUT",
+      }),
+    );
+    expect(response.status).toBe(405);
+    expect(response.text()).resolves.toBe("Method Not Allowed");
+  });
+
   describe("get", () => {
     function validUrl(): URL {
       const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");

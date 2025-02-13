@@ -442,5 +442,5 @@ export async function googleLogin(
     return await handleLoginPost(req, option);
   }
 
-  return new Response(null, { status: 400 });
+  return new Response("Method Not Allowed", { status: 405 });
 }
