@@ -175,4 +175,13 @@ describe("googleLogin", () => {
     const response = await googleLogin(new Request(url));
     expect(response.status).toBe(200);
   });
+
+  test("success without code_challenge", async () => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("client_id", "123");
+    url.searchParams.append("redirect_uri", "https://example.com");
+    const response = await googleLogin(new Request(url));
+    expect(response.status).toBe(200);
+  });
 });
