@@ -193,8 +193,8 @@ async function fetchGoogleToken(
 
   if (clientId !== authSession.clientId) {
     return errorMessage(
-      `Invalid client_id: "${clientId}`,
-      `Expected "${authSession.clientId}"`,
+      `Invalid client_id: "${clientId}".`,
+      `Expected "${authSession.clientId}".`,
     );
   }
 
