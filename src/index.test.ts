@@ -191,5 +191,17 @@ describe("googleLogin", () => {
         `/login/callback?code=${code}`,
       );
     });
+
+    test("no code", async () => {
+      const postResponse = await googleLogin(
+        new Request(validUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ google_auth_id_token_sub: "kita" }),
+        }),
+        { store: cloneStore(defaultStore) },
+      );
+      expect(postResponse.status).toBe(400);
+    });
   });
 });
