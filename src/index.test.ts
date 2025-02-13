@@ -1,6 +1,56 @@
 import { describe, expect, test } from "bun:test";
 import { type Store, fetch, googleLogin, initStore } from "./index.ts";
 
+async function getIdTokenSub(response: Response): Promise<string> {
+  const body: unknown = await response.json();
+
+  if (body === null) {
+    throw new Error("Response body is null");
+  }
+
+  if (typeof body !== "object") {
+    throw new Error("Response body is not an object");
+  }
+
+  if (!("id_token" in body)) {
+    throw new Error("id_token is not in the response body");
+  }
+
+  if (typeof body.id_token !== "string") {
+    throw new Error("id_token is not a string");
+  }
+
+  const idTokenPayload = body.id_token.split(".")[1];
+  if (idTokenPayload === undefined) {
+    throw new Error(`Id token payload is undefined: ${body.id_token}`);
+  }
+
+  const idTokenPayloadBytes = Uint8Array.fromBase64(idTokenPayload, {
+    alphabet: "base64url",
+  });
+  const idToken: unknown = JSON.parse(
+    new TextDecoder().decode(idTokenPayloadBytes),
+  );
+
+  if (idToken === null) {
+    throw new Error("idToken is null");
+  }
+
+  if (typeof idToken !== "object") {
+    throw new Error("idToken is not an object");
+  }
+
+  if (!("sub" in idToken)) {
+    throw new Error("sub is not in the idToken");
+  }
+
+  if (typeof idToken.sub !== "string") {
+    throw new Error("sub is not a string");
+  }
+
+  return idToken.sub;
+}
+
 describe("googleLogin", () => {
   function validUrl(): URL {
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
@@ -333,53 +383,7 @@ describe("fetch https://oauth2.googleapis.com/token", () => {
     );
 
     expect(response.status).toBe(200);
-    const body: unknown = await response.json();
-
-    if (body === null) {
-      throw new Error("Response body is null");
-    }
-
-    if (typeof body !== "object") {
-      throw new Error("Response body is not an object");
-    }
-
-    if (!("id_token" in body)) {
-      throw new Error("id_token is not in the response body");
-    }
-
-    if (typeof body.id_token !== "string") {
-      throw new Error("id_token is not a string");
-    }
-
-    const idTokenPayload = body.id_token.split(".")[1];
-    if (idTokenPayload === undefined) {
-      throw new Error(`Id token payload is undefined: ${body.id_token}`);
-    }
-
-    const idTokenPayloadBytes = Uint8Array.fromBase64(idTokenPayload, {
-      alphabet: "base64url",
-    });
-    const idToken: unknown = JSON.parse(
-      new TextDecoder().decode(idTokenPayloadBytes),
-    );
-
-    if (idToken === null) {
-      throw new Error("idToken is null");
-    }
-
-    if (typeof idToken !== "object") {
-      throw new Error("idToken is not an object");
-    }
-
-    if (!("sub" in idToken)) {
-      throw new Error("sub is not in the idToken");
-    }
-
-    if (typeof idToken.sub !== "string") {
-      throw new Error("sub is not a string");
-    }
-
-    expect(idToken.sub).toBe("kita");
+    expect(getIdTokenSub(response)).resolves.toBe("kita");
   });
 
   test("empty grant_type", async () => {
