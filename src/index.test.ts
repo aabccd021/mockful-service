@@ -1,10 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  cloneStore,
-  googleLogin,
-  initStore,
-  fetch as mockFetch,
-} from "./index.ts";
+import { cloneStore, fetch, googleLogin, initStore } from "./index.ts";
 
 describe("googleLogin", () => {
   describe("get", () => {
@@ -291,7 +286,7 @@ describe("fetch https://oauth2.googleapis.com/token", async () => {
   });
 
   test("success", async () => {
-    const response = await mockFetch(
+    const response = await fetch(
       "https://oauth2.googleapis.com/token",
       {
         method: "POST",
