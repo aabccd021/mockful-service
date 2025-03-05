@@ -3,12 +3,26 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     build-node-modules.url = "github:aabccd021/build-node-modules";
+    netero-test.url = "github:aabccd021/netero-test";
   };
 
-  outputs = { self, nixpkgs, treefmt-nix, build-node-modules }:
+  outputs = { self, nixpkgs, treefmt-nix, build-node-modules, netero-test }:
     let
 
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      overlay = (final: prev: {
+        auth-mock = import ./server.nix {
+          pkgs = final;
+          buildNodeModules = build-node-modules.lib.buildNodeModules;
+        };
+      });
+
+      pkgs = import nixpkgs {
+        system = "x86_64-linux";
+        overlays = [
+          netero-test.overlays.default
+          overlay
+        ];
+      };
 
       nodeModules = build-node-modules.lib.buildNodeModules pkgs ./package.json ./package-lock.json;
 
@@ -20,7 +34,7 @@
         programs.shfmt.enable = true;
         settings.formatter.prettier.priority = 1;
         settings.formatter.biome.priority = 2;
-        settings.global.excludes = [ "LICENSE" "*.ico" ];
+        settings.global.excludes = [ "LICENSE" "*.ico" "*.sql" ];
       };
 
       tsc = pkgs.runCommandNoCCLocal "tsc" { } ''
@@ -39,15 +53,6 @@
         cp -L ${./tsconfig.json} ./tsconfig.json
         cp -Lr ${nodeModules} ./node_modules
         ${pkgs.biome}/bin/biome check --error-on-warnings
-        touch $out
-      '';
-
-      tests = pkgs.runCommandNoCCLocal "tests" { } ''
-        cp -Lr ${./src} ./src
-        cp -L ${./package.json} ./package.json
-        cp -L ${./tsconfig.json} ./tsconfig.json
-        cp -Lr ${nodeModules} ./node_modules
-        ${pkgs.bun}/bin/bun test --coverage 
         touch $out
       '';
 
@@ -77,12 +82,12 @@
         biome = biome;
         nodeModules = nodeModules;
         publish = publish;
-        tests = tests;
       };
 
       gcroot = packages // {
         gcroot-all = pkgs.linkFarm "gcroot-all" packages;
       };
+
     in
 
     {
@@ -92,6 +97,8 @@
       packages.x86_64-linux = gcroot;
 
       formatter.x86_64-linux = treefmtEval.config.build.wrapper;
+
+      overlays.default = overlay;
 
       apps.x86_64-linux.publish = {
         type = "app";
