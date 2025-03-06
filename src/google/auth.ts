@@ -27,7 +27,7 @@ function formInput(name: string, value: string | null): string {
   return `<input type="hidden" name="${name}" value="${value}" />`;
 }
 
-function handleLoginGet(req: Request): Response {
+function handleGet(req: Request): Response {
   const searchParams = new URL(req.url).searchParams;
 
   const responseType = searchParams.get("response_type");
@@ -88,7 +88,7 @@ function handleLoginGet(req: Request): Response {
   });
 }
 
-async function handleLoginPost(req: Request): Promise<Response> {
+async function handlePost(req: Request): Promise<Response> {
   const formData = await req.formData();
   const loginSession = Object.fromEntries(formData.entries());
 
@@ -145,11 +145,11 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   if (req.method === "GET") {
-    return handleLoginGet(req);
+    return handleGet(req);
   }
 
   if (req.method === "POST") {
-    return await handleLoginPost(req);
+    return await handlePost(req);
   }
 
   return new Response("Method Not Allowed", { status: 405 });
