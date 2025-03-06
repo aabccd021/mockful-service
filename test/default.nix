@@ -3,42 +3,66 @@ let
 
   lib = pkgs.lib;
 
-  serverTest = testFile:
+  server = pkgs.runCommandLocal "server" { } ''
+    ${pkgs.bun}/bin/bun build ${./server.ts} \
+      --compile \
+      --sourcemap \
+      --outfile server
+    mkdir -p $out/bin
+    mv server $out/bin/server
+  '';
+
+  test = testFile:
     pkgs.runCommandLocal ""
       {
         buildInputs = [
           pkgs.jq
           pkgs.netero-test
+          pkgs.auth-mock
+          pkgs.tree
           server
         ];
       } ''
       export NETERO_DIR="$PWD/var/lib/netero"
       mkdir -p "$NETERO_DIR"
-      mkdir -p ./run/netero
-      mkfifo ./run/netero/ready.fifo
-      mkfifo ./run/netero/exit.fifo
+
+      mkfifo "$PWD/ready0.fifo"
+      mkfifo "$PWD/ready1.fifo"
+      mkfifo "$PWD/ready2.fifo"
+
+      cp -Lr ${pkgs.auth-mock.db}/db.sqlite .
+      chmod +w db.sqlite
 
       server 2>&1 | while IFS= read -r line; do
-        printf '\033[34m[server]\033[0m %s\n' "$line"
+        printf '\033[32m[server]\033[0m %s\n' "$line"
       done &
-      server_pid=$!
 
-      cat ./run/netero/ready.fifo >/dev/null
+      auth-mock-server "accounts.google.com" \
+        --on-ready-pipe "$PWD/ready1.fifo" \
+        --port 3001 2>&1 | while IFS= read -r line; do
+        printf '\033[34m[accounts.google.com]\033[0m %s\n' "$line"
+      done &
 
-      echo "http://localhost:8080/" > "$NETERO_DIR/url.txt"
+      auth-mock-server "oauth2.googleapis.com" \
+        --on-ready-pipe "$PWD/ready2.fifo" \
+        --port 3002 2>&1 | while IFS= read -r line; do
+        printf '\033[34m[oauth2.googleapis.com]\033[0m %s\n' "$line"
+      done &
+
+      cat ./ready0.fifo >/dev/null
+      cat ./ready1.fifo >/dev/null
+      cat ./ready2.fifo >/dev/null
 
       test_script=$(cat ${testFile})
       bash -euo pipefail -c "$test_script" 2>&1 | while IFS= read -r line; do
         printf '\033[33m[client]\033[0m %s\n' "$line"
       done
 
-      echo >./run/netero/exit.fifo
-      wait $server_pid
       mkdir $out
     '';
 
   testFiles = {
-    button-outside-form = serverTest ./server.ts ./button-outside-form.sh;
+    success = test ./success.sh;
   };
 
 in

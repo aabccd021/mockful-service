@@ -1,4 +1,5 @@
 import { Database } from "bun:sqlite";
+import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import type { Server } from "bun";
 import {
@@ -11,7 +12,10 @@ import {
 } from "superstruct";
 import { errorMessage } from "../util.ts";
 
-const db = new Database(":memory:");
+const db = new Database("db.sqlite", {
+  strict: true,
+  safeIntegers: true,
+});
 
 const LoginSession = nullable(
   object({
@@ -130,23 +134,31 @@ function handleLoginGet(req: Request): Response {
 
   const scope = searchParams.get("scope");
 
-  const id = crypto.randomUUID();
+  const code = crypto.randomUUID();
+
+  db.query(
+    `INSERT INTO login_session (code, redirect_uri, client_id, state, scope) 
+       VALUES ($code, $redirectUri, $clientId, $state, $scope)`,
+  ).run({
+    code,
+    clientId,
+    redirectUri,
+    state,
+    scope,
+  });
 
   if (codeChallenge !== null) {
     db.query(
       `
       INSERT INTO login_session_code_challenge (login_session_code, value, method) 
-      VALUES ($login_session_code, $value, $method)
+      VALUES ($loginSessionCode, $value, $method)
     `,
-    ).run({ id, value: codeChallenge.value, method: codeChallenge.method });
+    ).run({
+      loginSessionCode: code,
+      value: codeChallenge.value,
+      method: codeChallenge.method,
+    });
   }
-
-  db.query(
-    `
-    INSERT INTO login_session (id, client_id, redirect_uri, state, scope) 
-    VALUES ($login_session_code, $clientId, $redirectUri, $state, $scope)
- `,
-  ).run({ id, clientId, redirectUri, state, scope });
 
   const loginForm = `
     <!DOCTYPE html>
@@ -168,7 +180,7 @@ function handleLoginGet(req: Request): Response {
 
         <form method="post">
 
-          <input type="hidden" name="login_session_code" value="${id}" />
+          <input type="hidden" name="login_session_code" value="${code}" />
 
           <label for="google_auth_id_token_sub">sub</label>
           <input type="text" name="google_auth_id_token_sub" id="google_auth_id_token_sub" maxlength="255" required pattern="[a-zA-Z0-9]+" />
@@ -181,7 +193,7 @@ function handleLoginGet(req: Request): Response {
   `;
   return new Response(loginForm, {
     headers: {
-      "Content-Type": "text/html",
+      "content-type": "text/html",
     },
   });
 }
@@ -195,8 +207,8 @@ async function handleLoginPost(req: Request): Promise<Response> {
   }
 
   const loginSession = db
-    .query("SELECT * FROM login_session WHERE id = $id")
-    .get({ id: code });
+    .query("SELECT * FROM login_session WHERE code = $code")
+    .get({ code });
 
   assert(loginSession, LoginSession);
 
@@ -212,7 +224,7 @@ async function handleLoginPost(req: Request): Promise<Response> {
 
   assert(codeChallenge, CodeChallenge);
 
-  db.query("DELETE FROM login_session WHERE id = $id").run({ id: code });
+  db.query("DELETE FROM login_session WHERE code = $code").run({ code });
 
   const googleAuthIdTokenSub = formData.get("google_auth_id_token_sub");
   if (typeof googleAuthIdTokenSub !== "string") {
@@ -221,11 +233,11 @@ async function handleLoginPost(req: Request): Promise<Response> {
 
   db.query(
     `
-    INSERT INTO auth_session (id, client_id, redirect_uri, scope, sub)
-    VALUES ($id, $client_id, $redirect_uri, $scope, $sub)
+    INSERT INTO auth_session (code, client_id, redirect_uri, scope, sub)
+    VALUES ($code, $client_id, $redirect_uri, $scope, $sub)
   `,
   ).run({
-    id: code,
+    code,
     client_id: loginSession.client_id,
     redirect_uri: loginSession.redirect_uri,
     scope: loginSession.scope,
@@ -255,7 +267,12 @@ async function handleLoginPost(req: Request): Promise<Response> {
   });
 }
 
-export async function fetch(req: Request): Promise<Response> {
+export async function handle(req: Request): Promise<Response> {
+  const path = new URL(req.url).pathname;
+  if (path !== "/o/oauth2/v2/auth") {
+    return new Response(null, { status: 404 });
+  }
+
   if (req.method === "GET") {
     return handleLoginGet(req);
   }
@@ -275,11 +292,21 @@ export function serve(args: string[]): Server {
         type: "string",
         alias: "p",
       },
+      "on-ready-pipe": {
+        type: "string",
+      },
     },
   });
 
   const port =
     arg.values.port !== undefined ? Number(arg.values.port) : undefined;
 
-  return Bun.serve({ port, fetch });
+  const server = Bun.serve({ port, fetch: handle });
+
+  const onReadyPipe = arg.values["on-ready-pipe"];
+  if (onReadyPipe !== undefined) {
+    writeFileSync(onReadyPipe, "");
+  }
+
+  return server;
 }

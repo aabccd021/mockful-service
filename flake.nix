@@ -4,9 +4,10 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     build-node-modules.url = "github:aabccd021/build-node-modules";
     netero-test.url = "github:aabccd021/netero-test";
+    miglite.url = "github:aabccd021/miglite";
   };
 
-  outputs = { self, nixpkgs, treefmt-nix, build-node-modules, netero-test }:
+  outputs = { self, nixpkgs, treefmt-nix, build-node-modules, netero-test, miglite }:
     let
 
       overlay = (final: prev: {
@@ -19,9 +20,14 @@
       pkgs = import nixpkgs {
         system = "x86_64-linux";
         overlays = [
+          miglite.overlays.default
           netero-test.overlays.default
           overlay
         ];
+      };
+
+      test = import ./test {
+        pkgs = pkgs;
       };
 
       treefmtEval = treefmt-nix.lib.evalModule pkgs {
@@ -74,7 +80,7 @@
         '';
       };
 
-      packages = {
+      packages = test // {
         formatting = treefmtEval.config.build.check self;
         tsc = tsc;
         biome = biome;

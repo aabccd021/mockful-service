@@ -2,11 +2,11 @@ import type { Server } from "bun";
 import { serve as serveGoogleAuth } from "./google/auth.ts";
 import { serve as serveGoogleToken } from "./google/token.ts";
 
-type Serve = (args: string[]) => Server;
+type Serve = (args: string[]) => Promise<Server> | Server;
 
 const urlToServe: Record<string, Serve> = {
-  "https://oauth2.googleapis.com/token": serveGoogleToken,
-  "https://accounts.google.com/o/oauth2/auth": serveGoogleAuth,
+  "oauth2.googleapis.com": serveGoogleToken,
+  "accounts.google.com": serveGoogleAuth,
 };
 
 const [url, ...args] = process.argv.slice(2);
@@ -22,4 +22,4 @@ if (serve === undefined) {
   process.exit(1);
 }
 
-serve(args);
+await serve(args);

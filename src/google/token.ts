@@ -1,10 +1,11 @@
 import { Database } from "bun:sqlite";
+import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import type { Server } from "bun";
 import { assert, enums, nullable, object, string } from "superstruct";
 import { errorMessage } from "../util.ts";
 
-const db = new Database(":memory:");
+const db = new Database("db.sqlite");
 
 const AuthSession = nullable(
   object({
@@ -40,9 +41,14 @@ function generateGoogleIdToken(clientId: string, sub: string): string {
   return `.${idTokenPayload}.`;
 }
 
-async function fetch(req: Request): Promise<Response> {
+async function handle(req: Request): Promise<Response> {
   if (req.method !== "POST") {
     return new Response(null, { status: 405 });
+  }
+
+  const path = new URL(req.url).pathname;
+  if (path !== "/token") {
+    return new Response(null, { status: 404 });
   }
 
   const formData = await req.formData();
@@ -203,7 +209,9 @@ export function serve(args: string[]): Server {
     options: {
       port: {
         type: "string",
-        alias: "p",
+      },
+      "on-ready-pipe": {
+        type: "string",
       },
     },
   });
@@ -211,5 +219,12 @@ export function serve(args: string[]): Server {
   const port =
     arg.values.port !== undefined ? Number(arg.values.port) : undefined;
 
-  return Bun.serve({ port, fetch });
+  const server = Bun.serve({ port, fetch: handle });
+
+  const onReadyPipe = arg.values["on-ready-pipe"];
+  if (onReadyPipe !== undefined) {
+    writeFileSync(onReadyPipe, "");
+  }
+
+  return server;
 }
