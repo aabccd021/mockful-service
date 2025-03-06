@@ -67,7 +67,6 @@ let
     no-redirect-uri = test ./no-redirect-uri.sh;
     no-scope = test ./no-scope.sh;
     response-type-token = test ./response-type-token.sh;
-    state-url-unsafe = test ./state-url-unsafe.sh;
     success = test ./success.sh;
     success-s256 = test ./success-s256.sh;
   };

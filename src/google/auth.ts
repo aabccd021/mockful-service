@@ -28,11 +28,6 @@ const CodeChallenge = nullable(
   }),
 );
 
-const base64urlChars =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-
-const urlSafeChars = `${base64urlChars}.~`;
-
 function handleLoginGet(req: Request): Response {
   const searchParams = new URL(req.url).searchParams;
 
@@ -60,16 +55,6 @@ function handleLoginGet(req: Request): Response {
   }
 
   const state = searchParams.get("state");
-  if (state !== null) {
-    for (const char of state) {
-      if (!urlSafeChars.includes(char)) {
-        return errorMessage(
-          `Invalid state character: "${char}".`,
-          "Expected URL-safe character.",
-        );
-      }
-    }
-  }
 
   const codeChallengeMethod = searchParams.get("code_challenge_method");
   const codeChallengeValue = searchParams.get("code_challenge");
@@ -117,7 +102,7 @@ function handleLoginGet(req: Request): Response {
           <input type="hidden" name="login_session_code" value="${code}" />
 
           <label for="google_auth_id_token_sub">sub</label>
-          <input type="text" name="google_auth_id_token_sub" id="google_auth_id_token_sub" maxlength="255" required pattern="[a-zA-Z0-9]+" />
+          <input type="text" name="google_auth_id_token_sub" id="google_auth_id_token_sub" maxlength="255" required pattern="+" />
 
           <button>Submit</button>
         </form>
