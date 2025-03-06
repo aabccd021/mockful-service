@@ -44,11 +44,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1741235224,
+        "lastModified": 1741235748,
         "narHash": "sha256-vw3UMp4KI2gjbjX2kbhWEhm0GbqcQUBPPlqYWCdCPGg=",
         "owner": "aabccd021",
         "repo": "netero-test",
-        "rev": "c1818be8111eba755a3876ab55d0ddc25b02136f",
+        "rev": "5c3972519aecb5d44cac2b016196e769e1be6b39",
         "type": "github"
       },
       "original": {

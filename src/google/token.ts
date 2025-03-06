@@ -29,7 +29,7 @@ const CodeChallenge = nullable(
 );
 
 function generateGoogleIdToken(clientId: string, sub: string): string {
-  const idToken = {
+  const payload = {
     aud: clientId,
     exp: Date.now() + 3600,
     iat: Date.now(),
@@ -37,11 +37,26 @@ function generateGoogleIdToken(clientId: string, sub: string): string {
     sub,
   };
 
-  const idTokenPayload = new TextEncoder()
-    .encode(JSON.stringify(idToken))
+  const payloadStr = new TextEncoder()
+    .encode(JSON.stringify(payload))
     .toBase64({ alphabet: "base64url" });
 
-  return `.${idTokenPayload}.`;
+  const header = {
+    alg: "HS256",
+    typ: "JWT",
+  };
+
+  const headerStr = new TextEncoder()
+    .encode(JSON.stringify(header))
+    .toBase64({ alphabet: "base64url" });
+
+  const signatureContent = `${headerStr}.${payloadStr}`;
+
+  const hasher = new Bun.CryptoHasher("sha256", "secret-key");
+  hasher.update(signatureContent);
+  const signature = hasher.digest("base64url");
+
+  return `${headerStr}.${payloadStr}.${signature}`;
 }
 
 async function handle(req: Request): Promise<Response> {

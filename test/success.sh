@@ -15,4 +15,6 @@ printf "mysub" >google_auth_id_token_sub.txt
 submit "//form" --data "google_auth_id_token_sub=google_auth_id_token_sub.txt"
 
 assert_response_code_equal 200
-# assert_url_equal "http://localhost:3000/login-callback?code=54257da8-0588-4067-9f82-f798 1e23c602&state=sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4&scope=openid"
+
+sub=$(jq -r ".id_token" "$NETERO_DIR/body" | jwt decode --json - | jq -r ".payload.sub")
+assert_equal "mysub" "$sub"
