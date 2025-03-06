@@ -143,15 +143,6 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return errorMessage("Credentials not found in Authorization header.");
   }
 
-  const [clientId, clientSecret] = atob(credentials).split(":");
-  if (clientId === undefined) {
-    return errorMessage("Client ID not found in Authorization header.");
-  }
-
-  if (clientSecret === undefined) {
-    return errorMessage("Client secret not found in Authorization header.");
-  }
-
   const authSessionClientId =
     "client_id" in authSession && typeof authSession.client_id === "string"
       ? authSession.client_id
@@ -161,6 +152,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     throw new Error("Absurd authSessionClientId");
   }
 
+  const [clientId, clientSecret] = atob(credentials).split(":");
   if (clientId !== authSessionClientId) {
     return errorMessage("Invalid client_id");
   }
