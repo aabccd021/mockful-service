@@ -66,8 +66,8 @@ function handleLoginGet(req: Request): Response {
     }
   }
 
-  const method = searchParams.get("code_challenge_method");
-  const value = searchParams.get("code_challenge");
+  const codeChallengeMethod = searchParams.get("code_challenge_method");
+  const codeChallengeValue = searchParams.get("code_challenge");
 
   const scope = searchParams.get("scope");
 
@@ -78,13 +78,17 @@ function handleLoginGet(req: Request): Response {
        VALUES ($code, $redirectUri, $clientId, $state, $scope)`,
   ).run({ code, clientId, redirectUri, state, scope });
 
-  if (method !== null && value !== null) {
+  if (codeChallengeMethod !== null && codeChallengeValue !== null) {
     db.query(
       `
       INSERT INTO login_session_code_challenge (login_session_code, value, method) 
       VALUES ($loginSessionCode, $value, $method)
     `,
-    ).run({ loginSessionCode: code, value, method });
+    ).run({
+      loginSessionCode: code,
+      value: codeChallengeValue,
+      method: codeChallengeMethod,
+    });
   }
 
   const loginForm = `
