@@ -71,37 +71,24 @@ function handleGet(req: Request): Response {
 }
 
 async function handlePost(req: Request, ctx: Context): Promise<Response> {
-  const formData = await req.formData();
-
-  const clientId = formData.get("client_id");
-  if (clientId instanceof File) {
-    return errorMessage("Parameter client_id has invalid type.");
+  const formDataRaw = await req.formData();
+  const formData = new Map<string, string>();
+  for (const [key, value] of formDataRaw) {
+    if (typeof value === "string") {
+      formData.set(key, value);
+    }
   }
 
-  const redirectUri = formData.get("redirect_uri");
-  if (typeof redirectUri !== "string") {
-    return errorMessage("Parameter redirect_uri has invalid type.");
+  const redirectUri = formData.get("redirect_uri") ?? null;
+  if (redirectUri === null) {
+    return errorMessage("Parameter redirect_uri is required.");
   }
 
-  const scope = formData.get("scope");
-  if (scope instanceof File) {
-    return errorMessage("Parameter scope has invalid type.");
-  }
-
-  const sub = formData.get("id_token_sub");
-  if (sub instanceof File) {
-    return errorMessage("Parameter id_token_sub has invalid type.");
-  }
-
-  const codeChallengeMethod = formData.get("code_challenge_method");
-  if (codeChallengeMethod instanceof File) {
-    return errorMessage("Parameter code_challenge_method has invalid type.");
-  }
-
-  const codeChallengeValue = formData.get("code_challenge_value");
-  if (codeChallengeValue instanceof File) {
-    return errorMessage("Parameter code_challenge_value has invalid type.");
-  }
+  const clientId = formData.get("client_id") ?? null;
+  const scope = formData.get("scope") ?? null;
+  const sub = formData.get("id_token_sub") ?? null;
+  const codeChallengeMethod = formData.get("code_challenge_method") ?? null;
+  const codeChallengeValue = formData.get("code_challenge_value") ?? null;
 
   const code = crypto.randomUUID();
 
