@@ -78,20 +78,7 @@
 //       );
 //       return url;
 //     }
-//
-//     test("success", async () => {
-//       const getResponse = await googleLogin(new Request(validUrl()));
-//       expect(getResponse.status).toBe(200);
-//     });
-//
-//     test("success without code_challenge", async () => {
-//       const url = validUrl();
-//       url.searchParams.delete("code_challenge_method");
-//       url.searchParams.delete("code_challenge");
-//       const response = await googleLogin(new Request(url));
-//       expect(response.status).toBe(200);
-//     });
-//
+
 //     test("response_type is code", async () => {
 //       const url = validUrl();
 //       url.searchParams.set("response_type", "token");
