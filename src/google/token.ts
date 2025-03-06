@@ -2,17 +2,8 @@ import { type Context, errorMessage } from "../util.ts";
 
 function generateGoogleIdToken(
   clientId: string,
-  sub: string | null,
-  scopes: string[],
-): string | undefined | Response {
-  if (!scopes.includes("openid")) {
-    return undefined;
-  }
-
-  if (sub === null) {
-    return errorMessage("sub is required for openid scope.");
-  }
-
+  sub: string,
+): string | undefined {
   const payload = {
     aud: clientId,
     exp: Date.now() + 3600,
@@ -182,6 +173,9 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     "sub" in authSession && typeof authSession.sub === "string"
       ? authSession.sub
       : null;
+  if (sub === null) {
+    return errorMessage("sub is required.");
+  }
 
   const authSessionScope =
     "scope" in authSession && typeof authSession.scope === "string"
@@ -193,11 +187,9 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   const scopes = authSessionScope?.split(" ") ?? [];
-
-  const idToken = generateGoogleIdToken(clientId, sub, scopes);
-  if (idToken instanceof Response) {
-    return idToken;
-  }
+  const idToken = scopes.includes("openid")
+    ? generateGoogleIdToken(clientId, sub)
+    : undefined;
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
