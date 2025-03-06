@@ -19,7 +19,6 @@ let
           pkgs.jq
           pkgs.netero-test
           pkgs.auth-mock
-          pkgs.tree
           pkgs.jwt-cli
           testServer
         ];
