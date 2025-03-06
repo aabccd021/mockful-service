@@ -90,6 +90,8 @@ let
 
   granularTests = mapTests "test-google-granular-" granularServer {
     success = ./granular/success.sh;
+    success-s256 = ./granular/success-s256.sh;
+    no-code-verifier = ./granular/no-code-verifier.sh;
   };
 
 in
