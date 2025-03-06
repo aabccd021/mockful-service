@@ -74,16 +74,18 @@ let
     s256-mismatch = ./s256-mismatch.sh;
   };
 
+  mapTests = prefix: server: lib.mapAttrs'
+    (name: path: {
+      name = prefix + name;
+      value =
+        let
+          v = test path server;
+        in
+        v.overrideAttrs (oldAttrs: {
+          name = prefix + name;
+        });
+    });
+
 in
-lib.mapAttrs'
-  (name: path: {
-    name = "test-google-" + name;
-    value =
-      let
-        v = test path normalServer;
-      in
-      v.overrideAttrs (oldAttrs: {
-        name = "test-google-" + name;
-      });
-  })
-  normalTestFiles
+mapTests "test-google-" normalServer normalTestFiles
+
