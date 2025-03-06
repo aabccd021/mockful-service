@@ -23,11 +23,16 @@ async function handle(req: Request, ctx: { db: Database }): Promise<Response> {
   return await subHandle(req, ctx);
 }
 
-const arg = parseArgs({
+const args = parseArgs({
   args: process.argv.slice(2),
   options: {
     port: {
       type: "string",
+      default: "3000",
+    },
+    db: {
+      type: "string",
+      default: ":memory:",
     },
     "on-ready-pipe": {
       type: "string",
@@ -35,17 +40,17 @@ const arg = parseArgs({
   },
 });
 
-const db = new Database("db.sqlite", {
+const db = new Database(args.values.db, {
   strict: true,
   safeIntegers: true,
 });
 
-const port =
-  arg.values.port !== undefined ? Number(arg.values.port) : undefined;
+Bun.serve({
+  port: Number(args.values.port),
+  fetch: (req): Promise<Response> => handle(req, { db }),
+});
 
-Bun.serve({ port, fetch: (req): Promise<Response> => handle(req, { db }) });
-
-const onReadyPipe = arg.values["on-ready-pipe"];
+const onReadyPipe = args.values["on-ready-pipe"];
 if (onReadyPipe !== undefined) {
   writeFileSync(onReadyPipe, "");
 }

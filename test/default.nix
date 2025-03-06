@@ -15,8 +15,8 @@ let
   normalServer = mkServer ./normal_server.ts;
   granularServer = mkServer ./granular_server.ts;
 
-  test = testFile: server:
-    pkgs.runCommandLocal ""
+  mkTest = { name, testFile, server }:
+    pkgs.runCommandLocal name
       {
         buildInputs = [
           pkgs.jq
@@ -27,11 +27,11 @@ let
           server
         ];
       } ''
-      export NETERO_DIR="$PWD/var/lib/netero"
+      export NETERO_DIR="./var/lib/netero"
       mkdir -p "$NETERO_DIR"
 
-      mkfifo "$PWD/ready0.fifo"
-      mkfifo "$PWD/ready1.fifo"
+      mkfifo "./ready0.fifo"
+      mkfifo "./ready1.fifo"
 
       cp -Lr ${pkgs.auth-mock.db}/db.sqlite .
       chmod +w db.sqlite
@@ -41,7 +41,8 @@ let
       done &
 
       auth-mock-server \
-        --on-ready-pipe "$PWD/ready1.fifo" \
+        --db "./db.sqlite" \
+        --on-ready-pipe "./ready1.fifo" \
         --port 3001 2>&1 | while IFS= read -r line; do
         printf '\033[34m[accounts.google.com]\033[0m %s\n' "$line"
       done &
@@ -58,15 +59,13 @@ let
     '';
 
   mapTests = prefix: server: lib.mapAttrs'
-    (name: path: {
+    (name: testFile: {
       name = prefix + name;
-      value =
-        let
-          v = test path server;
-        in
-        v.overrideAttrs (oldAttrs: {
-          name = prefix + name;
-        });
+      value = mkTest {
+        name = prefix + name;
+        testFile = testFile;
+        server = server;
+      };
     });
 
   normalTests = mapTests "test-google-normal-" normalServer {
