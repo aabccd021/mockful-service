@@ -76,14 +76,14 @@ let
     });
 
   normalTest = mapTests "test-google-" normalServer {
-    empty-scope-no-idtoken = ./empty-scope-no-idtoken.sh;
-    no-client-id = ./no-client-id.sh;
-    no-redirect-uri = ./no-redirect-uri.sh;
-    no-scope = ./no-scope.sh;
-    response-type-token = ./response-type-token.sh;
-    success = ./success.sh;
-    success-s256 = ./success-s256.sh;
-    s256-mismatch = ./s256-mismatch.sh;
+    empty-scope-no-idtoken = ./normal/empty-scope-no-idtoken.sh;
+    no-client-id = ./normal/no-client-id.sh;
+    no-redirect-uri = ./normal/no-redirect-uri.sh;
+    no-scope = ./normal/no-scope.sh;
+    response-type-token = ./normal/response-type-token.sh;
+    success = ./normal/success.sh;
+    success-s256 = ./normal/success-s256.sh;
+    s256-mismatch = ./normal/s256-mismatch.sh;
   };
 
 in
