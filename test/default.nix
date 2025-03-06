@@ -100,6 +100,7 @@ let
     invalid-grant-type = ./granular/invalid-grant-type.sh;
     no-grant-type = ./granular/no-grant-type.sh;
     no-code = ./granular/no-code.sh;
+    auth-session-not-found = ./granular/auth-session-not-found.sh;
   };
 
 in

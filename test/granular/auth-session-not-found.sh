@@ -35,4 +35,4 @@ curl_options=" \
 eval "curl $curl_options 'http://localhost:3002/token'"
 
 assert_response_code_equal 400
-assert_equal 'Invalid Authorization header prefix: "Advanced". Expected "Basic".' "$(cat "$NETERO_DIR/body")"
+assert_equal 'Auth session not found for code: "aab".' "$(cat "$NETERO_DIR/body")"

@@ -80,8 +80,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     .get({ code });
 
   if (authSession === null) {
-    console.error(`Auth session not found for code: "${code}"`);
-    return new Response(null, { status: 400 });
+    return errorMessage(`Auth session not found for code: "${code}".`);
   }
 
   if (typeof authSession !== "object") {
