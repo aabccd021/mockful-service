@@ -95,6 +95,7 @@ let
     no-auth-header = ./granular/no-auth-header.sh;
     success = ./granular/success.sh;
     success-s256 = ./granular/success-s256.sh;
+    get = ./granular/get.sh;
   };
 
 in

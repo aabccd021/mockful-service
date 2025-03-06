@@ -24,7 +24,6 @@ curl_options=" \
   --show-error \
   --silent \
   --location \
-  --request POST \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --data-urlencode 'grant_type=authorization_code' \
   --data-urlencode 'code=$code' \

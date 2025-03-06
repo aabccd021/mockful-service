@@ -14,6 +14,7 @@ submit "//form" --data "id_token_sub=id_token_sub.txt"
 assert_response_code_equal 200
 
 auth_header=$(echo -n "mock_client_id:mock_client_secret" | base64)
+code=$(cat ./code.txt)
 
 curl_options=" \
   --cookie '$NETERO_DIR/cookie.txt' \
@@ -24,14 +25,14 @@ curl_options=" \
   --show-error \
   --silent \
   --location \
+  --request GET \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --header 'Authorization: Basic $auth_header' \
   --data-urlencode 'grant_type=authorization_code' \
-  --data-urlencode 'code=aab' \
+  --data-urlencode 'code=$code' \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
 "
 
 eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
 
-assert_response_code_equal 400
-assert_equal 'Auth session not found for code: "aab".' "$(cat "$NETERO_DIR/body")"
+assert_response_code_equal 405
