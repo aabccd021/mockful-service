@@ -63,6 +63,7 @@ let
     '';
 
   testFiles = {
+    empty-scope-no-idtoken = test ./empty-scope-no-idtoken.sh;
     no-client-id = test ./no-client-id.sh;
     no-redirect-uri = test ./no-redirect-uri.sh;
     no-scope = test ./no-scope.sh;
