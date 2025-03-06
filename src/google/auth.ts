@@ -28,64 +28,6 @@ const CodeChallenge = nullable(
   }),
 );
 
-type CodeChallenge = {
-  readonly method: "S256";
-  readonly value: string;
-};
-
-function getCodeChallenge(
-  searchParams: URLSearchParams,
-): CodeChallenge | null | Response {
-  const method = searchParams.get("code_challenge_method");
-  const value = searchParams.get("code_challenge");
-
-  if (method === null) {
-    if (value === null) {
-      return null;
-    }
-
-    return errorMessage(
-      "Parameter code_challenge_method is required when code_challenge is provided.",
-    );
-  }
-
-  if (value === null) {
-    return errorMessage(
-      "Parameter code_challenge is required when code_challenge_method is provided.",
-    );
-  }
-
-  // TODO: support "plain" code_challenge_method
-  if (method === "plain") {
-    return errorMessage(
-      'Currently oauth2-mock does not support code_challenge_method "plain."',
-    );
-  }
-
-  if (method === "S256") {
-    if (value.length !== 43) {
-      return errorMessage(
-        `Invalid code_challenge length: ${value.length}.`,
-        "Expected 43.",
-      );
-    }
-    for (const char of value) {
-      if (!base64urlChars.includes(char)) {
-        return errorMessage(
-          `Invalid code_challenge character: "${char}".`,
-          "Expected base64url character.",
-        );
-      }
-    }
-    return { method, value };
-  }
-
-  return errorMessage(
-    `Invalid code_challenge_method: "${method}".`,
-    `Expected "S256" or "plain".`,
-  );
-}
-
 const base64urlChars =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
@@ -124,10 +66,8 @@ function handleLoginGet(req: Request): Response {
     }
   }
 
-  const codeChallenge = getCodeChallenge(searchParams);
-  if (codeChallenge instanceof Response) {
-    return codeChallenge;
-  }
+  const method = searchParams.get("code_challenge_method");
+  const value = searchParams.get("code_challenge");
 
   const scope = searchParams.get("scope");
 
@@ -136,25 +76,15 @@ function handleLoginGet(req: Request): Response {
   db.query(
     `INSERT INTO login_session (code, redirect_uri, client_id, state, scope) 
        VALUES ($code, $redirectUri, $clientId, $state, $scope)`,
-  ).run({
-    code,
-    clientId,
-    redirectUri,
-    state,
-    scope,
-  });
+  ).run({ code, clientId, redirectUri, state, scope });
 
-  if (codeChallenge !== null) {
+  if (method !== null && value !== null) {
     db.query(
       `
       INSERT INTO login_session_code_challenge (login_session_code, value, method) 
       VALUES ($loginSessionCode, $value, $method)
     `,
-    ).run({
-      loginSessionCode: code,
-      value: codeChallenge.value,
-      method: codeChallenge.method,
-    });
+    ).run({ loginSessionCode: code, value, method });
   }
 
   const loginForm = `
