@@ -12,15 +12,14 @@ in
 
 pkgs.runCommand "compiled-server"
 {
-  passthru = {
-    db = db;
-  };
+  passthru.db = db;
 } ''
   cp -Lr ${./src} ./src
   ${pkgs.bun}/bin/bun build ./src/index.ts \
     --compile \
     --minify \
     --sourcemap \
+    --bytecode \
     --outfile server
   mkdir -p $out/bin
   mv server $out/bin/auth-mock-server
