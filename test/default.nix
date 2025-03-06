@@ -95,6 +95,8 @@ let
     callback-url-mismatch = ./granular/callback-url-mismatch.sh;
     auth-not-basic = ./granular/auth-not-basic.sh;
     no-credentials = ./granular/no-credentials.sh;
+    client-id-mismatch = ./granular/client-id-mismatch.sh;
+    client-secret-mismatch = ./granular/client-secret-mismatch.sh;
   };
 
 in
