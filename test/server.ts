@@ -42,7 +42,7 @@ function home(req: Request): Response {
   return new Response(undefined, { status: 302, headers });
 }
 
-function parse(cookieHeader: string): Map<string, string> {
+function parseCookie(cookieHeader: string): Map<string, string> {
   const cookies = new Map<string, string>();
   for (const cookie of cookieHeader.split(";")) {
     const [key, value] = cookie.split("=");
@@ -71,7 +71,7 @@ function callback(req: Request): Promise<Response> {
     throw new Error("Cookie header is required");
   }
 
-  const cookies = parse(cookieHeader);
+  const cookies = parseCookie(cookieHeader);
 
   const storedState = cookies.get("auth_state");
   if (state !== storedState) {
