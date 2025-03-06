@@ -34,38 +34,30 @@ function handleLoginGet(req: Request): Response {
   }
 
   const clientId = searchParams.get("client_id");
-  if (clientId === null) {
-    return errorMessage("Parameter client_id is required.");
-  }
-
   const redirectUri = searchParams.get("redirect_uri");
-  if (redirectUri === null) {
-    return errorMessage("Parameter redirect_uri is required.");
-  }
-
   const scope = searchParams.get("scope");
-  if (scope === null) {
-    return errorMessage("Parameter scope is required.");
-  }
-
   const state = searchParams.get("state");
   const codeChallengeMethod = searchParams.get("code_challenge_method");
   const codeChallengeValue = searchParams.get("code_challenge");
 
   const code = crypto.randomUUID();
 
-  db.query(
-    `INSERT INTO login_session (code, redirect_uri, client_id, state, scope, code_challenge_method, code_challenge_value)
-       VALUES ($code, $redirectUri, $clientId, $state, $scope, $codeChallengeMethod, $codeChallengeValue)`,
-  ).run({
-    code,
-    clientId,
-    redirectUri,
-    state,
-    scope,
-    codeChallengeMethod,
-    codeChallengeValue,
-  });
+  try {
+    db.query(
+      `INSERT INTO login_session (code, redirect_uri, client_id, state, scope, code_challenge_method, code_challenge_value)
+         VALUES ($code, $redirectUri, $clientId, $state, $scope, $codeChallengeMethod, $codeChallengeValue)`,
+    ).run({
+      code,
+      clientId,
+      redirectUri,
+      state,
+      scope,
+      codeChallengeMethod,
+      codeChallengeValue,
+    });
+  } catch (_e) {
+    return errorMessage("Failed to create login session.");
+  }
 
   const loginForm = `
     <!DOCTYPE html>

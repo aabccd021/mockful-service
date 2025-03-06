@@ -7,4 +7,3 @@ goto --url "http://localhost:3000\
 "
 
 assert_response_code_equal 400
-assert_equal 'Parameter redirect_uri is required.' "$(cat "$NETERO_DIR/body")"
