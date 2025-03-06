@@ -24,6 +24,7 @@ function handleGet(req: Request): Response {
   const state = searchParams.get("state");
   const codeChallengeMethod = searchParams.get("code_challenge_method");
   const codeChallengeValue = searchParams.get("code_challenge");
+  const prompt = searchParams.get("prompt");
 
   const loginForm = `
     <!DOCTYPE html>
@@ -51,6 +52,7 @@ function handleGet(req: Request): Response {
           ${formInput("state", state)}
           ${formInput("code_challenge_method", codeChallengeMethod)}
           ${formInput("code_challenge_value", codeChallengeValue)}
+          ${formInput("prompt", prompt)}
 
           <label for="id_token_sub">sub</label>
           <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
