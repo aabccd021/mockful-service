@@ -1,7 +1,4 @@
 import { Database } from "bun:sqlite";
-import { writeFileSync } from "node:fs";
-import { parseArgs } from "node:util";
-import type { Server } from "bun";
 import { assert, object, optional, string } from "superstruct";
 import { errorMessage } from "../util.ts";
 
@@ -153,31 +150,4 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   return new Response("Method Not Allowed", { status: 405 });
-}
-
-export function serve(args: string[]): Server {
-  const arg = parseArgs({
-    args,
-    options: {
-      port: {
-        type: "string",
-        alias: "p",
-      },
-      "on-ready-pipe": {
-        type: "string",
-      },
-    },
-  });
-
-  const port =
-    arg.values.port !== undefined ? Number(arg.values.port) : undefined;
-
-  const server = Bun.serve({ port, fetch: handle });
-
-  const onReadyPipe = arg.values["on-ready-pipe"];
-  if (onReadyPipe !== undefined) {
-    writeFileSync(onReadyPipe, "");
-  }
-
-  return server;
 }

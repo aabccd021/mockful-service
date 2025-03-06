@@ -1,7 +1,4 @@
 import { Database } from "bun:sqlite";
-import { writeFileSync } from "node:fs";
-import { parseArgs } from "node:util";
-import type { Server } from "bun";
 import { assert, enums, nullable, object, optional, string } from "superstruct";
 import { errorMessage } from "../util.ts";
 
@@ -54,7 +51,7 @@ function generateGoogleIdToken(clientId: string, sub: string): string {
   return `${headerStr}.${payloadStr}.${signature}`;
 }
 
-async function handle(req: Request): Promise<Response> {
+export async function handle(req: Request): Promise<Response> {
   if (req.method !== "POST") {
     return new Response(null, { status: 405 });
   }
@@ -205,30 +202,4 @@ async function handle(req: Request): Promise<Response> {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
-}
-
-export function serve(args: string[]): Server {
-  const arg = parseArgs({
-    args,
-    options: {
-      port: {
-        type: "string",
-      },
-      "on-ready-pipe": {
-        type: "string",
-      },
-    },
-  });
-
-  const port =
-    arg.values.port !== undefined ? Number(arg.values.port) : undefined;
-
-  const server = Bun.serve({ port, fetch: handle });
-
-  const onReadyPipe = arg.values["on-ready-pipe"];
-  if (onReadyPipe !== undefined) {
-    writeFileSync(onReadyPipe, "");
-  }
-
-  return server;
 }
