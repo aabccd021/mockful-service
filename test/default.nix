@@ -65,6 +65,7 @@ let
   testFiles = {
     no-client-id = test ./no-client-id.sh;
     no-redirect-uri = test ./no-redirect-uri.sh;
+    no-scope = test ./no-scope.sh;
     response-type-token = test ./response-type-token.sh;
     state-url-unsafe = test ./state-url-unsafe.sh;
     success = test ./success.sh;

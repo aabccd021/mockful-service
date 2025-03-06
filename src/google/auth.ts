@@ -54,6 +54,11 @@ function handleLoginGet(req: Request): Response {
     return errorMessage("Parameter redirect_uri is required.");
   }
 
+  const scope = searchParams.get("scope");
+  if (scope === null) {
+    return errorMessage("Parameter scope is required.");
+  }
+
   const state = searchParams.get("state");
   if (state !== null) {
     for (const char of state) {
@@ -68,8 +73,6 @@ function handleLoginGet(req: Request): Response {
 
   const codeChallengeMethod = searchParams.get("code_challenge_method");
   const codeChallengeValue = searchParams.get("code_challenge");
-
-  const scope = searchParams.get("scope");
 
   const code = crypto.randomUUID();
 
