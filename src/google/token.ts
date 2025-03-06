@@ -132,8 +132,6 @@ async function handle(req: Request): Promise<Response> {
     if (expectedCodeChallenge !== authSession.code_challenge_value) {
       return errorMessage(
         "Hash of code_verifier does not match code_challenge.",
-        `code_verifier: "${codeVerifier}".`,
-        `code_challenge: "${authSession.code_challenge_value}".`,
       );
     }
   }

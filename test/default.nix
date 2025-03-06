@@ -70,6 +70,7 @@ let
     response-type-token = test ./response-type-token.sh;
     success = test ./success.sh;
     success-s256 = test ./success-s256.sh;
+    s256-mismatch = test ./s256-mismatch.sh;
   };
 
 in
