@@ -2,14 +2,7 @@ import { Database } from "bun:sqlite";
 import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import type { Server } from "bun";
-import {
-  assert,
-  type Infer,
-  enums,
-  nullable,
-  object,
-  string,
-} from "superstruct";
+import { assert, enums, nullable, object, string } from "superstruct";
 import { errorMessage } from "../util.ts";
 
 const db = new Database("db.sqlite", {
@@ -29,16 +22,20 @@ const LoginSession = nullable(
 
 const CodeChallenge = nullable(
   object({
+    login_session_code: string(),
     method: enums(["S256", "plain"]),
     value: string(),
   }),
 );
 
-type CodeChallenge = Infer<typeof CodeChallenge>;
+type CodeChallenge = {
+  readonly method: "S256";
+  readonly value: string;
+};
 
 function getCodeChallenge(
   searchParams: URLSearchParams,
-): CodeChallenge | Response {
+): CodeChallenge | null | Response {
   const method = searchParams.get("code_challenge_method");
   const value = searchParams.get("code_challenge");
 
@@ -245,8 +242,8 @@ async function handleLoginPost(req: Request): Promise<Response> {
   });
 
   db.query(
-    "DELETE FROM auth_session_code_challenge WHERE login_session_code = $login_session_code",
-  ).run({ login_session_code: code });
+    "DELETE FROM auth_session_code_challenge WHERE auth_session_code = $auth_session_code",
+  ).run({ auth_session_code: code });
 
   const forwardedParamNames = ["state", "code", "scope", "authUser", "prompt"];
 
