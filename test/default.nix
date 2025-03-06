@@ -64,7 +64,7 @@ let
 
   testFiles = {
     success = test ./success.sh;
-    success-no-code-challenge = test ./success-no-code-challenge.sh;
+    success-s256 = test ./success-s256.sh;
     response-type-token = test ./response-type-token.sh;
   };
 

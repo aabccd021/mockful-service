@@ -79,16 +79,6 @@
 //       return url;
 //     }
 
-//     test("response_type is code", async () => {
-//       const url = validUrl();
-//       url.searchParams.set("response_type", "token");
-//       const response = await googleLogin(new Request(url));
-//       expect(response.status).toBe(400);
-//       expect(response.text()).resolves.toBe(
-//         'Invalid response_type: "token". Expected "code".',
-//       );
-//     });
-//
 //     test("client_id is required", async () => {
 //       const url = validUrl();
 //       url.searchParams.delete("client_id");
