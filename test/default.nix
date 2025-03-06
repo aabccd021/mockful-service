@@ -3,8 +3,8 @@ let
 
   lib = pkgs.lib;
 
-  normalServer = pkgs.runCommandLocal "server" { } ''
-    ${pkgs.bun}/bin/bun build ${./normal_server.ts} \
+  mkServer = src: pkgs.runCommandLocal "server" { } ''
+    ${pkgs.bun}/bin/bun build ${src} \
       --compile \
       --sourcemap \
       --outfile server
@@ -12,7 +12,9 @@ let
     mv server $out/bin/server
   '';
 
-  test = testFile:
+  normalServer = mkServer ./normal_server.ts;
+
+  test = testFile: server:
     pkgs.runCommandLocal ""
       {
         buildInputs = [
@@ -20,7 +22,7 @@ let
           pkgs.netero-test
           pkgs.auth-mock
           pkgs.jwt-cli
-          normalServer
+          server
         ];
       } ''
       export NETERO_DIR="$PWD/var/lib/netero"
@@ -61,23 +63,27 @@ let
       mkdir $out
     '';
 
-  testFiles = {
-    empty-scope-no-idtoken = test ./empty-scope-no-idtoken.sh;
-    no-client-id = test ./no-client-id.sh;
-    no-redirect-uri = test ./no-redirect-uri.sh;
-    no-scope = test ./no-scope.sh;
-    response-type-token = test ./response-type-token.sh;
-    success = test ./success.sh;
-    success-s256 = test ./success-s256.sh;
-    s256-mismatch = test ./s256-mismatch.sh;
+  normalTestFiles = {
+    empty-scope-no-idtoken = ./empty-scope-no-idtoken.sh;
+    no-client-id = ./no-client-id.sh;
+    no-redirect-uri = ./no-redirect-uri.sh;
+    no-scope = ./no-scope.sh;
+    response-type-token = ./response-type-token.sh;
+    success = ./success.sh;
+    success-s256 = ./success-s256.sh;
+    s256-mismatch = ./s256-mismatch.sh;
   };
 
 in
 lib.mapAttrs'
-  (name: value: {
+  (name: path: {
     name = "test-google-" + name;
-    value = value.overrideAttrs (oldAttrs: {
-      name = "test-google-" + name;
-    });
+    value =
+      let
+        v = test path normalServer;
+      in
+      v.overrideAttrs (oldAttrs: {
+        name = "test-google-" + name;
+      });
   })
-  testFiles
+  normalTestFiles
