@@ -2,18 +2,21 @@ import { Database } from "bun:sqlite";
 import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import type { Server } from "bun";
-import { assert, enums, nullable, object, string } from "superstruct";
+import { assert, enums, nullable, object, optional, string } from "superstruct";
 import { errorMessage } from "../util.ts";
 
-const db = new Database("db.sqlite");
+const db = new Database("db.sqlite", {
+  strict: true,
+  safeIntegers: true,
+});
 
 const AuthSession = nullable(
   object({
     code: string(),
-    clientId: string(),
-    redirectUri: string(),
-    state: nullable(string()),
-    scope: nullable(string()),
+    client_id: string(),
+    redirect_uri: string(),
+    state: optional(string()),
+    scope: optional(string()),
     sub: string(),
   }),
 );
@@ -77,7 +80,7 @@ async function handle(req: Request): Promise<Response> {
   }
 
   const authSession = db
-    .query("SELECT * FROM auth_sessions WHERE code = $code")
+    .query("SELECT * FROM auth_session WHERE code = $code")
     .get({ code });
   assert(authSession, AuthSession);
 
@@ -93,7 +96,7 @@ async function handle(req: Request): Promise<Response> {
     .get({ auth_session_code: code });
   assert(codeChallenge, CodeChallenge);
 
-  db.query("DELETE FROM auth_sessions WHERE code = $code").run({ code });
+  db.query("DELETE FROM auth_session WHERE code = $code").run({ code });
 
   if (codeChallenge?.method === "S256") {
     const codeVerifier = formData.get("code_verifier");
@@ -139,10 +142,10 @@ async function handle(req: Request): Promise<Response> {
     );
   }
 
-  if (redirectUri !== authSession.redirectUri) {
+  if (redirectUri !== authSession.redirect_uri) {
     return errorMessage(
       `Invalid redirect_uri: "${redirectUri}".`,
-      `Expected "${authSession.redirectUri}".`,
+      `Expected "${authSession.redirect_uri}".`,
     );
   }
 
@@ -165,10 +168,10 @@ async function handle(req: Request): Promise<Response> {
 
   const [clientId, clientSecret] = atob(credentials).split(":");
 
-  if (clientId !== authSession.clientId) {
+  if (clientId !== authSession.client_id) {
     return errorMessage(
       `Invalid client_id: "${clientId}".`,
-      `Expected "${authSession.clientId}".`,
+      `Expected "${authSession.client_id}".`,
     );
   }
 

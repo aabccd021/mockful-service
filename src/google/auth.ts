@@ -247,20 +247,18 @@ async function handleLoginPost(req: Request): Promise<Response> {
 
   const forwardedParamNames = ["state", "code", "scope", "authUser", "prompt"];
 
-  const forwardedParams = Object.fromEntries(
-    Object.entries(loginSession).filter(
-      ([key, value]) =>
-        forwardedParamNames.includes(key) && typeof value === "string",
-    ),
-  );
+  const redirectUrl = new URL(loginSession.redirect_uri);
+  redirectUrl.searchParams.set("code", code);
 
-  const searchParams = new URLSearchParams({ ...forwardedParams, code });
-  const redirectUriPath = new URL(loginSession.redirect_uri).pathname;
-  const redirectLocation = `${redirectUriPath}?${searchParams.toString()}`;
+  for (const [key, value] of Object.entries(loginSession)) {
+    if (value !== null && forwardedParamNames.includes(key)) {
+      redirectUrl.searchParams.set(key, value);
+    }
+  }
 
   return new Response(null, {
     status: 303,
-    headers: { Location: redirectLocation },
+    headers: { Location: redirectUrl.toString() },
   });
 }
 

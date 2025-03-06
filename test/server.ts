@@ -94,7 +94,7 @@ function callback(req: Request): Promise<Response> {
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: "http://localhost:3001/login-callback",
+      redirect_uri: "http://localhost:3000/login-callback",
       code_verifier: codeVerifier,
     }),
   });
