@@ -1,9 +1,9 @@
+import { Database } from "bun:sqlite";
 import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { handle as googleAuth } from "./google/auth.ts";
 import { handle as googleToken } from "./google/token.ts";
-
-type Handle = (req: Request) => Promise<Response>;
+import type { Handle } from "./util.ts";
 
 const urlToServe: Record<string, Handle> = {
   "accounts.google.com": googleAuth,
@@ -35,10 +35,15 @@ const arg = parseArgs({
   },
 });
 
+const db = new Database("db.sqlite", {
+  strict: true,
+  safeIntegers: true,
+});
+
 const port =
   arg.values.port !== undefined ? Number(arg.values.port) : undefined;
 
-Bun.serve({ port, fetch: handle });
+Bun.serve({ port, fetch: (req): Promise<Response> => handle(req, { db }) });
 
 const onReadyPipe = arg.values["on-ready-pipe"];
 if (onReadyPipe !== undefined) {

@@ -1,3 +1,5 @@
+import type { Database } from "bun:sqlite";
+
 // https://github.com/oven-sh/bun/issues/16062
 // https://github.com/tc39/proposal-arraybuffer-base64
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/toBase64#browser_compatibility
@@ -24,3 +26,9 @@ export function errorMessage(...message: string[]): Response {
     headers: { "Content-Type": "text/plain" },
   });
 }
+
+export type Context = {
+  db: Database;
+};
+
+export type Handle = (req: Request, ctx: Context) => Promise<Response>;

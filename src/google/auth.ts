@@ -1,11 +1,5 @@
-import { Database } from "bun:sqlite";
 import { assert, object, optional, string } from "superstruct";
-import { errorMessage } from "../util.ts";
-
-const db = new Database("db.sqlite", {
-  strict: true,
-  safeIntegers: true,
-});
+import { type Context, errorMessage } from "../util.ts";
 
 const LoginSession = object({
   client_id: optional(string()),
@@ -85,7 +79,7 @@ function handleGet(req: Request): Response {
   });
 }
 
-async function handlePost(req: Request): Promise<Response> {
+async function handlePost(req: Request, ctx: Context): Promise<Response> {
   const formData = await req.formData();
   const loginSession = Object.fromEntries(formData.entries());
 
@@ -99,20 +93,22 @@ async function handlePost(req: Request): Promise<Response> {
   const code = crypto.randomUUID();
 
   try {
-    db.query(
-      `
+    ctx.db
+      .query(
+        `
     INSERT INTO auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge_value)
     VALUES ($code, $clientId, $redirectUri, $scope, $sub, $codeChallengeMethod, $codeChallengeValue)
   `,
-    ).run({
-      code,
-      clientId: loginSession.client_id ?? null,
-      redirectUri: loginSession.redirect_uri ?? null,
-      scope: loginSession.scope ?? null,
-      sub: loginSession.id_token_sub ?? null,
-      codeChallengeMethod: loginSession.code_challenge_method ?? null,
-      codeChallengeValue: loginSession.code_challenge_value ?? null,
-    });
+      )
+      .run({
+        code,
+        clientId: loginSession.client_id ?? null,
+        redirectUri: loginSession.redirect_uri ?? null,
+        scope: loginSession.scope ?? null,
+        sub: loginSession.id_token_sub ?? null,
+        codeChallengeMethod: loginSession.code_challenge_method ?? null,
+        codeChallengeValue: loginSession.code_challenge_value ?? null,
+      });
   } catch (err) {
     console.error(err);
     return errorMessage("Failed to store login session.");
@@ -135,7 +131,7 @@ async function handlePost(req: Request): Promise<Response> {
   });
 }
 
-export async function handle(req: Request): Promise<Response> {
+export async function handle(req: Request, ctx: Context): Promise<Response> {
   const path = new URL(req.url).pathname;
   if (path !== "/o/oauth2/v2/auth") {
     return new Response(null, { status: 404 });
@@ -146,7 +142,7 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   if (req.method === "POST") {
-    return await handlePost(req);
+    return await handlePost(req, ctx);
   }
 
   return new Response("Method Not Allowed", { status: 405 });

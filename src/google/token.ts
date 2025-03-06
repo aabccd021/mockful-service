@@ -1,11 +1,5 @@
-import { Database } from "bun:sqlite";
 import { assert, enums, nullable, object, optional, string } from "superstruct";
-import { errorMessage } from "../util.ts";
-
-const db = new Database("db.sqlite", {
-  strict: true,
-  safeIntegers: true,
-});
+import { type Context, errorMessage } from "../util.ts";
 
 const AuthSession = nullable(
   object({
@@ -51,7 +45,7 @@ function generateGoogleIdToken(clientId: string, sub: string): string {
   return `${headerStr}.${payloadStr}.${signature}`;
 }
 
-export async function handle(req: Request): Promise<Response> {
+export async function handle(req: Request, ctx: Context): Promise<Response> {
   if (req.method !== "POST") {
     return new Response(null, { status: 405 });
   }
@@ -86,7 +80,7 @@ export async function handle(req: Request): Promise<Response> {
     return errorMessage('Invalid code type: "file". Expected "string".');
   }
 
-  const authSession = db
+  const authSession = ctx.db
     .query("SELECT * FROM auth_session WHERE code = $code")
     .get({ code });
 
@@ -102,7 +96,7 @@ export async function handle(req: Request): Promise<Response> {
     return new Response(null, { status: 400 });
   }
 
-  db.query("DELETE FROM auth_session WHERE code = $code").run({ code });
+  ctx.db.query("DELETE FROM auth_session WHERE code = $code").run({ code });
 
   if (authSession.code_challenge_value !== null) {
     console.error(authSession);
