@@ -103,16 +103,16 @@ function callback(req: Request): Promise<Response> {
 async function handle(req: Request): Promise<Response> {
   const path = new URL(req.url).pathname;
   if (path === "/") {
-    if (req.method !== "GET") {
-      return new Response(null, { status: 405 });
+    if (req.method === "GET") {
+      return home(req);
     }
-    return home(req);
+    return new Response(null, { status: 405 });
   }
   if (path === "/login-callback") {
-    if (req.method !== "GET") {
-      return new Response(null, { status: 405 });
+    if (req.method === "GET") {
+      return await callback(req);
     }
-    return await callback(req);
+    return new Response(null, { status: 405 });
   }
   return new Response("Not found", { status: 404 });
 }
