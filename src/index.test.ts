@@ -79,14 +79,6 @@
 //       return url;
 //     }
 
-//     test("client_id is required", async () => {
-//       const url = validUrl();
-//       url.searchParams.delete("client_id");
-//       const response = await googleLogin(new Request(url));
-//       expect(response.status).toBe(400);
-//       expect(response.text()).resolves.toBe("Parameter client_id is required.");
-//     });
-//
 //     test("redirect_uri is required", async () => {
 //       const url = validUrl();
 //       url.searchParams.delete("redirect_uri");

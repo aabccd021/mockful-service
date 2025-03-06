@@ -66,6 +66,7 @@ let
     success = test ./success.sh;
     success-s256 = test ./success-s256.sh;
     response-type-token = test ./response-type-token.sh;
+    no-client-id = test ./no-client-id.sh;
   };
 
 in
