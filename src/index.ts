@@ -6,8 +6,8 @@ import { handle as googleToken } from "./google/token.ts";
 type Handle = (req: Request) => Promise<Response>;
 
 const urlToServe: Record<string, Handle> = {
-  "oauth2.googleapis.com": googleToken,
   "accounts.google.com": googleAuth,
+  "oauth2.googleapis.com": googleToken,
 };
 
 const [url, ...args] = process.argv.slice(2);
