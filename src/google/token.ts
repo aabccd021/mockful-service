@@ -139,17 +139,6 @@ async function handle(req: Request): Promise<Response> {
   }
 
   const redirectUri = formData.get("redirect_uri");
-
-  if (redirectUri === null) {
-    return errorMessage("Parameter redirect_uri is required.");
-  }
-
-  if (redirectUri instanceof File) {
-    return errorMessage(
-      'Invalid redirect_uri type: "file". Expected "string".',
-    );
-  }
-
   if (redirectUri !== authSession.redirect_uri) {
     return errorMessage(
       `Invalid redirect_uri: "${redirectUri}".`,
