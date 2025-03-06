@@ -75,9 +75,9 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   ctx.db.query("DELETE FROM auth_session WHERE code = $code").run({ code });
 
   const codeChallengeValue =
-    "code_challenge_value" in authSession &&
-    typeof authSession.code_challenge_value === "string"
-      ? authSession.code_challenge_value
+    "code_challenge" in authSession &&
+    typeof authSession.code_challenge === "string"
+      ? authSession.code_challenge
       : null;
 
   const codeChallengeMethod =

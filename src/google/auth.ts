@@ -1,14 +1,14 @@
 import { type Context, errorMessage } from "../util.ts";
 
-function formInput(name: string, value: string | null): string {
-  if (value === null) {
-    return "";
-  }
+function formInput([name, value]: [name: string, value: string]): string {
   return `<input type="hidden" name="${name}" value="${value}" />`;
 }
 
 function handleGet(req: Request): Response {
   const searchParams = new URL(req.url).searchParams;
+
+  const paramInputs = searchParams.entries().map(formInput);
+  const paramInputsStr = Array.from(paramInputs).join("\n");
 
   const responseType = searchParams.get("response_type");
   if (responseType !== "code") {
@@ -17,14 +17,6 @@ function handleGet(req: Request): Response {
       `Expected "code".`,
     );
   }
-
-  const clientId = searchParams.get("client_id");
-  const redirectUri = searchParams.get("redirect_uri");
-  const scope = searchParams.get("scope");
-  const state = searchParams.get("state");
-  const codeChallengeMethod = searchParams.get("code_challenge_method");
-  const codeChallengeValue = searchParams.get("code_challenge");
-  const prompt = searchParams.get("prompt");
 
   const loginForm = `
     <!DOCTYPE html>
@@ -46,13 +38,7 @@ function handleGet(req: Request): Response {
 
         <form method="post">
 
-          ${formInput("client_id", clientId)}
-          ${formInput("redirect_uri", redirectUri)}
-          ${formInput("scope", scope)}
-          ${formInput("state", state)}
-          ${formInput("code_challenge_method", codeChallengeMethod)}
-          ${formInput("code_challenge_value", codeChallengeValue)}
-          ${formInput("prompt", prompt)}
+          ${paramInputsStr}
 
           <label for="id_token_sub">sub</label>
           <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
@@ -84,30 +70,24 @@ async function handlePost(req: Request, ctx: Context): Promise<Response> {
     return errorMessage("Parameter redirect_uri is required.");
   }
 
-  const clientId = formData.get("client_id") ?? null;
-  const scope = formData.get("scope") ?? null;
-  const sub = formData.get("id_token_sub") ?? null;
-  const codeChallengeMethod = formData.get("code_challenge_method") ?? null;
-  const codeChallengeValue = formData.get("code_challenge_value") ?? null;
-
   const code = crypto.randomUUID();
 
   try {
     ctx.db
       .query(
         `
-    INSERT INTO auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge_value)
+    INSERT INTO auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge)
     VALUES ($code, $clientId, $redirectUri, $scope, $sub, $codeChallengeMethod, $codeChallengeValue)
   `,
       )
       .run({
         code,
-        clientId,
         redirectUri,
-        scope,
-        sub,
-        codeChallengeMethod,
-        codeChallengeValue,
+        clientId: formData.get("client_id") ?? null,
+        scope: formData.get("scope") ?? null,
+        sub: formData.get("id_token_sub") ?? null,
+        codeChallengeMethod: formData.get("code_challenge_method") ?? null,
+        codeChallengeValue: formData.get("code_challenge") ?? null,
       });
   } catch (err) {
     console.error(err);
