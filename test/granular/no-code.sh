@@ -29,7 +29,6 @@ curl_options=" \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --header 'Authorization: Basic $auth_header' \
   --data-urlencode 'grant_type=authorization_code' \
-  --data-urlencode 'code=$code' \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
 "
 
