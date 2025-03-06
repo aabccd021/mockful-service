@@ -17,7 +17,7 @@ const LoginSession = object({
   scope: optional(string()),
   code_challenge_method: optional(string()),
   code_challenge_value: optional(string()),
-  google_auth_id_token_sub: optional(string()),
+  id_token_sub: optional(string()),
 });
 
 function formInput(name: string, value: string | null): string {
@@ -72,8 +72,8 @@ function handleLoginGet(req: Request): Response {
           ${formInput("code_challenge_method", codeChallengeMethod)}
           ${formInput("code_challenge_value", codeChallengeValue)}
 
-          <label for="google_auth_id_token_sub">sub</label>
-          <input type="text" name="google_auth_id_token_sub" id="google_auth_id_token_sub" maxlength="255" required pattern="+" />
+          <label for="id_token_sub">sub</label>
+          <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
 
           <button>Submit</button>
         </form>
@@ -112,7 +112,7 @@ async function handleLoginPost(req: Request): Promise<Response> {
       clientId: loginSession.client_id ?? null,
       redirectUri: loginSession.redirect_uri ?? null,
       scope: loginSession.scope ?? null,
-      sub: loginSession.google_auth_id_token_sub ?? null,
+      sub: loginSession.id_token_sub ?? null,
       codeChallengeMethod: loginSession.code_challenge_method ?? null,
       codeChallengeValue: loginSession.code_challenge_value ?? null,
     });
