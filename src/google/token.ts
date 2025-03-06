@@ -51,8 +51,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   if (grantType !== "authorization_code") {
     return errorMessage(
-      `Invalid grant_type: "${grantType}".`,
-      `Expected "authorization_code".`,
+      `Invalid grant_type: "${grantType}". Expected "authorization_code".`,
     );
   }
 

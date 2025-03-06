@@ -89,18 +89,19 @@ let
   };
 
   granularTests = mapTests "test-google-granular-" granularServer {
-    success = ./granular/success.sh;
-    success-s256 = ./granular/success-s256.sh;
-    no-code-verifier = ./granular/no-code-verifier.sh;
-    callback-url-mismatch = ./granular/callback-url-mismatch.sh;
     auth-not-basic = ./granular/auth-not-basic.sh;
-    no-credentials = ./granular/no-credentials.sh;
+    auth-session-not-found = ./granular/auth-session-not-found.sh;
+    callback-url-mismatch = ./granular/callback-url-mismatch.sh;
     client-id-mismatch = ./granular/client-id-mismatch.sh;
     client-secret-mismatch = ./granular/client-secret-mismatch.sh;
     invalid-grant-type = ./granular/invalid-grant-type.sh;
-    no-grant-type = ./granular/no-grant-type.sh;
     no-code = ./granular/no-code.sh;
-    auth-session-not-found = ./granular/auth-session-not-found.sh;
+    no-code-verifier = ./granular/no-code-verifier.sh;
+    no-credentials = ./granular/no-credentials.sh;
+    no-grant-type = ./granular/no-grant-type.sh;
+    no-auth-header = ./granular/no-auth-header.sh;
+    success = ./granular/success.sh;
+    success-s256 = ./granular/success-s256.sh;
   };
 
 in
