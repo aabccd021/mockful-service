@@ -68,4 +68,4 @@ function handle(req: Request): Response {
 
 Bun.serve({ port: 3000, fetch: handle });
 
-await Bun.write("./ready0.fifo", "");
+writeFileSync("./ready0.fifo", "");

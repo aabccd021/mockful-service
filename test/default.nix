@@ -6,6 +6,8 @@ let
   mkServer = src: pkgs.runCommandLocal "server" { } ''
     ${pkgs.bun}/bin/bun build ${src} \
       --compile \
+      --minify \
+      --bytecode \
       --sourcemap \
       --outfile server
     mkdir -p $out/bin
@@ -96,4 +98,7 @@ let
   };
 
 in
-normalTests // granularTests
+normalTests // granularTests // {
+  normalServer = normalServer;
+  granularServer = granularServer;
+}

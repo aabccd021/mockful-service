@@ -1,3 +1,5 @@
+import { writeFileSync } from "node:fs";
+
 function home(req: Request): Response {
   const url = new URL(req.url);
 
@@ -121,4 +123,4 @@ async function handle(req: Request): Promise<Response> {
 
 Bun.serve({ port: 3000, fetch: handle });
 
-await Bun.write("./ready0.fifo", "");
+writeFileSync("./ready0.fifo", "");
