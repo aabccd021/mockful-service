@@ -4,6 +4,15 @@ function generateGoogleIdToken(
   clientId: string,
   sub: string,
 ): string | undefined {
+  const header = {
+    alg: "HS256",
+    typ: "JWT",
+  };
+
+  const headerStr = new TextEncoder()
+    .encode(JSON.stringify(header))
+    .toBase64({ alphabet: "base64url" });
+
   const payload = {
     aud: clientId,
     exp: Date.now() + 3600,
@@ -16,16 +25,8 @@ function generateGoogleIdToken(
     .encode(JSON.stringify(payload))
     .toBase64({ alphabet: "base64url" });
 
-  const header = { alg: "HS256", typ: "JWT" };
-
-  const headerStr = new TextEncoder()
-    .encode(JSON.stringify(header))
-    .toBase64({ alphabet: "base64url" });
-
-  const signatureContent = `${headerStr}.${payloadStr}`;
-
   const hasher = new Bun.CryptoHasher("sha256");
-  hasher.update(signatureContent);
+  hasher.update(`${headerStr}.${payloadStr}`);
   const signature = hasher.digest("base64url");
 
   return `${headerStr}.${payloadStr}.${signature}`;
