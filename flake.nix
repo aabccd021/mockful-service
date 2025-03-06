@@ -1,13 +1,14 @@
 {
+  nixConfig.allow-import-from-derivation = false;
+
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     treefmt-nix.url = "github:numtide/treefmt-nix";
-    build-node-modules.url = "github:aabccd021/build-node-modules";
     netero-test.url = "github:aabccd021/netero-test";
     miglite.url = "github:aabccd021/miglite";
   };
 
-  outputs = { self, nixpkgs, treefmt-nix, build-node-modules, netero-test, miglite }:
+  outputs = { self, nixpkgs, treefmt-nix, netero-test, miglite }:
     let
 
       overlay = (final: prev: {
@@ -27,8 +28,6 @@
         pkgs = pkgs;
       };
 
-      nodeModules = build-node-modules.lib.buildNodeModules pkgs ./package.json ./package-lock.json;
-
       treefmtEval = treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
         programs.prettier.enable = true;
@@ -40,15 +39,6 @@
         settings.global.excludes = [ "LICENSE" "*.ico" "*.sql" ];
       };
 
-      tsc = pkgs.runCommandNoCCLocal "tsc" { } ''
-        cp -Lr ${./src} ./src
-        cp -L ${./package.json} ./package.json
-        cp -L ${./tsconfig.json} ./tsconfig.json
-        cp -Lr ${nodeModules} ./node_modules
-        ${pkgs.typescript}/bin/tsc
-        touch $out
-      '';
-
       biome = pkgs.runCommandNoCCLocal "biome" { } ''
         cp -Lr ${./src} ./src
         cp -L ${./biome.jsonc} ./biome.jsonc
@@ -58,9 +48,7 @@
 
       packages = test // {
         formatting = treefmtEval.config.build.check self;
-        tsc = tsc;
         biome = biome;
-        nodeModules = nodeModules;
         default = pkgs.auth-mock;
         auth-mock = pkgs.auth-mock;
       };
@@ -88,5 +76,12 @@
           pkgs.typescript
         ];
       };
+
+
+      apps.x86_64-linux.fix = {
+        type = "app";
+        program = "${pkgs.typescript}/bin/tsc";
+      };
+
     };
 }
