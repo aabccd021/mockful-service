@@ -36,11 +36,17 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return new Response(null, { status: 405 });
   }
 
-  const formData = await req.formData();
+  const formDataRaw = await req.formData();
+  const formData = new Map<string, string>();
+  for (const [key, value] of formDataRaw) {
+    if (typeof value === "string") {
+      formData.set(key, value);
+    }
+  }
 
   const grantType = formData.get("grant_type");
 
-  if (grantType === null) {
+  if (grantType === undefined) {
     return errorMessage("Parameter grant_type is required.");
   }
 
@@ -51,13 +57,8 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   const code = formData.get("code");
-
-  if (code === null) {
+  if (code === undefined) {
     return errorMessage("Parameter code is required.");
-  }
-
-  if (code instanceof File) {
-    return errorMessage('Invalid code type: "file". Expected "string".');
   }
 
   const authSession = ctx.db
@@ -92,15 +93,8 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     }
 
     const codeVerifier = formData.get("code_verifier");
-
-    if (codeVerifier === null) {
+    if (codeVerifier === undefined) {
       return errorMessage("Parameter code_verifier is required.");
-    }
-
-    if (codeVerifier instanceof File) {
-      return errorMessage(
-        'Invalid code_verifier type: "file". Expected "string".',
-      );
     }
 
     const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
