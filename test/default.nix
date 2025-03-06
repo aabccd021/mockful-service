@@ -13,6 +13,7 @@ let
   '';
 
   normalServer = mkServer ./normal_server.ts;
+  granularServer = mkServer ./granular_server.ts;
 
   test = testFile: server:
     pkgs.runCommandLocal ""
@@ -22,6 +23,7 @@ let
           pkgs.netero-test
           pkgs.auth-mock
           pkgs.jwt-cli
+          pkgs.curl
           server
         ];
       } ''
@@ -75,7 +77,7 @@ let
         });
     });
 
-  normalTest = mapTests "test-google-" normalServer {
+  normalTests = mapTests "test-google-normal-" normalServer {
     empty-scope-no-idtoken = ./normal/empty-scope-no-idtoken.sh;
     no-client-id = ./normal/no-client-id.sh;
     no-redirect-uri = ./normal/no-redirect-uri.sh;
@@ -86,5 +88,9 @@ let
     s256-mismatch = ./normal/s256-mismatch.sh;
   };
 
+  granularTests = mapTests "test-google-granular-" granularServer {
+    success = ./granular/success.sh;
+  };
+
 in
-normalTest
+normalTests // granularTests

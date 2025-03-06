@@ -1,3 +1,5 @@
+import { writeFileSync } from "node:fs";
+
 function home(req: Request): Response {
   const url = new URL(req.url);
 
@@ -52,6 +54,9 @@ function handle(req: Request): Response {
   }
   if (path === "/login-callback") {
     if (req.method === "GET") {
+      const url = new URL(req.url);
+      writeFileSync("./code.txt", url.searchParams.get("code") ?? "");
+
       return new Response(null, { status: 200 });
     }
     return new Response(null, { status: 405 });

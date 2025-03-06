@@ -21,7 +21,7 @@ function generateGoogleIdToken(clientId: string, sub: string): string {
 
   const signatureContent = `${headerStr}.${payloadStr}`;
 
-  const hasher = new Bun.CryptoHasher("sha256", "secret-key");
+  const hasher = new Bun.CryptoHasher("sha256");
   hasher.update(signatureContent);
   const signature = hasher.digest("base64url");
 
@@ -91,7 +91,6 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
       : null;
 
   if (codeChallengeValue !== null) {
-    console.error(authSession);
     if (codeChallengeMethod !== "S256") {
       return errorMessage("Code challenge plain is currently not supported.");
     }
