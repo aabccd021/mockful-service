@@ -11,10 +11,7 @@
     let
 
       overlay = (final: prev: {
-        auth-mock = import ./server.nix {
-          pkgs = final;
-          buildNodeModules = build-node-modules.lib.buildNodeModules;
-        };
+        auth-mock = import ./server.nix { pkgs = final; };
       });
 
       pkgs = import nixpkgs {
@@ -29,6 +26,8 @@
       test = import ./test {
         pkgs = pkgs;
       };
+
+      nodeModules = build-node-modules.lib.buildNodeModules pkgs ./package.json ./package-lock.json;
 
       treefmtEval = treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
@@ -45,7 +44,7 @@
         cp -Lr ${./src} ./src
         cp -L ${./package.json} ./package.json
         cp -L ${./tsconfig.json} ./tsconfig.json
-        cp -Lr ${pkgs.auth-mock.nodeModules} ./node_modules
+        cp -Lr ${nodeModules} ./node_modules
         ${pkgs.typescript}/bin/tsc
         touch $out
       '';
@@ -55,7 +54,7 @@
         cp -L ${./biome.jsonc} ./biome.jsonc
         cp -L ${./package.json} ./package.json
         cp -L ${./tsconfig.json} ./tsconfig.json
-        cp -Lr ${pkgs.auth-mock.nodeModules} ./node_modules
+        cp -Lr ${nodeModules} ./node_modules
         ${pkgs.biome}/bin/biome check --error-on-warnings
         touch $out
       '';
@@ -84,7 +83,7 @@
         formatting = treefmtEval.config.build.check self;
         tsc = tsc;
         biome = biome;
-        nodeModules = pkgs.auth-mock.nodeModules;
+        nodeModules = nodeModules;
         default = pkgs.auth-mock;
         auth-mock = pkgs.auth-mock;
         publish = publish;

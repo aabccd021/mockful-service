@@ -1,7 +1,6 @@
-{ pkgs, buildNodeModules }:
+{ pkgs }:
 
 let
-  nodeModules = buildNodeModules pkgs ./package.json ./package-lock.json;
 
   db = pkgs.runCommand "initial_db" { } ''
     mkdir -p $out
@@ -14,13 +13,10 @@ in
 pkgs.runCommand "compiled-server"
 {
   passthru = {
-    nodeModules = nodeModules;
     db = db;
   };
 } ''
-  cp -Lr ${nodeModules} ./node_modules
   cp -Lr ${./src} ./src
-  cp -L ${./tsconfig.json} ./tsconfig.json
   ${pkgs.bun}/bin/bun build ./src/index.ts \
     --compile \
     --minify \
