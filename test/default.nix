@@ -98,6 +98,7 @@ let
     client-id-mismatch = ./granular/client-id-mismatch.sh;
     client-secret-mismatch = ./granular/client-secret-mismatch.sh;
     invalid-grant-type = ./granular/invalid-grant-type.sh;
+    no-grant-type = ./granular/no-grant-type.sh;
   };
 
 in
