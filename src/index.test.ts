@@ -79,19 +79,6 @@
 //       return url;
 //     }
 
-//     test("state is not URL-safe", async () => {
-//       const url = validUrl();
-//       url.searchParams.set(
-//         "state",
-//         "[123456789abcdef0123456789abcdef0123456789a",
-//       );
-//       const response = await googleLogin(new Request(url));
-//       expect(response.status).toBe(400);
-//       expect(response.text()).resolves.toBe(
-//         `Invalid state character: "[". Expected URL-safe character.`,
-//       );
-//     });
-
 //     test("code_challenge length is not 43", async () => {
 //       const url = validUrl();
 //       url.searchParams.set("code_challenge", "123");
@@ -101,7 +88,7 @@
 //         "Invalid code_challenge length: 3. Expected 43.",
 //       );
 //     });
-//
+
 //     test("code_challenge_method is null but code_challenge is provided", async () => {
 //       const url = validUrl();
 //       url.searchParams.delete("code_challenge_method");
