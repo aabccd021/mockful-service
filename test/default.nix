@@ -94,6 +94,7 @@ let
     no-code-verifier = ./granular/no-code-verifier.sh;
     callback-url-mismatch = ./granular/callback-url-mismatch.sh;
     auth-not-basic = ./granular/auth-not-basic.sh;
+    no-credentials = ./granular/no-credentials.sh;
   };
 
 in
