@@ -75,7 +75,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   ctx.db.query("DELETE FROM auth_session WHERE code = $code").run({ code });
 
-  const codeChallengeValue =
+  const codeChallenge =
     "code_challenge" in authSession &&
     typeof authSession.code_challenge === "string"
       ? authSession.code_challenge
@@ -87,7 +87,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
       ? authSession.code_challenge_method
       : null;
 
-  if (codeChallengeValue !== null) {
+  if (codeChallenge !== null) {
     if (codeChallengeMethod !== "S256") {
       return errorMessage("Code challenge plain is currently not supported.");
     }
@@ -107,7 +107,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
       omitPadding: true,
     });
 
-    if (expectedCodeChallenge !== codeChallengeValue) {
+    if (expectedCodeChallenge !== codeChallenge) {
       return errorMessage(
         "Hash of code_verifier does not match code_challenge.",
       );
