@@ -4,7 +4,12 @@ let
   nodeModules = buildNodeModules pkgs ./package.json ./package-lock.json;
 in
 
-pkgs.runCommand "compiled-server" { } ''
+pkgs.runCommand "compiled-server"
+{
+  passthru = {
+    nodeModules = nodeModules;
+  };
+} ''
   cp -Lr ${nodeModules} ./node_modules
   cp -Lr ${./src} ./src
   cp -L ${./tsconfig.json} ./tsconfig.json
