@@ -92,7 +92,13 @@ async function handle(req: Request): Promise<Response> {
   const authSession = db
     .query("SELECT * FROM auth_session WHERE code = $code")
     .get({ code });
-  assert(authSession, AuthSession);
+
+  try {
+    assert(authSession, AuthSession);
+  } catch (err) {
+    console.error(err);
+    return errorMessage("Invalid auth session.");
+  }
 
   if (authSession === null) {
     console.error(`Auth session not found for code: "${code}"`);

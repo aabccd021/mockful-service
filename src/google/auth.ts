@@ -2,7 +2,7 @@ import { Database } from "bun:sqlite";
 import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import type { Server } from "bun";
-import { assert, nullable, object, string } from "superstruct";
+import { assert, object, optional, string } from "superstruct";
 import { errorMessage } from "../util.ts";
 
 const db = new Database("db.sqlite", {
@@ -10,17 +10,22 @@ const db = new Database("db.sqlite", {
   safeIntegers: true,
 });
 
-const LoginSession = nullable(
-  object({
-    code: string(),
-    client_id: string(),
-    redirect_uri: string(),
-    state: nullable(string()),
-    scope: nullable(string()),
-    code_challenge_method: nullable(string()),
-    code_challenge_value: nullable(string()),
-  }),
-);
+const LoginSession = object({
+  client_id: optional(string()),
+  redirect_uri: string(),
+  state: optional(string()),
+  scope: optional(string()),
+  code_challenge_method: optional(string()),
+  code_challenge_value: optional(string()),
+  google_auth_id_token_sub: optional(string()),
+});
+
+function formInput(name: string, value: string | null): string {
+  if (value === null) {
+    return "";
+  }
+  return `<input type="hidden" name="${name}" value="${value}" />`;
+}
 
 function handleLoginGet(req: Request): Response {
   const searchParams = new URL(req.url).searchParams;
@@ -39,25 +44,6 @@ function handleLoginGet(req: Request): Response {
   const state = searchParams.get("state");
   const codeChallengeMethod = searchParams.get("code_challenge_method");
   const codeChallengeValue = searchParams.get("code_challenge");
-
-  const code = crypto.randomUUID();
-
-  try {
-    db.query(
-      `INSERT INTO login_session (code, redirect_uri, client_id, state, scope, code_challenge_method, code_challenge_value)
-         VALUES ($code, $redirectUri, $clientId, $state, $scope, $codeChallengeMethod, $codeChallengeValue)`,
-    ).run({
-      code,
-      clientId,
-      redirectUri,
-      state,
-      scope,
-      codeChallengeMethod,
-      codeChallengeValue,
-    });
-  } catch (_e) {
-    return errorMessage("Failed to create login session.");
-  }
 
   const loginForm = `
     <!DOCTYPE html>
@@ -79,7 +65,12 @@ function handleLoginGet(req: Request): Response {
 
         <form method="post">
 
-          <input type="hidden" name="login_session_code" value="${code}" />
+          ${formInput("client_id", clientId)}
+          ${formInput("redirect_uri", redirectUri)}
+          ${formInput("scope", scope)}
+          ${formInput("state", state)}
+          ${formInput("code_challenge_method", codeChallengeMethod)}
+          ${formInput("code_challenge_value", codeChallengeValue)}
 
           <label for="google_auth_id_token_sub">sub</label>
           <input type="text" name="google_auth_id_token_sub" id="google_auth_id_token_sub" maxlength="255" required pattern="+" />
@@ -99,43 +90,36 @@ function handleLoginGet(req: Request): Response {
 
 async function handleLoginPost(req: Request): Promise<Response> {
   const formData = await req.formData();
+  const loginSession = Object.fromEntries(formData.entries());
 
-  const code = formData.get("login_session_code");
-  if (typeof code !== "string") {
-    return errorMessage("Invalid code. Expected a string.");
+  try {
+    assert(loginSession, LoginSession);
+  } catch (err) {
+    console.error(err);
+    return errorMessage("Invalid login session.");
   }
 
-  const loginSession = db
-    .query("SELECT * FROM login_session WHERE code = $code")
-    .get({ code });
+  const code = crypto.randomUUID();
 
-  assert(loginSession, LoginSession);
-
-  if (loginSession === null) {
-    return errorMessage(code, `Login session not found for code: "${code}"`);
-  }
-
-  db.query("DELETE FROM login_session WHERE code = $code").run({ code });
-
-  const googleAuthIdTokenSub = formData.get("google_auth_id_token_sub");
-  if (typeof googleAuthIdTokenSub !== "string") {
-    return errorMessage("Invalid google_auth_id_token_sub. Expected a string.");
-  }
-
-  db.query(
-    `
+  try {
+    db.query(
+      `
     INSERT INTO auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge_value)
     VALUES ($code, $clientId, $redirectUri, $scope, $sub, $codeChallengeMethod, $codeChallengeValue)
   `,
-  ).run({
-    code,
-    clientId: loginSession.client_id,
-    redirectUri: loginSession.redirect_uri,
-    scope: loginSession.scope,
-    sub: googleAuthIdTokenSub,
-    codeChallengeMethod: loginSession.code_challenge_method,
-    codeChallengeValue: loginSession.code_challenge_value,
-  });
+    ).run({
+      code,
+      clientId: loginSession.client_id ?? null,
+      redirectUri: loginSession.redirect_uri ?? null,
+      scope: loginSession.scope ?? null,
+      sub: loginSession.google_auth_id_token_sub ?? null,
+      codeChallengeMethod: loginSession.code_challenge_method ?? null,
+      codeChallengeValue: loginSession.code_challenge_value ?? null,
+    });
+  } catch (err) {
+    console.error(err);
+    return errorMessage("Failed to store login session.");
+  }
 
   const forwardedParamNames = ["state", "code", "scope", "authUser", "prompt"];
 
@@ -143,7 +127,7 @@ async function handleLoginPost(req: Request): Promise<Response> {
   redirectUrl.searchParams.set("code", code);
 
   for (const [key, value] of Object.entries(loginSession)) {
-    if (value !== null && forwardedParamNames.includes(key)) {
+    if (typeof value === "string" && forwardedParamNames.includes(key)) {
       redirectUrl.searchParams.set(key, value);
     }
   }
