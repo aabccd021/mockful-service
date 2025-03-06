@@ -79,16 +79,6 @@
 //       return url;
 //     }
 
-//     test("redirect_uri is required", async () => {
-//       const url = validUrl();
-//       url.searchParams.delete("redirect_uri");
-//       const response = await googleLogin(new Request(url));
-//       expect(response.status).toBe(400);
-//       expect(response.text()).resolves.toBe(
-//         "Parameter redirect_uri is required.",
-//       );
-//     });
-
 //     test("state is not URL-safe", async () => {
 //       const url = validUrl();
 //       url.searchParams.set(
@@ -101,7 +91,7 @@
 //         `Invalid state character: "[". Expected URL-safe character.`,
 //       );
 //     });
-//
+
 //     test("code_challenge length is not 43", async () => {
 //       const url = validUrl();
 //       url.searchParams.set("code_challenge", "123");
