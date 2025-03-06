@@ -119,6 +119,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     typeof authSession.redirect_uri === "string"
       ? authSession.redirect_uri
       : null;
+  if (redirectUri === null) {
+    throw new Error("Absurd redirectUri");
+  }
+
   if (formData.get("redirect_uri") !== redirectUri) {
     return errorMessage("Invalid redirect_uri.");
   }
@@ -140,11 +144,23 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   const [clientId, clientSecret] = atob(credentials).split(":");
+  if (clientId === undefined) {
+    return errorMessage("Client ID not found in Authorization header.");
+  }
+
+  if (clientSecret === undefined) {
+    return errorMessage("Client secret not found in Authorization header.");
+  }
 
   const authSessionClientId =
     "client_id" in authSession && typeof authSession.client_id === "string"
       ? authSession.client_id
       : null;
+
+  if (authSessionClientId === null) {
+    throw new Error("Absurd authSessionClientId");
+  }
+
   if (clientId !== authSessionClientId) {
     return errorMessage("Invalid client_id");
   }
