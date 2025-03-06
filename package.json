@@ -1,11 +1,7 @@
 {
   "name": "auth-mock-js",
-  "module": "dist/index.js",
   "type": "module",
   "devDependencies": {
     "@types/bun": "^1.1.14"
-  },
-  "dependencies": {
-    "superstruct": "^2.0.2"
   }
 }

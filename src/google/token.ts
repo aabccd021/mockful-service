@@ -1,18 +1,4 @@
-import { assert, enums, nullable, object, optional, string } from "superstruct";
 import { type Context, errorMessage } from "../util.ts";
-
-const AuthSession = nullable(
-  object({
-    code: string(),
-    client_id: string(),
-    redirect_uri: string(),
-    state: optional(string()),
-    scope: optional(string()),
-    sub: string(),
-    code_challenge_method: nullable(enums(["S256", "plain"])),
-    code_challenge_value: nullable(string()),
-  }),
-);
 
 function generateGoogleIdToken(clientId: string, sub: string): string {
   const payload = {
@@ -27,10 +13,7 @@ function generateGoogleIdToken(clientId: string, sub: string): string {
     .encode(JSON.stringify(payload))
     .toBase64({ alphabet: "base64url" });
 
-  const header = {
-    alg: "HS256",
-    typ: "JWT",
-  };
+  const header = { alg: "HS256", typ: "JWT" };
 
   const headerStr = new TextEncoder()
     .encode(JSON.stringify(header))
@@ -84,23 +67,32 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     .query("SELECT * FROM auth_session WHERE code = $code")
     .get({ code });
 
-  try {
-    assert(authSession, AuthSession);
-  } catch (err) {
-    console.error(err);
-    return errorMessage("Invalid auth session.");
-  }
-
   if (authSession === null) {
     console.error(`Auth session not found for code: "${code}"`);
     return new Response(null, { status: 400 });
   }
 
+  if (typeof authSession !== "object") {
+    return new Response(null, { status: 500 });
+  }
+
   ctx.db.query("DELETE FROM auth_session WHERE code = $code").run({ code });
 
-  if (authSession.code_challenge_value !== null) {
+  const codeChallengeValue =
+    "code_challenge_value" in authSession &&
+    typeof authSession.code_challenge_value === "string"
+      ? authSession.code_challenge_value
+      : null;
+
+  const codeChallengeMethod =
+    "code_challenge_method" in authSession &&
+    typeof authSession.code_challenge_method === "string"
+      ? authSession.code_challenge_method
+      : null;
+
+  if (codeChallengeValue !== null) {
     console.error(authSession);
-    if (authSession.code_challenge_method !== "S256") {
+    if (codeChallengeMethod !== "S256") {
       return errorMessage("Code challenge plain is currently not supported.");
     }
 
@@ -126,19 +118,20 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
       omitPadding: true,
     });
 
-    if (expectedCodeChallenge !== authSession.code_challenge_value) {
+    if (expectedCodeChallenge !== codeChallengeValue) {
       return errorMessage(
         "Hash of code_verifier does not match code_challenge.",
       );
     }
   }
 
-  const redirectUri = formData.get("redirect_uri");
-  if (redirectUri !== authSession.redirect_uri) {
-    return errorMessage(
-      `Invalid redirect_uri: "${redirectUri}".`,
-      `Expected "${authSession.redirect_uri}".`,
-    );
+  const redirectUri =
+    "redirect_uri" in authSession &&
+    typeof authSession.redirect_uri === "string"
+      ? authSession.redirect_uri
+      : null;
+  if (formData.get("redirect_uri") !== redirectUri) {
+    return errorMessage("Invalid redirect_uri.");
   }
 
   const authHeader = req.headers.get("Authorization");
@@ -160,11 +153,12 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const [clientId, clientSecret] = atob(credentials).split(":");
 
-  if (clientId !== authSession.client_id) {
-    return errorMessage(
-      `Invalid client_id: "${clientId}".`,
-      `Expected "${authSession.client_id}".`,
-    );
+  const authSessionClientId =
+    "client_id" in authSession && typeof authSession.client_id === "string"
+      ? authSession.client_id
+      : null;
+  if (clientId !== authSessionClientId) {
+    return errorMessage("Invalid client_id");
   }
 
   if (clientSecret !== "mock_client_secret") {
@@ -174,16 +168,32 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  const scopes = authSession.scope?.split(" ") ?? [];
+  const sub =
+    "sub" in authSession && typeof authSession.sub === "string"
+      ? authSession.sub
+      : null;
+  if (sub === null) {
+    return errorMessage("sub is required.");
+  }
 
+  const authSessionScope =
+    "scope" in authSession && typeof authSession.scope === "string"
+      ? authSession.scope
+      : null;
+
+  if (authSessionScope === null) {
+    return errorMessage("scope is required.");
+  }
+
+  const scopes = authSessionScope?.split(" ") ?? [];
   const idToken = scopes.includes("openid")
-    ? generateGoogleIdToken(clientId, authSession.sub)
+    ? generateGoogleIdToken(clientId, sub)
     : undefined;
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
     access_token: "mock_access_token",
-    scope: authSession.scope ?? undefined,
+    scope: authSessionScope ?? undefined,
     token_type: "Bearer",
     expires_in: 3600,
   };

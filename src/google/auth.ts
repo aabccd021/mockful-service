@@ -1,15 +1,4 @@
-import { assert, object, optional, string } from "superstruct";
 import { type Context, errorMessage } from "../util.ts";
-
-const LoginSession = object({
-  client_id: optional(string()),
-  redirect_uri: string(),
-  state: optional(string()),
-  scope: optional(string()),
-  code_challenge_method: optional(string()),
-  code_challenge_value: optional(string()),
-  id_token_sub: optional(string()),
-});
 
 function formInput(name: string, value: string | null): string {
   if (value === null) {
@@ -81,13 +70,35 @@ function handleGet(req: Request): Response {
 
 async function handlePost(req: Request, ctx: Context): Promise<Response> {
   const formData = await req.formData();
-  const loginSession = Object.fromEntries(formData.entries());
 
-  try {
-    assert(loginSession, LoginSession);
-  } catch (err) {
-    console.error(err);
-    return errorMessage("Invalid login session.");
+  const clientId = formData.get("client_id");
+  if (clientId instanceof File) {
+    return errorMessage("Parameter client_id has invalid type.");
+  }
+
+  const redirectUri = formData.get("redirect_uri");
+  if (typeof redirectUri !== "string") {
+    return errorMessage("Parameter redirect_uri has invalid type.");
+  }
+
+  const scope = formData.get("scope");
+  if (scope instanceof File) {
+    return errorMessage("Parameter scope has invalid type.");
+  }
+
+  const sub = formData.get("id_token_sub");
+  if (sub instanceof File) {
+    return errorMessage("Parameter id_token_sub has invalid type.");
+  }
+
+  const codeChallengeMethod = formData.get("code_challenge_method");
+  if (codeChallengeMethod instanceof File) {
+    return errorMessage("Parameter code_challenge_method has invalid type.");
+  }
+
+  const codeChallengeValue = formData.get("code_challenge_value");
+  if (codeChallengeValue instanceof File) {
+    return errorMessage("Parameter code_challenge_value has invalid type.");
   }
 
   const code = crypto.randomUUID();
@@ -102,12 +113,12 @@ async function handlePost(req: Request, ctx: Context): Promise<Response> {
       )
       .run({
         code,
-        clientId: loginSession.client_id ?? null,
-        redirectUri: loginSession.redirect_uri ?? null,
-        scope: loginSession.scope ?? null,
-        sub: loginSession.id_token_sub ?? null,
-        codeChallengeMethod: loginSession.code_challenge_method ?? null,
-        codeChallengeValue: loginSession.code_challenge_value ?? null,
+        clientId,
+        redirectUri,
+        scope,
+        sub,
+        codeChallengeMethod,
+        codeChallengeValue,
       });
   } catch (err) {
     console.error(err);
@@ -116,10 +127,10 @@ async function handlePost(req: Request, ctx: Context): Promise<Response> {
 
   const forwardedParamNames = ["state", "code", "scope", "authUser", "prompt"];
 
-  const redirectUrl = new URL(loginSession.redirect_uri);
+  const redirectUrl = new URL(redirectUri);
   redirectUrl.searchParams.set("code", code);
 
-  for (const [key, value] of Object.entries(loginSession)) {
+  for (const [key, value] of formData) {
     if (typeof value === "string" && forwardedParamNames.includes(key)) {
       redirectUrl.searchParams.set(key, value);
     }
