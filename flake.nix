@@ -24,9 +24,7 @@
         ];
       };
 
-      test = import ./test {
-        pkgs = pkgs;
-      };
+      test = import ./test { pkgs = pkgs; };
 
       treefmtEval = treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
@@ -76,7 +74,6 @@
           pkgs.typescript
         ];
       };
-
 
       apps.x86_64-linux.fix = {
         type = "app";
