@@ -32,7 +32,6 @@ let
 
       mkfifo "$PWD/ready0.fifo"
       mkfifo "$PWD/ready1.fifo"
-      mkfifo "$PWD/ready2.fifo"
 
       cp -Lr ${pkgs.auth-mock.db}/db.sqlite .
       chmod +w db.sqlite
@@ -41,21 +40,14 @@ let
         printf '\033[32m[server]\033[0m %s\n' "$line"
       done &
 
-      auth-mock-server "accounts.google.com" \
+      auth-mock-server \
         --on-ready-pipe "$PWD/ready1.fifo" \
         --port 3001 2>&1 | while IFS= read -r line; do
         printf '\033[34m[accounts.google.com]\033[0m %s\n' "$line"
       done &
 
-      auth-mock-server "oauth2.googleapis.com" \
-        --on-ready-pipe "$PWD/ready2.fifo" \
-        --port 3002 2>&1 | while IFS= read -r line; do
-        printf '\033[34m[oauth2.googleapis.com]\033[0m %s\n' "$line"
-      done &
-
-      cat ./ready0.fifo >/dev/null
-      cat ./ready1.fifo >/dev/null
-      cat ./ready2.fifo >/dev/null
+      timeout 5 cat ./ready0.fifo >/dev/null
+      timeout 5 cat ./ready1.fifo >/dev/null
 
       test_script=$(cat ${testFile})
       bash -euo pipefail -c "$test_script" 2>&1 | while IFS= read -r line; do

@@ -23,15 +23,8 @@ async function handle(req: Request, ctx: { db: Database }): Promise<Response> {
   return await subHandle(req, ctx);
 }
 
-const [url, ...args] = process.argv.slice(2);
-
-if (url === undefined) {
-  console.error("URL is required.");
-  process.exit(1);
-}
-
 const arg = parseArgs({
-  args,
+  args: process.argv.slice(2),
   options: {
     port: {
       type: "string",

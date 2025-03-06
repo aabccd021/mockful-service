@@ -33,7 +33,7 @@ curl_options=" \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
 "
 
-eval "curl $curl_options 'http://localhost:3002/https://oauth2.googleapis.com/token'"
+eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
 
 assert_response_code_equal 400
 assert_equal 'Invalid client_secret. Expected "mock_client_secret". Never use production client_secret in tests.' "$(cat "$NETERO_DIR/body")"

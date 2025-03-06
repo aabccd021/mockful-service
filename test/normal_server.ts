@@ -87,7 +87,7 @@ function callback(req: Request): Promise<Response> {
 
   const authHeader = btoa("mock_client_id:mock_client_secret");
 
-  return fetch("http://localhost:3002/https://oauth2.googleapis.com/token", {
+  return fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
