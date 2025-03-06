@@ -18,13 +18,8 @@ const AuthSession = nullable(
     state: optional(string()),
     scope: optional(string()),
     sub: string(),
-  }),
-);
-
-const CodeChallenge = nullable(
-  object({
-    method: enums(["S256", "plain"]),
-    value: string(),
+    code_challenge_method: nullable(enums(["S256", "plain"])),
+    code_challenge_value: nullable(string()),
   }),
 );
 
@@ -104,16 +99,14 @@ async function handle(req: Request): Promise<Response> {
     return new Response(null, { status: 400 });
   }
 
-  const codeChallenge = db
-    .query(
-      "SELECT * FROM auth_session_code_challenge WHERE auth_session_code = $auth_session_code",
-    )
-    .get({ auth_session_code: code });
-  assert(codeChallenge, CodeChallenge);
-
   db.query("DELETE FROM auth_session WHERE code = $code").run({ code });
 
-  if (codeChallenge?.method === "S256") {
+  if (authSession.code_challenge_value !== null) {
+    console.error(authSession);
+    if (authSession.code_challenge_method !== "S256") {
+      return errorMessage("Code challenge plain is currently not supported.");
+    }
+
     const codeVerifier = formData.get("code_verifier");
 
     if (codeVerifier === null) {
@@ -136,11 +129,11 @@ async function handle(req: Request): Promise<Response> {
       omitPadding: true,
     });
 
-    if (codeChallenge.value !== expectedCodeChallenge) {
+    if (expectedCodeChallenge !== authSession.code_challenge_value) {
       return errorMessage(
         "Hash of code_verifier does not match code_challenge.",
         `code_verifier: "${codeVerifier}".`,
-        `code_challenge: "${codeChallenge.value}".`,
+        `code_challenge: "${authSession.code_challenge_value}".`,
       );
     }
   }

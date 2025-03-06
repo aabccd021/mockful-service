@@ -2,7 +2,7 @@ import { Database } from "bun:sqlite";
 import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import type { Server } from "bun";
-import { assert, enums, nullable, object, string } from "superstruct";
+import { assert, nullable, object, string } from "superstruct";
 import { errorMessage } from "../util.ts";
 
 const db = new Database("db.sqlite", {
@@ -17,14 +17,8 @@ const LoginSession = nullable(
     redirect_uri: string(),
     state: nullable(string()),
     scope: nullable(string()),
-  }),
-);
-
-const CodeChallenge = nullable(
-  object({
-    login_session_code: string(),
-    method: enums(["S256", "plain"]),
-    value: string(),
+    code_challenge_method: nullable(string()),
+    code_challenge_value: nullable(string()),
   }),
 );
 
@@ -55,29 +49,23 @@ function handleLoginGet(req: Request): Response {
   }
 
   const state = searchParams.get("state");
+  const codeChallengeMethod = searchParams.get("code_challenge_method");
+  const codeChallengeValue = searchParams.get("code_challenge");
 
   const code = crypto.randomUUID();
 
   db.query(
-    `INSERT INTO login_session (code, redirect_uri, client_id, state, scope) 
-       VALUES ($code, $redirectUri, $clientId, $state, $scope)`,
-  ).run({ code, clientId, redirectUri, state, scope });
-
-  const codeChallengeMethod = searchParams.get("code_challenge_method");
-  const codeChallengeValue = searchParams.get("code_challenge");
-
-  if (codeChallengeMethod !== null && codeChallengeValue !== null) {
-    db.query(
-      `
-      INSERT INTO login_session_code_challenge (login_session_code, value, method) 
-      VALUES ($loginSessionCode, $value, $method)
-    `,
-    ).run({
-      loginSessionCode: code,
-      value: codeChallengeValue,
-      method: codeChallengeMethod,
-    });
-  }
+    `INSERT INTO login_session (code, redirect_uri, client_id, state, scope, code_challenge_method, code_challenge_value)
+       VALUES ($code, $redirectUri, $clientId, $state, $scope, $codeChallengeMethod, $codeChallengeValue)`,
+  ).run({
+    code,
+    clientId,
+    redirectUri,
+    state,
+    scope,
+    codeChallengeMethod,
+    codeChallengeValue,
+  });
 
   const loginForm = `
     <!DOCTYPE html>
@@ -135,14 +123,6 @@ async function handleLoginPost(req: Request): Promise<Response> {
     return errorMessage(code, `Login session not found for code: "${code}"`);
   }
 
-  const codeChallenge = db
-    .query(
-      "SELECT * FROM login_session_code_challenge WHERE login_session_code = $login_session_code",
-    )
-    .get({ login_session_code: code });
-
-  assert(codeChallenge, CodeChallenge);
-
   db.query("DELETE FROM login_session WHERE code = $code").run({ code });
 
   const googleAuthIdTokenSub = formData.get("google_auth_id_token_sub");
@@ -152,20 +132,18 @@ async function handleLoginPost(req: Request): Promise<Response> {
 
   db.query(
     `
-    INSERT INTO auth_session (code, client_id, redirect_uri, scope, sub)
-    VALUES ($code, $client_id, $redirect_uri, $scope, $sub)
+    INSERT INTO auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge_value)
+    VALUES ($code, $clientId, $redirectUri, $scope, $sub, $codeChallengeMethod, $codeChallengeValue)
   `,
   ).run({
     code,
-    client_id: loginSession.client_id,
-    redirect_uri: loginSession.redirect_uri,
+    clientId: loginSession.client_id,
+    redirectUri: loginSession.redirect_uri,
     scope: loginSession.scope,
     sub: googleAuthIdTokenSub,
+    codeChallengeMethod: loginSession.code_challenge_method,
+    codeChallengeValue: loginSession.code_challenge_value,
   });
-
-  db.query(
-    "DELETE FROM auth_session_code_challenge WHERE auth_session_code = $auth_session_code",
-  ).run({ auth_session_code: code });
 
   const forwardedParamNames = ["state", "code", "scope", "authUser", "prompt"];
 

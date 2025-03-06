@@ -1,12 +1,12 @@
 import type { Server } from "bun";
-import { serve as serveGoogleAuth } from "./google/auth.ts";
-import { serve as serveGoogleToken } from "./google/token.ts";
+import { serve as googleAuth } from "./google/auth.ts";
+import { serve as googleToken } from "./google/token.ts";
 
 type Serve = (args: string[]) => Promise<Server> | Server;
 
 const urlToServe: Record<string, Serve> = {
-  "oauth2.googleapis.com": serveGoogleToken,
-  "accounts.google.com": serveGoogleAuth,
+  "oauth2.googleapis.com": googleToken,
+  "accounts.google.com": googleAuth,
 };
 
 const [url, ...args] = process.argv.slice(2);
