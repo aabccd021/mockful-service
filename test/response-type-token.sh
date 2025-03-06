@@ -10,3 +10,5 @@ goto --url "http://localhost:3000\
 "
 
 assert_response_code_equal 400
+
+assert_equal 'Invalid response_type: "token". Expected "code".' "$(cat "$NETERO_DIR/body")"
