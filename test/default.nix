@@ -92,6 +92,7 @@ let
     success = ./granular/success.sh;
     success-s256 = ./granular/success-s256.sh;
     no-code-verifier = ./granular/no-code-verifier.sh;
+    callback-url-mismatch = ./granular/callback-url-mismatch.sh;
   };
 
 in
