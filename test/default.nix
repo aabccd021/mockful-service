@@ -3,8 +3,8 @@ let
 
   lib = pkgs.lib;
 
-  testServer = pkgs.runCommandLocal "server" { } ''
-    ${pkgs.bun}/bin/bun build ${./server.ts} \
+  normalServer = pkgs.runCommandLocal "server" { } ''
+    ${pkgs.bun}/bin/bun build ${./normal_server.ts} \
       --compile \
       --sourcemap \
       --outfile server
@@ -20,7 +20,7 @@ let
           pkgs.netero-test
           pkgs.auth-mock
           pkgs.jwt-cli
-          testServer
+          normalServer
         ];
       } ''
       export NETERO_DIR="$PWD/var/lib/netero"
