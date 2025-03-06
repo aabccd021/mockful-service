@@ -14,7 +14,9 @@ function home(req: Request): Response {
     "redirect_uri",
   ];
 
-  const newUrl = new URL("http://localhost:3001/o/oauth2/v2/auth");
+  const newUrl = new URL(
+    "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
+  );
   for (const [key, value] of url.searchParams) {
     if (forwardedParams.includes(key)) {
       newUrl.searchParams.set(key, value);

@@ -143,11 +143,6 @@ async function handlePost(req: Request, ctx: Context): Promise<Response> {
 }
 
 export async function handle(req: Request, ctx: Context): Promise<Response> {
-  const path = new URL(req.url).pathname;
-  if (path !== "/o/oauth2/v2/auth") {
-    return new Response(null, { status: 404 });
-  }
-
   if (req.method === "GET") {
     return handleGet(req);
   }

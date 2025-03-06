@@ -31,7 +31,7 @@ curl_options=" \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
 "
 
-eval "curl $curl_options 'http://localhost:3002/token'"
+eval "curl $curl_options 'http://localhost:3002/https://oauth2.googleapis.com/token'"
 
 assert_response_code_equal 400
 assert_equal 'Authorization header is required.' "$(cat "$NETERO_DIR/body")"

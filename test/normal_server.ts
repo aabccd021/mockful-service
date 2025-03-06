@@ -12,7 +12,9 @@ function home(req: Request): Response {
     "redirect_uri",
   ];
 
-  const newUrl = new URL("http://localhost:3001/o/oauth2/v2/auth");
+  const newUrl = new URL(
+    "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
+  );
   for (const [key, value] of url.searchParams) {
     if (forwardedParams.includes(key)) {
       newUrl.searchParams.set(key, value);
@@ -85,7 +87,7 @@ function callback(req: Request): Promise<Response> {
 
   const authHeader = btoa("mock_client_id:mock_client_secret");
 
-  return fetch("http://localhost:3002/token", {
+  return fetch("http://localhost:3002/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",

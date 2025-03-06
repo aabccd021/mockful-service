@@ -36,11 +36,6 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return new Response(null, { status: 405 });
   }
 
-  const path = new URL(req.url).pathname;
-  if (path !== "/token") {
-    return new Response(null, { status: 404 });
-  }
-
   const formData = await req.formData();
 
   const grantType = formData.get("grant_type");

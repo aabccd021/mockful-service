@@ -36,6 +36,6 @@ curl_options=" \
   --data-urlencode 'code_verifier=AWnuB2qLobencpDhxdlDb_yeTixrfG9SiKYOjwYrz4I' \
 "
 
-eval "curl $curl_options 'http://localhost:3002/token'"
+eval "curl $curl_options 'http://localhost:3002/https://oauth2.googleapis.com/token'"
 
 assert_response_code_equal 200
