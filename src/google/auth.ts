@@ -56,15 +56,15 @@ function handleLoginGet(req: Request): Response {
 
   const state = searchParams.get("state");
 
-  const codeChallengeMethod = searchParams.get("code_challenge_method");
-  const codeChallengeValue = searchParams.get("code_challenge");
-
   const code = crypto.randomUUID();
 
   db.query(
     `INSERT INTO login_session (code, redirect_uri, client_id, state, scope) 
        VALUES ($code, $redirectUri, $clientId, $state, $scope)`,
   ).run({ code, clientId, redirectUri, state, scope });
+
+  const codeChallengeMethod = searchParams.get("code_challenge_method");
+  const codeChallengeValue = searchParams.get("code_challenge");
 
   if (codeChallengeMethod !== null && codeChallengeValue !== null) {
     db.query(
