@@ -52,9 +52,6 @@
       biome = pkgs.runCommandNoCCLocal "biome" { } ''
         cp -Lr ${./src} ./src
         cp -L ${./biome.jsonc} ./biome.jsonc
-        cp -L ${./package.json} ./package.json
-        cp -L ${./tsconfig.json} ./tsconfig.json
-        cp -Lr ${nodeModules} ./node_modules
         ${pkgs.biome}/bin/biome check --error-on-warnings
         touch $out
       '';
