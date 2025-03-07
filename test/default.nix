@@ -17,8 +17,11 @@ let
   normalServer = mkServer ./normal_server.ts;
   granularServer = mkServer ./granular_server.ts;
 
-  mkTest = { name, testFile, server }:
-    pkgs.runCommandLocal name
+  mkTest = prefix: server: dir: name:
+    let
+      testFile = dir + "/${name}.sh";
+    in
+    pkgs.runCommandLocal "${prefix}${name}"
       {
         buildInputs = [
           pkgs.jq
@@ -63,11 +66,7 @@ let
   mapTests = prefix: server: dir: names: builtins.listToAttrs (builtins.map
     (name: {
       name = prefix + name;
-      value = mkTest {
-        name = prefix + name;
-        testFile = dir + "/${name}.sh";
-        server = server;
-      };
+      value = mkTest prefix server dir name;
     })
     names);
 
