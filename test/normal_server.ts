@@ -82,9 +82,15 @@ function callback(req: Request): Promise<Response> {
     throw new Error("state does not match");
   }
 
+  const body = new URLSearchParams({
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: "http://localhost:3000/login-callback",
+  });
+
   const codeVerifier = cookies.get("auth_code_verifier");
-  if (codeVerifier === undefined) {
-    throw new Error("code_verifier is required");
+  if (codeVerifier !== undefined) {
+    body.append("code_verifier", codeVerifier);
   }
 
   const authHeader = btoa("mock_client_id:mock_client_secret");
@@ -95,12 +101,7 @@ function callback(req: Request): Promise<Response> {
       "Content-Type": "application/x-www-form-urlencoded",
       Authorization: `Basic ${authHeader}`,
     },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: "http://localhost:3000/login-callback",
-      code_verifier: codeVerifier,
-    }),
+    body,
   });
 }
 

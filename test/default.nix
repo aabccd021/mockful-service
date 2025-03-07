@@ -45,6 +45,8 @@ let
     "response-type-token"
     "success"
     "success-s256"
+    "success-plain"
+    "success-no-challenge-method"
     "s256-mismatch"
   ];
 
