@@ -18,11 +18,13 @@ function generateGoogleIdToken(
     .encode(JSON.stringify(header))
     .toBase64({ alphabet: "base64url", omitPadding: true });
 
+  const nowEpoch = Math.floor(Date.now() / 1000);
+
   const payload = {
     iss: "https://accounts.google.com",
     aud: clientId,
-    iat: Date.now(),
-    exp: Date.now() + 3600,
+    iat: nowEpoch,
+    exp: nowEpoch + 3600,
     sub,
   };
 
