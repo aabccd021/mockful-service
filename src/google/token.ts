@@ -1,4 +1,28 @@
-import { type Context, errorMessage, getStringFormData } from "../util.ts";
+import {
+  type Context,
+  assertNever,
+  errorMessage,
+  getStringFormData,
+} from "../util.ts";
+
+function getExpectedCodeChallenge(
+  codeChallengeMethod: "S256" | "plain",
+  codeVerifier: string,
+): string {
+  if (codeChallengeMethod === "plain") {
+    return codeVerifier;
+  }
+  if (codeChallengeMethod === "S256") {
+    const hashBinary = new Bun.CryptoHasher("sha256")
+      .update(codeVerifier)
+      .digest();
+    return new Uint8Array(hashBinary).toBase64({
+      alphabet: "base64url",
+      omitPadding: true,
+    });
+  }
+  assertNever(codeChallengeMethod);
+}
 
 function generateGoogleIdToken(
   clientId: string,
@@ -144,29 +168,20 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
   db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
   if (authSession.codeChallenge !== undefined) {
-    if (authSession.codeChallengeMethod === "plain") {
-      return errorMessage("Code challenge plain is currently not supported.");
-    }
-
     const codeVerifier = formData.get("code_verifier");
     if (codeVerifier === undefined) {
       return errorMessage("Parameter code_verifier is required.");
     }
 
-    const codeChallengeBytes = new TextEncoder().encode(codeVerifier);
-    const codeChallengeHash = await crypto.subtle.digest(
-      "SHA-256",
-      codeChallengeBytes,
-    );
-    const expectedCodeChallenge = new Uint8Array(codeChallengeHash).toBase64({
-      alphabet: "base64url",
-      omitPadding: true,
-    });
+    const codeChallengeMethod: "S256" | "plain" =
+      authSession.codeChallengeMethod ?? "plain";
 
+    const expectedCodeChallenge = getExpectedCodeChallenge(
+      codeChallengeMethod,
+      codeVerifier,
+    );
     if (expectedCodeChallenge !== authSession.codeChallenge) {
-      return errorMessage(
-        "Hash of code_verifier does not match code_challenge.",
-      );
+      return errorMessage("Code verifier does not match code challenge.");
     }
   }
 

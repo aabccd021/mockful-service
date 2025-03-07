@@ -27,6 +27,12 @@ export function errorMessage(...message: string[]): Response {
   });
 }
 
+export function assertNever(value: never): never {
+  throw new Error(
+    `Unhandled discriminated union member: ${JSON.stringify(value)}`,
+  );
+}
+
 export async function getStringFormData(
   req: Request,
 ): Promise<ReadonlyMap<string, string>> {
