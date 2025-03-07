@@ -37,6 +37,79 @@ function generateGoogleIdToken(
   return `${headerStr}.${payloadStr}.${signatureStr}`;
 }
 
+export type AuthSession = {
+  clientId: string;
+  redirectUri: string;
+  scope?: string;
+  sub?: string;
+  codeChallenge?: string;
+  codeChallengeMethod?: "S256" | "plain";
+};
+
+function decodeAuthSession(authSession: unknown): AuthSession | null {
+  if (authSession === null) {
+    return null;
+  }
+  if (typeof authSession !== "object") {
+    throw new Error("Absurd authSession: not an object");
+  }
+
+  const clientId =
+    "client_id" in authSession && typeof authSession.client_id === "string"
+      ? authSession.client_id
+      : null;
+  if (clientId === null) {
+    throw new Error("Absurd clientId: null");
+  }
+
+  const redirectUri =
+    "redirect_uri" in authSession &&
+    typeof authSession.redirect_uri === "string"
+      ? authSession.redirect_uri
+      : null;
+  if (redirectUri === null) {
+    throw new Error("Absurd redirectUri: null");
+  }
+
+  const scope =
+    "scope" in authSession && typeof authSession.scope === "string"
+      ? authSession.scope
+      : undefined;
+
+  const sub =
+    "sub" in authSession && typeof authSession.sub === "string"
+      ? authSession.sub
+      : undefined;
+
+  const codeChallenge =
+    "code_challenge" in authSession &&
+    typeof authSession.code_challenge === "string"
+      ? authSession.code_challenge
+      : undefined;
+
+  const codeChallengeMethod =
+    "code_challenge_method" in authSession
+      ? authSession.code_challenge_method
+      : undefined;
+
+  if (
+    codeChallengeMethod !== "S256" &&
+    codeChallengeMethod !== "plain" &&
+    codeChallengeMethod !== null
+  ) {
+    throw new Error("Absurd codeChallengeMethodObj: invalid value");
+  }
+
+  return {
+    clientId,
+    redirectUri,
+    scope,
+    sub,
+    codeChallenge,
+    codeChallengeMethod: codeChallengeMethod ?? undefined,
+  };
+}
+
 export async function handle(req: Request, { db }: Context): Promise<Response> {
   if (req.method !== "POST") {
     return new Response(null, { status: 405 });
@@ -59,34 +132,19 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     return errorMessage("Parameter code is required.");
   }
 
-  const authSession = db
+  const authSessionRaw = db
     .query("SELECT * FROM google_auth_session WHERE code = $code")
     .get({ code });
 
+  const authSession = decodeAuthSession(authSessionRaw);
   if (authSession === null) {
     return errorMessage(`Auth session not found for code: "${code}".`);
   }
 
-  if (typeof authSession !== "object") {
-    return new Response(null, { status: 500 });
-  }
-
   db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
-  const authSessionCodeChallenge =
-    "code_challenge" in authSession &&
-    typeof authSession.code_challenge === "string"
-      ? authSession.code_challenge
-      : null;
-
-  if (authSessionCodeChallenge !== null) {
-    const authSessionCodeChallengeMethod =
-      "code_challenge_method" in authSession &&
-      typeof authSession.code_challenge_method === "string"
-        ? authSession.code_challenge_method
-        : null;
-
-    if (authSessionCodeChallengeMethod !== "S256") {
+  if (authSession.codeChallenge !== undefined) {
+    if (authSession.codeChallengeMethod === "plain") {
       return errorMessage("Code challenge plain is currently not supported.");
     }
 
@@ -105,23 +163,14 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
       omitPadding: true,
     });
 
-    if (expectedCodeChallenge !== authSessionCodeChallenge) {
+    if (expectedCodeChallenge !== authSession.codeChallenge) {
       return errorMessage(
         "Hash of code_verifier does not match code_challenge.",
       );
     }
   }
 
-  const authSessionRedirectUri =
-    "redirect_uri" in authSession &&
-    typeof authSession.redirect_uri === "string"
-      ? authSession.redirect_uri
-      : null;
-  if (authSessionRedirectUri === null) {
-    throw new Error("Absurd redirectUri");
-  }
-
-  if (formData.get("redirect_uri") !== authSessionRedirectUri) {
+  if (formData.get("redirect_uri") !== authSession.redirectUri) {
     return errorMessage("Invalid redirect_uri.");
   }
 
@@ -142,17 +191,9 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     return errorMessage("Credentials not found in Authorization header.");
   }
 
-  const authSessionClientId =
-    "client_id" in authSession && typeof authSession.client_id === "string"
-      ? authSession.client_id
-      : null;
-  if (authSessionClientId === null) {
-    throw new Error("Absurd authSessionClientId");
-  }
-
   const [clientId, clientSecret] = atob(credentials).split(":");
 
-  if (clientId !== authSessionClientId) {
+  if (clientId !== authSession.clientId) {
     return errorMessage("Invalid client_id");
   }
 
@@ -163,32 +204,23 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     );
   }
 
-  const authSessionSub =
-    "sub" in authSession && typeof authSession.sub === "string"
-      ? authSession.sub
-      : null;
-  if (authSessionSub === null) {
-    return errorMessage("sub is required.");
-  }
-
-  const authSessionScope =
-    "scope" in authSession && typeof authSession.scope === "string"
-      ? authSession.scope
-      : null;
-
-  if (authSessionScope === null) {
+  if (authSession.scope === undefined) {
     return errorMessage("scope is required.");
   }
 
-  const scopes = authSessionScope?.split(" ") ?? [];
+  if (authSession.sub === undefined) {
+    return errorMessage("sub is required.");
+  }
+
+  const scopes = authSession.scope.split(" ");
   const idToken = scopes.includes("openid")
-    ? generateGoogleIdToken(clientId, authSessionSub)
+    ? generateGoogleIdToken(clientId, authSession.sub)
     : undefined;
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
     access_token: "mock_access_token",
-    scope: authSessionScope ?? undefined,
+    scope: authSession.scope ?? undefined,
     token_type: "Bearer",
     expires_in: 3600,
   };
