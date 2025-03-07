@@ -16,8 +16,9 @@ function generateGoogleIdToken(
     .toBase64({ alphabet: "base64url", omitPadding: true });
 
   const header = {
-    alg: "HS256",
+    alg: "RS256",
     typ: "JWT",
+    // kid: "todo",
   };
 
   const headerStr = new TextEncoder()
