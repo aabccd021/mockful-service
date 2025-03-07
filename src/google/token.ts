@@ -25,9 +25,9 @@ function generateGoogleIdToken(
     .encode(JSON.stringify(payload))
     .toBase64({ alphabet: "base64url" });
 
-  const hasher = new Bun.CryptoHasher("sha256");
-  hasher.update(`${headerStr}.${payloadStr}`);
-  const signature = hasher.digest("base64url");
+  const signature = new Bun.CryptoHasher("sha256")
+    .update(`${headerStr}.${payloadStr}`)
+    .digest("base64url");
 
   return `${headerStr}.${payloadStr}.${signature}`;
 }
@@ -74,13 +74,13 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
       ? authSession.code_challenge
       : null;
 
-  const codeChallengeMethod =
-    "code_challenge_method" in authSession &&
-    typeof authSession.code_challenge_method === "string"
-      ? authSession.code_challenge_method
-      : null;
-
   if (codeChallenge !== null) {
+    const codeChallengeMethod =
+      "code_challenge_method" in authSession &&
+      typeof authSession.code_challenge_method === "string"
+        ? authSession.code_challenge_method
+        : null;
+
     if (codeChallengeMethod !== "S256") {
       return errorMessage("Code challenge plain is currently not supported.");
     }
