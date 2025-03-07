@@ -19,35 +19,14 @@ function handleGet(req: Request): Response {
   }
 
   const loginForm = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Login with Google</title>
-      </head>
-      <body>
-        <h1>Login with Google</h1>
+    <form method="post">
+      ${paramInputsStr}
 
-        <p>Following fields are payload of id_token returned by https://oauth2.googleapis.com/token</p>
+      <label for="id_token_sub">sub</label>
+      <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
 
-        <p>See 
-          <a href="https://developers.google.com/identity/openid-connect/openid-connect#obtainuserinfo">
-            Google's OpenID Connect documentation
-          </a>
-          for more information
-        </p>
-
-        <form method="post">
-
-          ${paramInputsStr}
-
-          <label for="id_token_sub">sub</label>
-          <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
-
-          <button>Submit</button>
-        </form>
-
-      </body>
-    </html>
+      <button>Submit</button>
+    </form>
   `;
   return new Response(loginForm, {
     headers: {
