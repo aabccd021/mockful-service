@@ -115,16 +115,16 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     }
   }
 
-  const redirectUri =
+  const authSessionRedirectUri =
     "redirect_uri" in authSession &&
     typeof authSession.redirect_uri === "string"
       ? authSession.redirect_uri
       : null;
-  if (redirectUri === null) {
+  if (authSessionRedirectUri === null) {
     throw new Error("Absurd redirectUri");
   }
 
-  if (formData.get("redirect_uri") !== redirectUri) {
+  if (formData.get("redirect_uri") !== authSessionRedirectUri) {
     return errorMessage("Invalid redirect_uri.");
   }
 
@@ -165,11 +165,11 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  const sub =
+  const authSessionSub =
     "sub" in authSession && typeof authSession.sub === "string"
       ? authSession.sub
       : null;
-  if (sub === null) {
+  if (authSessionSub === null) {
     return errorMessage("sub is required.");
   }
 
@@ -184,7 +184,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const scopes = authSessionScope?.split(" ") ?? [];
   const idToken = scopes.includes("openid")
-    ? generateGoogleIdToken(clientId, sub)
+    ? generateGoogleIdToken(clientId, authSessionSub)
     : undefined;
 
   const responseBody: Record<string, string | number | undefined> = {
