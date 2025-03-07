@@ -17,7 +17,6 @@ let
 
   mkTest = prefix: server: dir: name: pkgs.runCommandLocal "${prefix}${name}"
     {
-      env.INITIAL_DB = pkgs.auth-mock.db;
       env.TEST_FILE = "${dir}/${name}.sh";
       buildInputs = [
         pkgs.jq

@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { handle as googleAuth } from "./google/auth.ts";
 import { handle as googleToken } from "./google/token.ts";
@@ -32,7 +32,6 @@ const args = parseArgs({
     },
     db: {
       type: "string",
-      default: ":memory:",
     },
     "on-ready-pipe": {
       type: "string",
@@ -40,10 +39,30 @@ const args = parseArgs({
   },
 });
 
-const db = new Database(args.values.db, {
+const dbExists = args.values.db !== undefined && existsSync(args.values.db);
+
+const db = new Database(args.values.db ?? ":memory:", {
+  create: true,
   strict: true,
   safeIntegers: true,
 });
+
+db.exec("PRAGMA journal_mode = WAL;");
+db.exec("PRAGMA foreign_keys = ON;");
+
+if (!dbExists) {
+  db.exec(`
+    CREATE TABLE auth_session (
+      code TEXT PRIMARY KEY,
+      client_id TEXT NOT NULL,
+      redirect_uri TEXT NOT NULL,
+      scope TEXT,
+      sub TEXT,
+      code_challenge TEXT,
+      code_challenge_method TEXT CHECK (code_challenge_method IN ('S256', 'plain'))
+    );
+`);
+}
 
 Bun.serve({
   port: Number(args.values.port),

@@ -5,20 +5,28 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     netero-test.url = "github:aabccd021/netero-test";
-    miglite.url = "github:aabccd021/miglite";
   };
 
-  outputs = { self, nixpkgs, treefmt-nix, netero-test, miglite }:
+  outputs = { self, nixpkgs, treefmt-nix, netero-test }:
     let
 
       overlay = (final: prev: {
-        auth-mock = import ./server.nix { pkgs = final; };
+        auth-mock = final.runCommand "compiled-server" { } ''
+          cp -Lr ${./src} ./src
+          ${final.bun}/bin/bun build ./src/index.ts \
+            --compile \
+            --minify \
+            --sourcemap \
+            --bytecode \
+            --outfile server
+          mkdir -p $out/bin
+          mv server $out/bin/auth-mock-server
+        '';
       });
 
       pkgs = import nixpkgs {
         system = "x86_64-linux";
         overlays = [
-          miglite.overlays.default
           netero-test.overlays.default
           overlay
         ];

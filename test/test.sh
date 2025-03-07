@@ -4,9 +4,6 @@ mkdir -p "$NETERO_DIR"
 mkfifo "./ready0.fifo"
 mkfifo "./ready1.fifo"
 
-cp -Lr "$INITIAL_DB/db.sqlite" .
-chmod +w db.sqlite
-
 server 2>&1 | while IFS= read -r line; do
   printf '\033[32m[server]\033[0m %s\n' "$line"
 done &
