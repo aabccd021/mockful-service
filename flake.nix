@@ -11,7 +11,7 @@
     let
 
       overlay = (final: prev: {
-        auth-mock-server = final.runCommand "compiled-server" { } ''
+        netero-oauth-mock = final.runCommand "compiled-server" { } ''
           cp -Lr ${./src} ./src
           ${final.bun}/bin/bun build ./src/index.ts \
             --compile \
@@ -20,7 +20,7 @@
             --bytecode \
             --outfile server
           mkdir -p "$out/bin"
-          mv server "$out/bin/auth-mock-server"
+          mv server "$out/bin/netero-oauth-mock"
         '';
       });
 
@@ -55,8 +55,8 @@
       packages = test // {
         formatting = treefmtEval.config.build.check self;
         biome = biome;
-        default = pkgs.auth-mock-server;
-        auth-mock-server = pkgs.auth-mock-server;
+        default = pkgs.netero-oauth-mock;
+        netero-oauth-mock = pkgs.netero-oauth-mock;
       };
 
       gcroot = packages // {

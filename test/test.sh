@@ -8,7 +8,7 @@ server 2>&1 | while IFS= read -r line; do
   printf '\033[32m[server]\033[0m %s\n' "$line"
 done &
 
-auth-mock-server \
+netero-oauth-mock \
   --db "./db.sqlite" \
   --on-ready-pipe "./ready1.fifo" \
   --port 3001 2>&1 | while IFS= read -r line; do
