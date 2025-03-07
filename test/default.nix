@@ -1,8 +1,6 @@
 { pkgs }:
 let
 
-  lib = pkgs.lib;
-
   mkServer = src: pkgs.runCommandLocal "server" { } ''
     ${pkgs.bun}/bin/bun build ${src} \
       --compile \
