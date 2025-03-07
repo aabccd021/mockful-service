@@ -84,13 +84,12 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
     return errorMessage("Failed to store login session.");
   }
 
-  const forwardedParamNames = ["state", "scope", "prompt"];
-
   const redirectUrl = new URL(redirectUri);
   redirectUrl.searchParams.set("code", code);
 
-  for (const [key, value] of formData) {
-    if (forwardedParamNames.includes(key)) {
+  for (const key of ["state", "scope", "prompt"]) {
+    const value = formData.get(key);
+    if (value !== undefined) {
       redirectUrl.searchParams.set(key, value);
     }
   }
