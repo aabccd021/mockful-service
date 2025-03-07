@@ -49,7 +49,7 @@
         cp -Lr ${./src} ./src
         cp -L ${./biome.jsonc} ./biome.jsonc
         ${pkgs.biome}/bin/biome check --error-on-warnings
-        touch $out
+        touch "$out"
       '';
 
       packages = test // {
