@@ -25,9 +25,8 @@ assert_equal "mysub" "$sub"
 now=$(date +%s)
 
 exp=$(echo "$payload" | jq -r ".exp")
-exp_diff=$((exp - now))
-if [ "$exp_diff" -ne 3600 ]; then
-  echo "exp is not 1 hour from now: $exp_diff"
+if [ $((exp - now)) -ne 3600 ]; then
+  echo "exp is not 1 hour from now: $exp"
   exit 1
 fi
 
