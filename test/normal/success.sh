@@ -26,14 +26,13 @@ now=$(date +%s)
 
 exp=$(echo "$payload" | jq -r ".exp")
 exp_diff=$((exp - now))
-if [ "$exp_diff" -gt 3650 ] && [ "$exp_diff" -lt 3590 ]; then
-  echo "exp is not around 1 hour: $exp_diff"
+if [ "$exp_diff" -ne 3600 ]; then
+  echo "exp is not 1 hour from now: $exp_diff"
   exit 1
 fi
 
 iat=$(echo "$payload" | jq -r ".iat")
-iat_diff=$((now - iat))
-if [ "$iat_diff" -gt 10 ] && [ "$iat_diff" -lt 0 ]; then
-  echo "iat is not around 0: $iat_diff"
+if [ "$iat" -ne "$now" ]; then
+  echo "iat is not now: $iat"
   exit 1
 fi
