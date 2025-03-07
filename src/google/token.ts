@@ -11,7 +11,7 @@ function generateGoogleIdToken(
 
   const headerStr = new TextEncoder()
     .encode(JSON.stringify(header))
-    .toBase64({ alphabet: "base64url" });
+    .toBase64({ alphabet: "base64url", omitPadding: true });
 
   const payload = {
     aud: clientId,
@@ -23,13 +23,18 @@ function generateGoogleIdToken(
 
   const payloadStr = new TextEncoder()
     .encode(JSON.stringify(payload))
-    .toBase64({ alphabet: "base64url" });
+    .toBase64({ alphabet: "base64url", omitPadding: true });
 
   const signature = new Bun.CryptoHasher("sha256")
     .update(`${headerStr}.${payloadStr}`)
-    .digest("base64url");
+    .digest();
 
-  return `${headerStr}.${payloadStr}.${signature}`;
+  const signatureStr = new Uint8Array(signature).toBase64({
+    alphabet: "base64url",
+    omitPadding: true,
+  });
+
+  return `${headerStr}.${payloadStr}.${signatureStr}`;
 }
 
 export async function handle(req: Request, ctx: Context): Promise<Response> {
@@ -70,20 +75,20 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     .query("DELETE FROM google_auth_session WHERE code = $code")
     .run({ code });
 
-  const codeChallenge =
+  const authSessionCodeChallenge =
     "code_challenge" in authSession &&
     typeof authSession.code_challenge === "string"
       ? authSession.code_challenge
       : null;
 
-  if (codeChallenge !== null) {
-    const codeChallengeMethod =
+  if (authSessionCodeChallenge !== null) {
+    const authSessionCodeChallengeMethod =
       "code_challenge_method" in authSession &&
       typeof authSession.code_challenge_method === "string"
         ? authSession.code_challenge_method
         : null;
 
-    if (codeChallengeMethod !== "S256") {
+    if (authSessionCodeChallengeMethod !== "S256") {
       return errorMessage("Code challenge plain is currently not supported.");
     }
 
@@ -102,7 +107,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
       omitPadding: true,
     });
 
-    if (expectedCodeChallenge !== codeChallenge) {
+    if (expectedCodeChallenge !== authSessionCodeChallenge) {
       return errorMessage(
         "Hash of code_verifier does not match code_challenge.",
       );
