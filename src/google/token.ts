@@ -14,10 +14,10 @@ function generateGoogleIdToken(
     .toBase64({ alphabet: "base64url", omitPadding: true });
 
   const payload = {
+    iss: "https://accounts.google.com",
     aud: clientId,
     exp: Date.now() + 3600,
     iat: Date.now(),
-    iss: "https://accounts.google.com",
     sub,
   };
 
@@ -222,7 +222,7 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     access_token: "mock_access_token",
     scope: authSession.scope ?? undefined,
     token_type: "Bearer",
-    expires_in: 3600,
+    expires_in: 3599,
   };
 
   const cleanResponseBody = Object.fromEntries(
