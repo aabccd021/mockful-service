@@ -8,7 +8,13 @@ import {
 function generateGoogleIdToken(
   clientId: string,
   sub: string,
+  accessToken: string,
 ): string | undefined {
+  const atHashRaw = new Bun.CryptoHasher("sha256").update(accessToken).digest();
+  const atHash = new Uint8Array(atHashRaw)
+    .slice(0, 16)
+    .toBase64({ alphabet: "base64url", omitPadding: true });
+
   const header = {
     alg: "HS256",
     typ: "JWT",
@@ -25,6 +31,7 @@ function generateGoogleIdToken(
     aud: clientId,
     iat: nowEpoch,
     exp: nowEpoch + 3600,
+    at_hash: atHash,
     sub,
   };
 
@@ -221,14 +228,16 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     return errorMessage("sub is required.");
   }
 
+  const accessToken = crypto.randomUUID();
+
   const scopes = authSession.scope.split(" ");
   const idToken = scopes.includes("openid")
-    ? generateGoogleIdToken(clientId, authSession.sub)
+    ? generateGoogleIdToken(clientId, authSession.sub, accessToken)
     : undefined;
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
-    access_token: "mock_access_token",
+    access_token: accessToken,
     scope: authSession.scope ?? undefined,
     token_type: "Bearer",
     expires_in: 3599,

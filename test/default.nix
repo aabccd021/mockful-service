@@ -24,6 +24,7 @@ let
         pkgs.auth-mock-server
         pkgs.jwt-cli
         pkgs.curl
+        pkgs.tinyxxd
         server
       ];
     }

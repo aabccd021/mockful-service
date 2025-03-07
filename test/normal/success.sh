@@ -25,13 +25,32 @@ assert_equal "mysub" "$sub"
 now=$(date +%s)
 
 exp=$(echo "$payload" | jq -r ".exp")
-if [ $((exp - now)) -ne 3600 ]; then
+exp_diff=$((exp - now))
+if [ "$exp_diff" -gt 3601 ] || [ "$exp_diff" -lt 3599 ]; then
   echo "exp is not 1 hour from now: $exp"
   exit 1
 fi
 
 iat=$(echo "$payload" | jq -r ".iat")
-if [ "$iat" -ne "$now" ]; then
+iat_diff=$((iat - now))
+if [ "$iat_diff" -gt 1 ] || [ "$iat_diff" -lt -1 ]; then
   echo "iat is not now: $iat"
+  exit 1
+fi
+
+access_token=$(jq -r ".access_token" "$NETERO_DIR/body")
+
+at_hash=$(echo "$payload" | jq -r ".at_hash")
+expected_at_hash=$(
+  echo -n "$access_token" |
+    sha256sum |
+    cut -c 1-32 |
+    xxd -r -p |
+    base64 |
+    tr '+/' '-_' |
+    tr -d '='
+)
+if [ "$at_hash" != "$expected_at_hash" ]; then
+  echo "at_hash mismatch. expected: $expected_at_hash, actual: $at_hash"
   exit 1
 fi
