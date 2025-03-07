@@ -28,7 +28,6 @@ const args = parseArgs({
   options: {
     port: {
       type: "string",
-      default: "3000",
     },
     db: {
       type: "string",
@@ -36,8 +35,20 @@ const args = parseArgs({
     "on-ready-pipe": {
       type: "string",
     },
+    unix: {
+      type: "string",
+    },
   },
 });
+
+if (args.values.port !== undefined && args.values.unix !== undefined) {
+  throw new Error("Cannot specify both port and unix.");
+}
+
+const serverConfig =
+  args.values.unix !== undefined
+    ? { unix: args.values.unix }
+    : { port: Number.parseInt(args.values.port ?? "3000") };
 
 const dbExists = args.values.db !== undefined && existsSync(args.values.db);
 
@@ -65,7 +76,7 @@ if (!dbExists) {
 }
 
 Bun.serve({
-  port: Number(args.values.port),
+  ...serverConfig,
   fetch: (req): Promise<Response> => handle(req, { db }),
 });
 
