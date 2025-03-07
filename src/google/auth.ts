@@ -1,4 +1,4 @@
-import { type Context, errorMessage } from "../util.ts";
+import { type Context, errorMessage, getStringFormData } from "../util.ts";
 
 function formInput([name, value]: [name: string, value: string]): string {
   return `<input type="hidden" name="${name}" value="${value}" />`;
@@ -57,13 +57,7 @@ function handleGet(req: Request): Response {
 }
 
 async function handlePost(req: Request, ctx: Context): Promise<Response> {
-  const formDataRaw = await req.formData();
-  const formData = new Map<string, string>();
-  for (const [key, value] of formDataRaw) {
-    if (typeof value === "string") {
-      formData.set(key, value);
-    }
-  }
+  const formData = await getStringFormData(req);
 
   const redirectUri = formData.get("redirect_uri") ?? null;
   if (redirectUri === null) {

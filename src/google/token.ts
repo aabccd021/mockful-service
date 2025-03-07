@@ -1,4 +1,4 @@
-import { type Context, errorMessage } from "../util.ts";
+import { type Context, errorMessage, getStringFormData } from "../util.ts";
 
 function generateGoogleIdToken(
   clientId: string,
@@ -37,20 +37,12 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return new Response(null, { status: 405 });
   }
 
-  const formDataRaw = await req.formData();
-  const formData = new Map<string, string>();
-  for (const [key, value] of formDataRaw) {
-    if (typeof value === "string") {
-      formData.set(key, value);
-    }
-  }
+  const formData = await getStringFormData(req);
 
   const grantType = formData.get("grant_type");
-
   if (grantType === undefined) {
     return errorMessage("Parameter grant_type is required.");
   }
-
   if (grantType !== "authorization_code") {
     return errorMessage(
       `Invalid grant_type: "${grantType}". Expected "authorization_code".`,
