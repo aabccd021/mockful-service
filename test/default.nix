@@ -53,8 +53,7 @@ let
       timeout 5 cat ./ready0.fifo >/dev/null
       timeout 5 cat ./ready1.fifo >/dev/null
 
-      test_script=$(cat ${testFile})
-      bash -euo pipefail -c "$test_script" 2>&1 | while IFS= read -r line; do
+      bash -euo pipefail ${testFile} 2>&1 | while IFS= read -r line; do
         printf '\033[33m[client]\033[0m %s\n' "$line"
       done
 
