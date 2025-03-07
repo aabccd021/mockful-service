@@ -60,43 +60,44 @@ let
       mkdir $out
     '';
 
-  mapTests = prefix: server: lib.mapAttrs'
-    (name: testFile: {
+  mapTests = prefix: server: dir: names: builtins.listToAttrs (builtins.map
+    (name: {
       name = prefix + name;
       value = mkTest {
         name = prefix + name;
-        testFile = testFile;
+        testFile = dir + "/${name}.sh";
         server = server;
       };
-    });
+    })
+    names);
 
-  normalTests = mapTests "test-google-normal-" normalServer {
-    empty-scope-no-idtoken = ./normal/empty-scope-no-idtoken.sh;
-    no-client-id = ./normal/no-client-id.sh;
-    no-redirect-uri = ./normal/no-redirect-uri.sh;
-    no-scope = ./normal/no-scope.sh;
-    response-type-token = ./normal/response-type-token.sh;
-    success = ./normal/success.sh;
-    success-s256 = ./normal/success-s256.sh;
-    s256-mismatch = ./normal/s256-mismatch.sh;
-  };
+  normalTests = mapTests "test-google-normal-" normalServer ./normal [
+    "empty-scope-no-idtoken"
+    "no-client-id"
+    "no-redirect-uri"
+    "no-scope"
+    "response-type-token"
+    "success"
+    "success-s256"
+    "s256-mismatch"
+  ];
 
-  granularTests = mapTests "test-google-granular-" granularServer {
-    auth-not-basic = ./granular/auth-not-basic.sh;
-    auth-session-not-found = ./granular/auth-session-not-found.sh;
-    callback-url-mismatch = ./granular/callback-url-mismatch.sh;
-    client-id-mismatch = ./granular/client-id-mismatch.sh;
-    client-secret-mismatch = ./granular/client-secret-mismatch.sh;
-    invalid-grant-type = ./granular/invalid-grant-type.sh;
-    no-code = ./granular/no-code.sh;
-    no-code-verifier = ./granular/no-code-verifier.sh;
-    no-credentials = ./granular/no-credentials.sh;
-    no-grant-type = ./granular/no-grant-type.sh;
-    no-auth-header = ./granular/no-auth-header.sh;
-    success = ./granular/success.sh;
-    success-s256 = ./granular/success-s256.sh;
-    get = ./granular/get.sh;
-  };
+  granularTests = mapTests "test-google-granular-" granularServer ./granular [
+    "auth-not-basic"
+    "auth-session-not-found"
+    "callback-url-mismatch"
+    "client-id-mismatch"
+    "client-secret-mismatch"
+    "invalid-grant-type"
+    "no-code"
+    "no-code-verifier"
+    "no-credentials"
+    "no-grant-type"
+    "no-auth-header"
+    "success"
+    "success-s256"
+    "get"
+  ];
 
 in
 normalTests // granularTests // {
