@@ -5,25 +5,6 @@ import {
   getStringFormData,
 } from "../util.ts";
 
-function getExpectedCodeChallenge(
-  codeChallengeMethod: "S256" | "plain",
-  codeVerifier: string,
-): string {
-  if (codeChallengeMethod === "plain") {
-    return codeVerifier;
-  }
-  if (codeChallengeMethod === "S256") {
-    const hashBinary = new Bun.CryptoHasher("sha256")
-      .update(codeVerifier)
-      .digest();
-    return new Uint8Array(hashBinary).toBase64({
-      alphabet: "base64url",
-      omitPadding: true,
-    });
-  }
-  assertNever(codeChallengeMethod);
-}
-
 function generateGoogleIdToken(
   clientId: string,
   sub: string,
@@ -176,12 +157,23 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     const codeChallengeMethod: "S256" | "plain" =
       authSession.codeChallengeMethod ?? "plain";
 
-    const expectedCodeChallenge = getExpectedCodeChallenge(
-      codeChallengeMethod,
-      codeVerifier,
-    );
-    if (expectedCodeChallenge !== authSession.codeChallenge) {
-      return errorMessage("Code verifier does not match code challenge.");
+    if (codeChallengeMethod === "plain") {
+      if (authSession.codeChallenge !== codeVerifier) {
+        return errorMessage("Code verifier does not match code challenge.");
+      }
+    } else if (codeChallengeMethod === "S256") {
+      const hashBinary = new Bun.CryptoHasher("sha256")
+        .update(codeVerifier)
+        .digest();
+      const codeVerifierHash = new Uint8Array(hashBinary).toBase64({
+        alphabet: "base64url",
+        omitPadding: true,
+      });
+      if (authSession.codeChallenge !== codeVerifierHash) {
+        return errorMessage("Code verifier does not match code challenge.");
+      }
+    } else {
+      assertNever(codeChallengeMethod);
     }
   }
 
