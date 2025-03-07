@@ -21,6 +21,7 @@ let
     in
     pkgs.runCommandLocal "${prefix}${name}"
       {
+        env.INITIAL_DB = pkgs.auth-mock.db;
         buildInputs = [
           pkgs.jq
           pkgs.netero-test
@@ -36,7 +37,7 @@ let
       mkfifo "./ready0.fifo"
       mkfifo "./ready1.fifo"
 
-      cp -Lr ${pkgs.auth-mock.db}/db.sqlite .
+      cp -Lr "$INITIAL_DB/db.sqlite" .
       chmod +w db.sqlite
 
       server 2>&1 | while IFS= read -r line; do
