@@ -11,7 +11,7 @@
     let
 
       overlay = (final: prev: {
-        auth-mock = final.runCommand "compiled-server" { } ''
+        auth-mock-server = final.runCommand "compiled-server" { } ''
           cp -Lr ${./src} ./src
           ${final.bun}/bin/bun build ./src/index.ts \
             --compile \
@@ -55,8 +55,8 @@
       packages = test // {
         formatting = treefmtEval.config.build.check self;
         biome = biome;
-        default = pkgs.auth-mock;
-        auth-mock = pkgs.auth-mock;
+        default = pkgs.auth-mock-server;
+        auth-mock-server = pkgs.auth-mock-server;
       };
 
       gcroot = packages // {

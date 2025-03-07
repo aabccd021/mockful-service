@@ -1,5 +1,5 @@
 {
-  "name": "auth-mock-js",
+  "name": "auth-mock-server",
   "type": "module",
   "devDependencies": {
     "@types/bun": "^1.1.14"

@@ -21,7 +21,7 @@ let
       buildInputs = [
         pkgs.jq
         pkgs.netero-test
-        pkgs.auth-mock
+        pkgs.auth-mock-server
         pkgs.jwt-cli
         pkgs.curl
         server
