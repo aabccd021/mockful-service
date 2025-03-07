@@ -128,6 +128,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   const [prefix, credentials] = authHeader.split(" ");
+
   if (prefix !== "Basic") {
     return errorMessage(
       `Invalid Authorization header prefix: "${prefix}". Expected "Basic".`,
@@ -148,6 +149,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   const [clientId, clientSecret] = atob(credentials).split(":");
+
   if (clientId !== authSessionClientId) {
     return errorMessage("Invalid client_id");
   }
