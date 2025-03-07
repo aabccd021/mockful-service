@@ -19,8 +19,8 @@
             --sourcemap \
             --bytecode \
             --outfile server
-          mkdir -p $out/bin
-          mv server $out/bin/auth-mock-server
+          mkdir -p "$out/bin"
+          mv server "$out/bin/auth-mock-server"
         '';
       });
 
