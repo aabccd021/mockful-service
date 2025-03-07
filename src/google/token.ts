@@ -37,7 +37,7 @@ function generateGoogleIdToken(
   return `${headerStr}.${payloadStr}.${signatureStr}`;
 }
 
-export async function handle(req: Request, ctx: Context): Promise<Response> {
+export async function handle(req: Request, { db }: Context): Promise<Response> {
   if (req.method !== "POST") {
     return new Response(null, { status: 405 });
   }
@@ -59,7 +59,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return errorMessage("Parameter code is required.");
   }
 
-  const authSession = ctx.db
+  const authSession = db
     .query("SELECT * FROM google_auth_session WHERE code = $code")
     .get({ code });
 
@@ -71,9 +71,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return new Response(null, { status: 500 });
   }
 
-  ctx.db
-    .query("DELETE FROM google_auth_session WHERE code = $code")
-    .run({ code });
+  db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
   const authSessionCodeChallenge =
     "code_challenge" in authSession &&

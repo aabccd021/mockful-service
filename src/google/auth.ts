@@ -56,7 +56,7 @@ function handleGet(req: Request): Response {
   });
 }
 
-async function handlePost(req: Request, ctx: Context): Promise<Response> {
+async function handlePost(req: Request, { db }: Context): Promise<Response> {
   const formData = await getStringFormData(req);
 
   const redirectUri = formData.get("redirect_uri") ?? null;
@@ -67,22 +67,20 @@ async function handlePost(req: Request, ctx: Context): Promise<Response> {
   const code = crypto.randomUUID();
 
   try {
-    ctx.db
-      .query(
-        `
+    db.query(
+      `
     INSERT INTO google_auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge)
     VALUES ($code, $clientId, $redirectUri, $scope, $sub, $codeChallengeMethod, $codeChallengeValue)
   `,
-      )
-      .run({
-        code,
-        redirectUri,
-        clientId: formData.get("client_id") ?? null,
-        scope: formData.get("scope") ?? null,
-        sub: formData.get("id_token_sub") ?? null,
-        codeChallengeMethod: formData.get("code_challenge_method") ?? null,
-        codeChallengeValue: formData.get("code_challenge") ?? null,
-      });
+    ).run({
+      code,
+      redirectUri,
+      clientId: formData.get("client_id") ?? null,
+      scope: formData.get("scope") ?? null,
+      sub: formData.get("id_token_sub") ?? null,
+      codeChallengeMethod: formData.get("code_challenge_method") ?? null,
+      codeChallengeValue: formData.get("code_challenge") ?? null,
+    });
   } catch (err) {
     console.error(err);
     return errorMessage("Failed to store login session.");
