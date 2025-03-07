@@ -143,7 +143,6 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     "client_id" in authSession && typeof authSession.client_id === "string"
       ? authSession.client_id
       : null;
-
   if (authSessionClientId === null) {
     throw new Error("Absurd authSessionClientId");
   }
