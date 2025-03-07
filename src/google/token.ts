@@ -16,8 +16,8 @@ function generateGoogleIdToken(
   const payload = {
     iss: "https://accounts.google.com",
     aud: clientId,
-    exp: Date.now() + 3600,
     iat: Date.now(),
+    exp: Date.now() + 3600,
     sub,
   };
 

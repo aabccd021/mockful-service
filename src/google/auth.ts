@@ -90,7 +90,7 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
   redirectUrl.searchParams.set("code", code);
 
   for (const [key, value] of formData) {
-    if (typeof value === "string" && forwardedParamNames.includes(key)) {
+    if (forwardedParamNames.includes(key)) {
       redirectUrl.searchParams.set(key, value);
     }
   }
