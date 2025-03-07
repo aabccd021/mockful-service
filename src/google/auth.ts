@@ -68,10 +68,8 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
 
   try {
     db.query(
-      `
-    INSERT INTO google_auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge)
-    VALUES ($code, $clientId, $redirectUri, $scope, $sub, $codeChallengeMethod, $codeChallengeValue)
-  `,
+      `INSERT INTO google_auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge)
+       VALUES ($code, $clientId, $redirectUri, $scope, $sub, $codeChallengeMethod, $codeChallengeValue)`,
     ).run({
       code,
       redirectUri,
