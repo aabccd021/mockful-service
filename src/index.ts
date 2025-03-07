@@ -52,7 +52,7 @@ db.exec("PRAGMA foreign_keys = ON;");
 
 if (!dbExists) {
   db.exec(`
-    CREATE TABLE auth_session (
+    CREATE TABLE google_auth_session (
       code TEXT PRIMARY KEY,
       client_id TEXT NOT NULL,
       redirect_uri TEXT NOT NULL,

@@ -55,7 +55,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   const authSession = ctx.db
-    .query("SELECT * FROM auth_session WHERE code = $code")
+    .query("SELECT * FROM google_auth_session WHERE code = $code")
     .get({ code });
 
   if (authSession === null) {
@@ -66,7 +66,9 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return new Response(null, { status: 500 });
   }
 
-  ctx.db.query("DELETE FROM auth_session WHERE code = $code").run({ code });
+  ctx.db
+    .query("DELETE FROM google_auth_session WHERE code = $code")
+    .run({ code });
 
   const codeChallenge =
     "code_challenge" in authSession &&

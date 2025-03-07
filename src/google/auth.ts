@@ -70,7 +70,7 @@ async function handlePost(req: Request, ctx: Context): Promise<Response> {
     ctx.db
       .query(
         `
-    INSERT INTO auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge)
+    INSERT INTO google_auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge)
     VALUES ($code, $clientId, $redirectUri, $scope, $sub, $codeChallengeMethod, $codeChallengeValue)
   `,
       )
