@@ -63,6 +63,7 @@ let
     "no-credentials"
     "no-grant-type"
     "no-auth-header"
+    "not-found-path"
     "success"
     "success-s256"
     "get"

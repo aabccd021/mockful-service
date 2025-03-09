@@ -53,6 +53,7 @@
       '';
 
       packages = test // {
+        tests = pkgs.linkFarm "tests" test;
         formatting = treefmtEval.config.build.check self;
         biome = biome;
         default = pkgs.netero-oauth-mock;
