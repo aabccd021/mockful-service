@@ -1,6 +1,5 @@
 {
   "name": "netero-oauth-mock",
-  "type": "module",
   "devDependencies": {
     "@types/bun": "^1.2.5"
   }
