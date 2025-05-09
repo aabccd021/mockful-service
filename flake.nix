@@ -11,8 +11,7 @@
 
       overlay = (final: prev: {
         netero-oauth-mock = final.runCommand "compiled-server" { } ''
-          cp -Lr ${./src} ./src
-          ${final.bun}/bin/bun build ./src/index.ts \
+          ${final.bun}/bin/bun build ${./src}/index.ts \
             --compile \
             --minify \
             --sourcemap \
