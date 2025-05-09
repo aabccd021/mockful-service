@@ -14,7 +14,7 @@ submit "//form" --data "id_token_sub=id_token_sub.txt"
 assert_response_code_equal 200
 
 payload=$(
-  jq -r ".id_token" "$NETERO_DIR/body" |
+  jq -r ".id_token" "$NETERO_STATE/browser/1/tab/1/body" |
     jwt decode --json - |
     jq -r ".payload"
 )
@@ -38,7 +38,7 @@ if [ "$iat_diff" -gt 1 ] || [ "$iat_diff" -lt -1 ]; then
   exit 1
 fi
 
-access_token=$(jq -r ".access_token" "$NETERO_DIR/body")
+access_token=$(jq -r ".access_token" "$NETERO_STATE/browser/1/tab/1/body")
 
 at_hash=$(echo "$payload" | jq -r ".at_hash")
 expected_at_hash=$(

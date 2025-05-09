@@ -14,5 +14,5 @@ submit "//form" --data "id_token_sub=id_token_sub.txt"
 
 assert_response_code_equal 200
 
-keys=$(jq -r "keys[]" "$NETERO_DIR/body" | tr '\n' ' ')
+keys=$(jq -r "keys[]" "$NETERO_STATE/browser/1/tab/1/body" | tr '\n' ' ')
 assert_equal "access_token expires_in scope token_type " "$keys"

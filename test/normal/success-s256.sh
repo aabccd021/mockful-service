@@ -17,7 +17,7 @@ submit "//form" --data "id_token_sub=id_token_sub.txt"
 assert_response_code_equal 200
 
 sub=$(
-  jq -r ".id_token" "$NETERO_DIR/body" |
+  jq -r ".id_token" "$NETERO_STATE/browser/1/tab/1/body" |
     jwt decode --json - |
     jq -r ".payload.sub"
 )

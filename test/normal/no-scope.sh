@@ -12,4 +12,4 @@ printf "mysub" >id_token_sub.txt
 submit "//form" --data "id_token_sub=id_token_sub.txt"
 
 assert_response_code_equal 400
-assert_equal 'scope is required.' "$(cat "$NETERO_DIR/body")"
+assert_equal 'scope is required.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"

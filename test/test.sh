@@ -1,5 +1,5 @@
-export NETERO_DIR="./var/lib/netero"
-mkdir -p "$NETERO_DIR"
+export NETERO_STATE="./var/lib/netero"
+netero_init
 
 mkfifo "./ready0.fifo"
 mkfifo "./ready1.fifo"

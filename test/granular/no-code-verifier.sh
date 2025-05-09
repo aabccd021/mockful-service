@@ -19,10 +19,10 @@ auth_header=$(echo -n "mock_client_id:mock_client_secret" | base64)
 code=$(cat ./code.txt)
 
 curl_options=" \
-  --cookie '$NETERO_DIR/cookie.txt' \
-  --cookie-jar '$NETERO_DIR/cookie.txt' \
-  --output '$NETERO_DIR/body' \
-  --write-out \"%output{$NETERO_DIR/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_DIR/response.json}%{json}\" \
+  --cookie '$NETERO_STATE/browser/1/cookie.txt' \
+  --cookie-jar '$NETERO_STATE/browser/1/cookie.txt' \
+  --output '$NETERO_STATE/browser/1/tab/1/body' \
+  --write-out \"%output{$NETERO_STATE/browser/1/tab/1/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}\" \
   --compressed \
   --show-error \
   --silent \
@@ -37,4 +37,4 @@ curl_options=" \
 eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
 
 assert_response_code_equal 400
-assert_equal 'Parameter code_verifier is required.' "$(cat "$NETERO_DIR/body")"
+assert_equal 'Parameter code_verifier is required.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
