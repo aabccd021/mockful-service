@@ -1,7 +1,7 @@
 {
   nixConfig.allow-import-from-derivation = false;
 
-  inputs.nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.treefmt-nix.url = "github:numtide/treefmt-nix";
   inputs.netero-test.url = "github:aabccd021/netero-test";
   inputs.bun2nix.url = "github:baileyluTCD/bun2nix";
