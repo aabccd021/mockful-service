@@ -93,7 +93,7 @@
 
     {
 
-      packages.x86_64-linux = packages // rec {
+      packages.x86_64-linux = packages // {
         gcroot = pkgs.linkFarm "gcroot" packages;
       };
 
