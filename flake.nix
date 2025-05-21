@@ -6,21 +6,24 @@
   inputs.netero-test.url = "github:aabccd021/netero-test";
   inputs.bun2nix.url = "github:baileyluTCD/bun2nix";
 
-  outputs = { self, ... }@inputs:
+  outputs =
+    { self, ... }@inputs:
     let
 
-      overlay = (final: prev: {
-        netero-oauth-mock = final.runCommand "compiled-server" { } ''
-          ${final.bun}/bin/bun build ${./src}/index.ts \
-            --compile \
-            --minify \
-            --sourcemap \
-            --bytecode \
-            --outfile server
-          mkdir -p "$out/bin"
-          mv server "$out/bin/netero-oauth-mock"
-        '';
-      });
+      overlay = (
+        final: prev: {
+          netero-oauth-mock = final.runCommand "compiled-server" { } ''
+            ${final.bun}/bin/bun build ${./src}/index.ts \
+              --compile \
+              --minify \
+              --sourcemap \
+              --bytecode \
+              --outfile server
+            mkdir -p "$out/bin"
+            mv server "$out/bin/netero-oauth-mock"
+          '';
+        }
+      );
 
       pkgs = import inputs.nixpkgs {
         system = "x86_64-linux";
@@ -37,12 +40,16 @@
       treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
         programs.prettier.enable = true;
-        programs.nixpkgs-fmt.enable = true;
+        programs.nixfmt.enable = true;
         programs.biome.enable = true;
         programs.shfmt.enable = true;
         settings.formatter.prettier.priority = 1;
         settings.formatter.biome.priority = 2;
-        settings.global.excludes = [ "LICENSE" "*.ico" "*.sql" ];
+        settings.global.excludes = [
+          "LICENSE"
+          "*.ico"
+          "*.sql"
+        ];
       };
 
       formatter = treefmtEval.config.build.wrapper;
@@ -67,16 +74,19 @@
         touch $out
       '';
 
-      packages = devShells // test // {
-        tests = pkgs.linkFarm "tests" test;
-        formatting = treefmtEval.config.build.check self;
-        formatter = formatter;
-        typeCheck = typeCheck;
-        lintCheck = lintCheck;
-        bun2nix = inputs.bun2nix.packages.x86_64-linux.default;
-        default = pkgs.netero-oauth-mock;
-        netero-oauth-mock = pkgs.netero-oauth-mock;
-      };
+      packages =
+        devShells
+        // test
+        // {
+          tests = pkgs.linkFarm "tests" test;
+          formatting = treefmtEval.config.build.check self;
+          formatter = formatter;
+          typeCheck = typeCheck;
+          lintCheck = lintCheck;
+          bun2nix = inputs.bun2nix.packages.x86_64-linux.default;
+          default = pkgs.netero-oauth-mock;
+          netero-oauth-mock = pkgs.netero-oauth-mock;
+        };
 
       devShells.default = pkgs.mkShellNoCC {
         buildInputs = [
