@@ -60,7 +60,7 @@
         cp -Lr ${nodeModules}/node_modules ./node_modules
         cp -Lr ${./src} ./src
         cp -L ${./tsconfig.json} ./tsconfig.json
-        ${lib.getExe pkgs.typescript}
+        ${pkgs.typescript}/bin/tsc
         touch $out
       '';
 
@@ -70,7 +70,7 @@
         cp -L ${./biome.jsonc} ./biome.jsonc
         cp -L ${./tsconfig.json} ./tsconfig.json
         cp -L ${./package.json} ./package.json
-        ${lib.getExe pkgs.biome} check --error-on-warnings
+        ${pkgs.biome}/bin/biome check --error-on-warnings
         touch $out
       '';
 
