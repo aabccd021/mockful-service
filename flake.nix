@@ -87,13 +87,13 @@
       packages =
         devShells
         // test
+        // inputPackages
         // {
           tests = pkgs.linkFarm "tests" test;
           formatting = treefmtEval.config.build.check self;
           formatter = formatter;
           typeCheck = typeCheck;
           lintCheck = lintCheck;
-          bun2nix = inputs.bun2nix.packages.x86_64-linux.default;
           default = pkgs.netero-oauth-mock;
           netero-oauth-mock = pkgs.netero-oauth-mock;
         };
