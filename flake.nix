@@ -10,7 +10,7 @@
     { self, ... }@inputs:
     let
 
-      overlay = (
+      overlays.default = (
         final: prev: {
           netero-oauth-mock = final.runCommand "compiled-server" { } ''
             ${final.bun}/bin/bun build ${./src}/index.ts \
@@ -29,7 +29,7 @@
         system = "x86_64-linux";
         overlays = [
           inputs.netero-test.overlays.default
-          overlay
+          overlays.default
         ];
       };
 
@@ -111,7 +111,7 @@
       formatter.x86_64-linux = formatter;
       devShells.x86_64-linux = devShells;
 
-      overlays.default = overlay;
+      overlays = overlays;
 
     };
 }
