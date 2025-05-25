@@ -74,6 +74,16 @@
         touch $out
       '';
 
+      inputPackages = {
+        bun = pkgs.bun;
+        biome = pkgs.biome;
+        typescript = pkgs.typescript;
+        typescript-language-server = pkgs.typescript-language-server;
+        vscode-langservers-extracted = pkgs.vscode-langservers-extracted;
+        bun2nix = inputs.bun2nix.packages.x86_64-linux.default;
+        nixd = pkgs.nixd;
+      };
+
       packages =
         devShells
         // test
@@ -89,14 +99,7 @@
         };
 
       devShells.default = pkgs.mkShellNoCC {
-        buildInputs = [
-          pkgs.bun
-          pkgs.biome
-          pkgs.typescript
-          pkgs.typescript-language-server
-          pkgs.vscode-langservers-extracted
-          pkgs.nixd
-        ];
+        buildInputs = builtins.attrValues inputPackages;
       };
 
     in
