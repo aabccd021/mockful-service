@@ -33,8 +33,6 @@
         ];
       };
 
-      lib = pkgs.lib;
-
       test = import ./test { pkgs = pkgs; };
 
       treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
