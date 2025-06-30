@@ -96,11 +96,20 @@
         nixd = pkgs.nixd;
       };
 
+      prefmt = pkgs.writeShellApplication {
+        name = "prefmt";
+        runtimeInputs = [ pkgs.biome ];
+        text = ''
+          biome check --fix --unsafe
+        '';
+      };
+
       packages =
         devShells
         // test
         // inputPackages
         // {
+          prefmt = prefmt;
           tests = pkgs.linkFarm "tests" test;
           formatting = treefmtEval.config.build.check self;
           formatter = formatter;
