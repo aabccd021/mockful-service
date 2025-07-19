@@ -19,14 +19,21 @@ function handleGet(req: Request): Response {
   }
 
   const loginForm = `
-    <form method="post">
-      ${paramInputsStr}
-
-      <label for="id_token_sub">sub</label>
-      <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
-
-      <button>Submit</button>
-    </form>
+    <html lang="en">
+      <head>
+        <title>Google Login</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body>
+        <form method="post">
+          ${paramInputsStr}
+          <label for="id_token_sub">sub</label>
+          <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
+          <button>Submit</button>
+        </form>
+      </body>
+    </html>
   `;
   return new Response(loginForm, {
     headers: {
