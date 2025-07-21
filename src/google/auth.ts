@@ -22,21 +22,21 @@ function handleGet(req: Request): Response {
 
   const subInput = scopes.includes("openid")
     ? `
-    <label for="id_token_sub">id token sub</label>
-    <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
-  `
+        <label for="id_token_sub">id token sub</label>
+        <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
+      `
     : "";
 
   const emailInput = scopes.includes("email")
     ? `
-    <label for="email">Email</label>
-    <input type="email" name="email" id="email" maxlength="255" required />
-    <legend>Email Verified</legend>
-    <input type="radio" name="email_verified" id="email_verified_true" value="true" />
-    <label for="email_verified_true">True</label>
-    <input type="radio" name="email_verified" id="email_verified_false" value="false" />
-    <label for="email_verified_false">False</label>
-  `
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" maxlength="255" required />
+        <legend>Email Verified</legend>
+        <input type="radio" name="email_verified" id="email_verified_true" value="true" />
+        <label for="email_verified_true">True</label>
+        <input type="radio" name="email_verified" id="email_verified_false" value="false" />
+        <label for="email_verified_false">False</label>
+      `
     : "";
 
   const loginForm = `
