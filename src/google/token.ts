@@ -5,9 +5,20 @@ import {
   getStringFormData,
 } from "../util.ts";
 
+export type AuthSession = {
+  clientId: string;
+  redirectUri: string;
+  scope?: string;
+  sub?: string;
+  email?: string;
+  emailVerified?: boolean;
+  codeChallenge?: string;
+  codeChallengeMethod?: "S256" | "plain";
+};
+
 function generateGoogleIdToken(
   clientId: string,
-  sub: string,
+  authSession: AuthSession,
   accessToken: string,
 ): string | undefined {
   const atHashRaw = new Bun.CryptoHasher("sha256").update(accessToken).digest();
@@ -33,7 +44,9 @@ function generateGoogleIdToken(
     iat: nowEpoch,
     exp: nowEpoch + 3600,
     at_hash: atHash,
-    sub,
+    sub: authSession.sub,
+    email: authSession.email,
+    email_verified: authSession.emailVerified ?? false,
   };
 
   const payloadStr = new TextEncoder()
@@ -51,15 +64,6 @@ function generateGoogleIdToken(
 
   return `${headerStr}.${payloadStr}.${signatureStr}`;
 }
-
-export type AuthSession = {
-  clientId: string;
-  redirectUri: string;
-  scope?: string;
-  sub?: string;
-  codeChallenge?: string;
-  codeChallengeMethod?: "S256" | "plain";
-};
 
 function decodeAuthSession(authSession: unknown): AuthSession | null {
   if (authSession === null) {
@@ -221,25 +225,22 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     );
   }
 
-  if (authSession.scope === undefined) {
+  const authSessionScope = authSession.scope;
+  if (authSessionScope === undefined) {
     return errorMessage("scope is required.");
-  }
-
-  if (authSession.sub === undefined) {
-    return errorMessage("sub is required.");
   }
 
   const accessToken = crypto.randomUUID();
 
-  const scopes = authSession.scope.split(" ");
+  const scopes = authSessionScope.split(" ");
   const idToken = scopes.includes("openid")
-    ? generateGoogleIdToken(clientId, authSession.sub, accessToken)
+    ? generateGoogleIdToken(clientId, authSession, accessToken)
     : undefined;
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
     access_token: accessToken,
-    scope: authSession.scope ?? undefined,
+    scope: authSessionScope,
     token_type: "Bearer",
     expires_in: 3599,
   };

@@ -18,6 +18,24 @@ function handleGet(req: Request): Response {
     );
   }
 
+  const scopes = searchParams.get("scope")?.split(" ") ?? [];
+
+  const subInput = scopes.includes("openid")
+    ? `
+    <label for="id_token_sub">id token sub</label>
+    <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
+  `
+    : "";
+
+  const emailInput = scopes.includes("email")
+    ? `
+    <label for="email">Email</label>
+    <input type="email" name="email" id="email" maxlength="255" required />
+    <label for="email_verified">Email Verified</label>
+    <input type="checkbox" name="email_verified" id="email_verified" value="true" />
+  `
+    : "";
+
   const loginForm = `
     <html lang="en">
       <head>
@@ -28,8 +46,8 @@ function handleGet(req: Request): Response {
       <body>
         <form method="post">
           ${paramInputsStr}
-          <label for="id_token_sub">sub</label>
-          <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
+          ${subInput}
+          ${emailInput}
           <button>Submit</button>
         </form>
       </body>
@@ -54,14 +72,37 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
 
   try {
     db.query(
-      `INSERT INTO google_auth_session (code, client_id, redirect_uri, scope, sub, code_challenge_method, code_challenge)
-       VALUES ($code, $clientId, $redirectUri, $scope, $sub, $codeChallengeMethod, $codeChallengeValue)`,
+      `
+        INSERT INTO google_auth_session (
+          code,
+          client_id,
+          redirect_uri,
+          scope,
+          sub,
+          email,
+          email_verified,
+          code_challenge_method,
+          code_challenge
+        )
+        VALUES (
+          $code,
+          $clientId,
+          $redirectUri,
+          $scope,
+          $sub,
+          $email,
+          $emailVerified,
+          $codeChallengeMethod,
+          $codeChallengeValue
+        )`,
     ).run({
       code,
       redirectUri,
       clientId: formData.get("client_id") ?? null,
       scope: formData.get("scope") ?? null,
       sub: formData.get("id_token_sub") ?? null,
+      email: formData.get("email") ?? null,
+      emailVerified: formData.get("email_verified") ?? null,
       codeChallengeMethod: formData.get("code_challenge_method") ?? null,
       codeChallengeValue: formData.get("code_challenge") ?? null,
     });

@@ -69,6 +69,8 @@ if (!dbExists) {
       redirect_uri TEXT NOT NULL,
       scope TEXT,
       sub TEXT,
+      email TEXT,
+      email_verified BOOLEAN,
       code_challenge TEXT,
       code_challenge_method TEXT CHECK (code_challenge_method IN ('S256', 'plain'))
     );
