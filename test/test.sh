@@ -19,6 +19,6 @@ netero-oauth-mock \
 timeout 5 cat ./ready0.fifo >/dev/null
 timeout 5 cat ./ready1.fifo >/dev/null
 
-bash -euo pipefail "$TEST_FILE" 2>&1 | sed "s/^/${blue}[test]${reset} /" &
+bash -euo pipefail "$TEST_FILE" 2>&1 | sed "s/^/${blue}[test]${reset} /"
 
 mkdir $out

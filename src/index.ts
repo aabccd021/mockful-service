@@ -70,10 +70,10 @@ if (!dbExists) {
       scope TEXT,
       sub TEXT,
       email TEXT,
-      email_verified BOOLEAN,
+      email_verified TEXT,
       code_challenge TEXT,
       code_challenge_method TEXT CHECK (code_challenge_method IN ('S256', 'plain'))
-    );
+    ) STRICT;
 `);
 }
 

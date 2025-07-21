@@ -52,6 +52,8 @@ let
     "success-plain"
     "success-no-challenge-method"
     "s256-mismatch"
+    "scope-email"
+    "scope-email-verified"
   ];
 
   granularTests = mapTests "test-google-granular-" granularServer ./granular [

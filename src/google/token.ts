@@ -119,6 +119,19 @@ function decodeAuthSession(authSession: unknown): AuthSession | null {
     throw new Error("Absurd codeChallengeMethodObj: invalid value");
   }
 
+  const email =
+    "email" in authSession && typeof authSession.email === "string"
+      ? authSession.email
+      : undefined;
+
+  const emailVerified =
+    "email_verified" in authSession &&
+    (authSession.email_verified === "true"
+      ? true
+      : authSession.email_verified === "false"
+        ? false
+        : undefined);
+
   return {
     clientId,
     redirectUri,
@@ -126,6 +139,8 @@ function decodeAuthSession(authSession: unknown): AuthSession | null {
     sub,
     codeChallenge,
     codeChallengeMethod: codeChallengeMethod ?? undefined,
+    email,
+    emailVerified,
   };
 }
 
