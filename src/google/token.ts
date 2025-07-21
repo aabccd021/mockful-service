@@ -6,19 +6,21 @@ import {
 } from "../util.ts";
 
 export type AuthSession = {
-  clientId: string;
-  redirectUri: string;
-  scope?: string;
-  sub?: string;
-  email?: string;
-  emailVerified?: boolean;
-  codeChallenge?: string;
-  codeChallengeMethod?: "S256" | "plain";
+  readonly clientId: string;
+  readonly redirectUri: string;
+  readonly scope?: string;
+  readonly sub?: string;
+  readonly email?: string;
+  readonly emailVerified?: boolean;
+  readonly codeChallenge?: string;
+  readonly codeChallengeMethod?: "S256" | "plain";
 };
+
+type AuthData = Pick<AuthSession, "sub" | "email" | "emailVerified">;
 
 function generateGoogleIdToken(
   clientId: string,
-  authSession: AuthSession,
+  authSession: AuthData,
   accessToken: string,
 ): string | undefined {
   const atHashRaw = new Bun.CryptoHasher("sha256").update(accessToken).digest();
@@ -46,7 +48,7 @@ function generateGoogleIdToken(
     at_hash: atHash,
     sub: authSession.sub,
     email: authSession.email,
-    email_verified: authSession.emailVerified ?? false,
+    email_verified: authSession.emailVerified,
   };
 
   const payloadStr = new TextEncoder()
@@ -131,6 +133,8 @@ function decodeAuthSession(authSession: unknown): AuthSession | null {
       : authSession.email_verified === "false"
         ? false
         : undefined);
+
+  console.log({ emailVerified, authSession });
 
   return {
     clientId,

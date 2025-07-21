@@ -31,8 +31,11 @@ function handleGet(req: Request): Response {
     ? `
     <label for="email">Email</label>
     <input type="email" name="email" id="email" maxlength="255" required />
-    <label for="email_verified">Email Verified</label>
-    <input type="checkbox" name="email_verified" id="email_verified" value="true" />
+    <legend>Email Verified</legend>
+    <input type="radio" name="email_verified" id="email_verified_true" value="true" />
+    <label for="email_verified_true">True</label>
+    <input type="radio" name="email_verified" id="email_verified_false" value="false" />
+    <label for="email_verified_false">False</label>
   `
     : "";
 
@@ -67,6 +70,8 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
   if (redirectUri === null) {
     return errorMessage("Parameter redirect_uri is required.");
   }
+
+  console.log("Email Verified:", formData.get("email_verified"));
 
   const code = crypto.randomUUID();
 

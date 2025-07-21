@@ -10,7 +10,11 @@ assert_response_code_equal 200
 
 printf "mysub" >id_token_sub.txt
 printf "foo@example.com" >email.txt
-submit "//form" --data "id_token_sub=id_token_sub.txt" --data "email=email.txt"
+printf "true" >email_verified.txt
+submit "//form" \
+  --data "id_token_sub=id_token_sub.txt" \
+  --data "email=email.txt" \
+  --data "email_verified=email_verified.txt"
 
 assert_response_code_equal 200
 
