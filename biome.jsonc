@@ -12,6 +12,14 @@
     "rules": {
       "complexity": {
         "useLiteralKeys": "off"
+      },
+      "suspicious": {
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["error"]
+          }
+        }
       }
     }
   }

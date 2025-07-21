@@ -71,8 +71,6 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
     return errorMessage("Parameter redirect_uri is required.");
   }
 
-  console.log("Email Verified:", formData.get("email_verified"));
-
   const code = crypto.randomUUID();
 
   try {

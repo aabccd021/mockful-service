@@ -134,8 +134,6 @@ function decodeAuthSession(authSession: unknown): AuthSession | null {
         ? false
         : undefined);
 
-  console.log({ emailVerified, authSession });
-
   return {
     clientId,
     redirectUri,
