@@ -45,6 +45,7 @@ function handleGet(req: Request, ctx: Context): Response {
         <title>Google Login</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="light dark">
       </head>
       <body style="max-width: 30rem">
           <h1>Choose an account</h1>
