@@ -42,17 +42,16 @@ export type Context = {
 
 export type Handle = (req: Request, ctx: Context) => Promise<Response>;
 
+const GoogleUser = object({
+  sub: optional(string()),
+  email: optional(string()),
+  email_verified: optional(boolean()),
+});
+
+export type GoogleUser = Infer<typeof GoogleUser>;
+
 export const Data = object({
-  google: optional(
-    record(
-      string(),
-      object({
-        sub: optional(string()),
-        email: optional(string()),
-        email_verified: optional(boolean()),
-      }),
-    ),
-  ),
+  google: optional(record(string(), GoogleUser)),
 });
 
 export type Data = Infer<typeof Data>;

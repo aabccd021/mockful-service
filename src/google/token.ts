@@ -1,33 +1,63 @@
+import { assert, enums, type Infer, nullable, string, type } from "superstruct";
 import {
   assertNever,
   type Context,
   errorMessage,
+  type GoogleUser,
   getStringFormData,
 } from "../util.ts";
 
-export type AuthSession = {
-  readonly clientId: string;
-  readonly redirectUri: string;
-  readonly scope?: string;
-  readonly user: string;
-  readonly codeChallenge?: string;
-  readonly codeChallengeMethod?: "S256" | "plain";
-};
+const AuthSession = type({
+  client_id: string(),
+  redirect_uri: string(),
+  scope: nullable(string()),
+  user: string(),
+  code_challenge: nullable(string()),
+  code_challenge_method: nullable(enums(["S256", "plain"])),
+});
+
+const NullableAuthSession = nullable(AuthSession);
+
+type AuthSession = Infer<typeof AuthSession>;
+
+function getEmailScopeData(
+  scopes: string[],
+  user: GoogleUser,
+):
+  | undefined
+  | {
+      email: string;
+      email_verified: boolean;
+    } {
+  if (!scopes.includes("email")) {
+    return undefined;
+  }
+  if (user.email === undefined) {
+    throw new Error("User email is required for email scope.");
+  }
+  if (user.email_verified === undefined) {
+    throw new Error("User email_verified is required for email scope.");
+  }
+  return {
+    email: user.email,
+    email_verified: user.email_verified,
+  };
+}
 
 function generateGoogleIdToken(
   ctx: Context,
-  username: string,
-  clientId: string,
+  authSession: AuthSession,
   accessToken: string,
-  scopes: string[],
+  scopeStr: string,
 ): string | undefined {
+  const scopes = scopeStr.split(" ");
   if (!scopes.includes("openid")) {
     return undefined;
   }
 
-  const user = ctx.data.google?.[username];
+  const user = ctx.data.google?.[authSession.user];
   if (user === undefined) {
-    throw new Error(`User not found in data: ${username}`);
+    throw errorMessage(`User not found in data: ${authSession.user}`);
   }
 
   const atHashRaw = new Bun.CryptoHasher("sha256").update(accessToken).digest();
@@ -48,14 +78,13 @@ function generateGoogleIdToken(
   const nowEpoch = Math.floor(Date.now() / 1000);
 
   const payload = {
+    ...getEmailScopeData(scopes, user),
     iss: "https://accounts.google.com",
-    aud: clientId,
+    aud: authSession.client_id,
     iat: nowEpoch,
     exp: nowEpoch + 3600,
     at_hash: atHash,
     sub: user.sub,
-    email: scopes.includes("email") ? user.email : undefined,
-    email_verified: scopes.includes("email") ? user.email_verified : undefined,
   };
 
   const payloadStr = new TextEncoder()
@@ -72,73 +101,6 @@ function generateGoogleIdToken(
   });
 
   return `${headerStr}.${payloadStr}.${signatureStr}`;
-}
-
-function decodeAuthSession(authSession: unknown): AuthSession | null {
-  if (authSession === null) {
-    return null;
-  }
-  if (typeof authSession !== "object") {
-    throw new Error("Absurd authSession: not an object");
-  }
-
-  const clientId =
-    "client_id" in authSession && typeof authSession.client_id === "string"
-      ? authSession.client_id
-      : null;
-  if (clientId === null) {
-    throw new Error("Absurd clientId: null");
-  }
-
-  const redirectUri =
-    "redirect_uri" in authSession &&
-    typeof authSession.redirect_uri === "string"
-      ? authSession.redirect_uri
-      : null;
-  if (redirectUri === null) {
-    throw new Error("Absurd redirectUri: null");
-  }
-
-  const scope =
-    "scope" in authSession && typeof authSession.scope === "string"
-      ? authSession.scope
-      : undefined;
-
-  const codeChallenge =
-    "code_challenge" in authSession &&
-    typeof authSession.code_challenge === "string"
-      ? authSession.code_challenge
-      : undefined;
-
-  const codeChallengeMethod =
-    "code_challenge_method" in authSession
-      ? authSession.code_challenge_method
-      : undefined;
-
-  if (
-    codeChallengeMethod !== "S256" &&
-    codeChallengeMethod !== "plain" &&
-    codeChallengeMethod !== null
-  ) {
-    throw new Error("Absurd codeChallengeMethodObj: invalid value");
-  }
-
-  if (!("user" in authSession)) {
-    throw new Error("Absurd user: missing in authSession");
-  }
-
-  if (typeof authSession.user !== "string") {
-    throw new Error("Absurd user: not a string");
-  }
-
-  return {
-    user: authSession.user,
-    clientId,
-    redirectUri,
-    scope,
-    codeChallenge,
-    codeChallengeMethod: codeChallengeMethod ?? undefined,
-  };
 }
 
 export async function handle(req: Request, ctx: Context): Promise<Response> {
@@ -163,11 +125,12 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return errorMessage("Parameter code is required.");
   }
 
-  const authSessionRaw = ctx.db
+  const authSession = ctx.db
     .query("SELECT * FROM google_auth_session WHERE code = $code")
     .get({ code });
 
-  const authSession = decodeAuthSession(authSessionRaw);
+  assert(authSession, NullableAuthSession);
+
   if (authSession === null) {
     return errorMessage(`Auth session not found for code: "${code}".`);
   }
@@ -176,20 +139,20 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     .query("DELETE FROM google_auth_session WHERE code = $code")
     .run({ code });
 
-  if (authSession.codeChallenge !== undefined) {
+  if (authSession.code_challenge !== null) {
     const codeVerifier = formData.get("code_verifier");
     if (codeVerifier === undefined) {
       return errorMessage("Parameter code_verifier is required.");
     }
 
-    const codeChallengeMethod: "S256" | "plain" =
-      authSession.codeChallengeMethod ?? "plain";
+    const code_challengeMethod: "S256" | "plain" =
+      authSession.code_challenge_method ?? "plain";
 
-    if (codeChallengeMethod === "plain") {
-      if (authSession.codeChallenge !== codeVerifier) {
+    if (code_challengeMethod === "plain") {
+      if (authSession.code_challenge !== codeVerifier) {
         return errorMessage("Code verifier does not match code challenge.");
       }
-    } else if (codeChallengeMethod === "S256") {
+    } else if (code_challengeMethod === "S256") {
       const hashBinary = new Bun.CryptoHasher("sha256")
         .update(codeVerifier)
         .digest();
@@ -197,15 +160,15 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
         alphabet: "base64url",
         omitPadding: true,
       });
-      if (authSession.codeChallenge !== codeVerifierHash) {
+      if (authSession.code_challenge !== codeVerifierHash) {
         return errorMessage("Code verifier does not match code challenge.");
       }
     } else {
-      assertNever(codeChallengeMethod);
+      assertNever(code_challengeMethod);
     }
   }
 
-  if (formData.get("redirect_uri") !== authSession.redirectUri) {
+  if (formData.get("redirect_uri") !== authSession.redirect_uri) {
     return errorMessage("Invalid redirect_uri.");
   }
 
@@ -228,7 +191,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const [clientId, clientSecret] = atob(credentials).split(":");
 
-  if (clientId !== authSession.clientId) {
+  if (clientId !== authSession.client_id) {
     return errorMessage("Invalid client_id");
   }
 
@@ -240,19 +203,17 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   const scopeStr = authSession.scope;
-  if (scopeStr === undefined) {
+  if (scopeStr === null) {
     return errorMessage("scope is required.");
   }
 
   const accessToken = crypto.randomUUID();
 
-  const scopes = scopeStr.split(" ");
   const idToken = generateGoogleIdToken(
     ctx,
-    authSession.user,
-    clientId,
+    authSession,
     accessToken,
-    scopes,
+    scopeStr,
   );
 
   const responseBody: Record<string, string | number | undefined> = {

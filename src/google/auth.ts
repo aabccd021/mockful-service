@@ -34,7 +34,6 @@ function handleGet(req: Request, ctx: Context): Response {
   const userSubmitButton = Object.keys(users)
     .map(
       (userId) =>
-        // text inside button should be on left instead of centered
         `<button style="height: 2rem" type="submit" name="user" value="${userId}"> ${userId} </button>`,
     )
     .join("");
