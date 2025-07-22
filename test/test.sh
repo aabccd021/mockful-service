@@ -5,6 +5,8 @@ reset=$(printf "\033[0m")
 
 export NETERO_STATE="./var/lib/netero"
 netero_init
+mkdir -p "$NETERO_STATE/oauth-mock"
+cp "$DATA_FILE" "$NETERO_STATE/oauth-mock/data.json"
 
 mkfifo "./server-ready.fifo"
 mkfifo "./oauth-ready.fifo"
@@ -12,7 +14,6 @@ mkfifo "./oauth-ready.fifo"
 server 2>&1 | sed "s/^/${yellow}[server]${reset} /" &
 
 netero-oauth-mock \
-  --data "$DATA_FILE" \
   --on-ready-pipe "./oauth-ready.fifo" \
   --port 3001 2>&1 | sed "s/^/${green}[oauth]${reset} /" &
 

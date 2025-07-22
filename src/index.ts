@@ -30,39 +30,25 @@ const args = util.parseArgs({
     port: {
       type: "string",
     },
-    db: {
-      type: "string",
-    },
     "on-ready-pipe": {
-      type: "string",
-    },
-    unix: {
-      type: "string",
-    },
-    data: {
       type: "string",
     },
   },
 });
 
-if (args.values.port !== undefined && args.values.unix !== undefined) {
-  throw new Error("Cannot specify both port and unix.");
+const neteroState = process.env["NETERO_STATE"];
+if (neteroState === undefined) {
+  throw new Error("Environment variable NETERO_STATE is required.");
 }
 
-if (args.values.data === undefined) {
-  throw new Error("Missing required argument: --data");
-}
-
-const dataJson = fs.readFileSync(args.values.data, "utf-8");
+const dataJson = fs.readFileSync(
+  `${neteroState}/oauth-mock/data.json`,
+  "utf-8",
+);
 const data: unknown = JSON.parse(dataJson);
 assert(data, Data);
 
-const serverConfig =
-  args.values.unix !== undefined
-    ? { unix: args.values.unix }
-    : { port: Number.parseInt(args.values.port ?? "3000") };
-
-const db = new sqlite.Database(args.values.db ?? ":memory:", {
+const db = new sqlite.Database(`${neteroState}/oauth-mock/db.sqlite`, {
   create: true,
   strict: true,
   safeIntegers: true,
@@ -71,23 +57,21 @@ const db = new sqlite.Database(args.values.db ?? ":memory:", {
 db.exec("PRAGMA journal_mode = WAL;");
 db.exec("PRAGMA foreign_keys = ON;");
 
-const dbExists = args.values.db !== undefined && fs.existsSync(args.values.db);
-if (!dbExists) {
-  db.exec(`
-    CREATE TABLE google_auth_session (
-      code TEXT PRIMARY KEY,
-      user TEXT NOT NULL,
-      client_id TEXT NOT NULL,
-      redirect_uri TEXT NOT NULL,
-      scope TEXT,
-      code_challenge TEXT,
-      code_challenge_method TEXT CHECK (code_challenge_method IN ('S256', 'plain'))
-    ) STRICT;
+db.exec(`
+  CREATE TABLE IF NOT EXISTS google_auth_session (
+    code TEXT PRIMARY KEY,
+    user TEXT NOT NULL,
+    client_id TEXT NOT NULL,
+    redirect_uri TEXT NOT NULL,
+    scope TEXT,
+    code_challenge TEXT,
+    code_challenge_method TEXT CHECK (code_challenge_method IN ('S256', 'plain'))
+  ) STRICT;
 `);
-}
 
 Bun.serve({
-  ...serverConfig,
+  port:
+    args.values.port === undefined ? undefined : parseInt(args.values.port, 10),
   fetch: (req): Promise<Response> => handle(req, { db, data }),
 });
 
