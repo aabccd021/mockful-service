@@ -108,11 +108,22 @@
         '';
       };
 
+      dev = pkgs.writeShellApplication {
+        name = "dev";
+        runtimeInputs = [
+          pkgs.bun
+        ];
+        runtimeEnv.NODE_MODULES = nodeModules;
+        runtimeEnv.DATA_FILE = ./test/data.json;
+        text = builtins.readFile ./dev.sh;
+      };
+
       packages =
         devShells
         // test
         // inputPackages
         // {
+          dev = dev;
           prefmt = prefmt;
           tests = pkgs.linkFarm "tests" test;
           formatting = treefmtEval.config.build.check self;

@@ -7,9 +7,8 @@ function handleGet(req: Request, ctx: Context): Response {
     .entries()
     .map(
       ([name, value]) =>
-        `\n          <input type="hidden" name="${name}" value="${value}" />`,
+        `<input type="hidden" name="${name}" value="${value}" />`,
     );
-
   const paramInputsStr = Array.from(paramInputs).join("");
 
   const responseType = searchParams.get("response_type");
@@ -20,6 +19,13 @@ function handleGet(req: Request, ctx: Context): Response {
     );
   }
 
+  const redirectUri = searchParams.get("redirect_uri");
+  if (redirectUri === null) {
+    return errorMessage("Parameter redirect_uri is required.");
+  }
+
+  const redirectHost = new URL(redirectUri).host;
+
   const users = ctx.data.google;
   if (users === undefined) {
     return errorMessage("No users configured for Google login.");
@@ -28,7 +34,8 @@ function handleGet(req: Request, ctx: Context): Response {
   const userSubmitButton = Object.keys(users)
     .map(
       (userId) =>
-        `\n          <button name="user" value="${userId}">${userId}</button>`,
+        // text inside button should be on left instead of centered
+        `<button style="height: 2rem" type="submit" name="user" value="${userId}"> ${userId} </button>`,
     )
     .join("");
 
@@ -39,8 +46,13 @@ function handleGet(req: Request, ctx: Context): Response {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body>
-        <form method="post"> ${paramInputsStr} ${userSubmitButton} </form>
+      <body style="max-width: 30rem">
+          <h1>Choose an account</h1>
+          <p>to continue to ${redirectHost}</p>
+          <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
+            ${paramInputsStr} 
+            ${userSubmitButton} 
+          </form>
       </body>
     </html>
   `;
