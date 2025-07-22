@@ -8,13 +8,7 @@ goto --url "http://localhost:3000\
 
 assert_response_code_equal 200
 
-printf "mysub" >id_token_sub.txt
-printf "foo@example.com" >email.txt
-printf "true" >email_verified.txt
-submit "//form" \
-  --data "id_token_sub=id_token_sub.txt" \
-  --data "email=email.txt" \
-  --data "email_verified=email_verified.txt"
+submit "//form" --submit-button "//form/button[@value='nijika']"
 
 assert_response_code_equal 200
 
@@ -25,10 +19,10 @@ payload=$(
 )
 
 sub=$(echo "$payload" | jq -r ".sub")
-assert_equal "mysub" "$sub"
+assert_equal "nijika-sub" "$sub"
 
 email=$(echo "$payload" | jq -r ".email")
-assert_equal "foo@example.com" "$email"
+assert_equal "nijika@example.com" "$email"
 
 email_verified=$(echo "$payload" | jq -r ".email_verified")
 assert_equal "true" "$email_verified"

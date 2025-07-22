@@ -10,8 +10,7 @@ goto --url "http://localhost:3000\
 
 assert_response_code_equal 200
 
-printf "mysub" >id_token_sub.txt
-submit "//form" --data "id_token_sub=id_token_sub.txt"
+submit "//form" --submit-button "//form/button[@value='kita']"
 
 assert_response_code_equal 200
 

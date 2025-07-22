@@ -23,10 +23,17 @@
           ) is
         );
 
+      nodeModules = inputs.bun2nix.lib.x86_64-linux.mkBunNodeModules {
+        packages = import ./bun.nix;
+      };
+
       overlays.default = (
         final: prev: {
           netero-oauth-mock = final.runCommand "compiled-server" { } ''
-            ${final.bun}/bin/bun build ${./src}/index.ts \
+            cp -Lr ${nodeModules}/node_modules ./node_modules
+            cp -Lr ${./src} ./src
+            cp -L ${./tsconfig.json} ./tsconfig.json
+            ${final.bun}/bin/bun build ./src/index.ts \
               --compile \
               --minify \
               --sourcemap \
@@ -64,9 +71,6 @@
       };
 
       formatter = treefmtEval.config.build.wrapper;
-
-      bunNix = import ./bun.nix;
-      nodeModules = inputs.bun2nix.lib.x86_64-linux.mkBunNodeModules { packages = bunNix; };
 
       typeCheck = pkgs.runCommand "typeCheck" { } ''
         cp -Lr ${nodeModules}/node_modules ./node_modules

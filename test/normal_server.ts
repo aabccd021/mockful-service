@@ -124,4 +124,4 @@ async function handle(req: Request): Promise<Response> {
 
 Bun.serve({ port: 3000, fetch: handle });
 
-writeFileSync("./ready0.fifo", "");
+writeFileSync("./server-ready.fifo", "");

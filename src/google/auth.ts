@@ -1,14 +1,16 @@
 import { type Context, errorMessage, getStringFormData } from "../util.ts";
 
-function formInput([name, value]: [name: string, value: string]): string {
-  return `<input type="hidden" name="${name}" value="${value}" />`;
-}
-
-function handleGet(req: Request): Response {
+function handleGet(req: Request, ctx: Context): Response {
   const searchParams = new URL(req.url).searchParams;
 
-  const paramInputs = searchParams.entries().map(formInput);
-  const paramInputsStr = Array.from(paramInputs).join("\n");
+  const paramInputs = searchParams
+    .entries()
+    .map(
+      ([name, value]) =>
+        `\n          <input type="hidden" name="${name}" value="${value}" />`,
+    );
+
+  const paramInputsStr = Array.from(paramInputs).join("");
 
   const responseType = searchParams.get("response_type");
   if (responseType !== "code") {
@@ -18,26 +20,17 @@ function handleGet(req: Request): Response {
     );
   }
 
-  const scopes = searchParams.get("scope")?.split(" ") ?? [];
+  const users = ctx.data.google;
+  if (users === undefined) {
+    return errorMessage("No users configured for Google login.");
+  }
 
-  const subInput = scopes.includes("openid")
-    ? `
-        <label for="id_token_sub">id token sub</label>
-        <input type="text" name="id_token_sub" id="id_token_sub" maxlength="255" required pattern="+" />
-      `
-    : "";
-
-  const emailInput = scopes.includes("email")
-    ? `
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" maxlength="255" required />
-        <legend>Email Verified</legend>
-        <input type="radio" name="email_verified" id="email_verified_true" value="true" />
-        <label for="email_verified_true">True</label>
-        <input type="radio" name="email_verified" id="email_verified_false" value="false" />
-        <label for="email_verified_false">False</label>
-      `
-    : "";
+  const userSubmitButton = Object.keys(users)
+    .map(
+      (userId) =>
+        `\n          <button name="user" value="${userId}">${userId}</button>`,
+    )
+    .join("");
 
   const loginForm = `
     <html lang="en">
@@ -47,12 +40,7 @@ function handleGet(req: Request): Response {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body>
-        <form method="post">
-          ${paramInputsStr}
-          ${subInput}
-          ${emailInput}
-          <button>Submit</button>
-        </form>
+        <form method="post"> ${paramInputsStr} ${userSubmitButton} </form>
       </body>
     </html>
   `;
@@ -78,34 +66,28 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
       `
         INSERT INTO google_auth_session (
           code,
+          user,
           client_id,
           redirect_uri,
           scope,
-          sub,
-          email,
-          email_verified,
           code_challenge_method,
           code_challenge
         )
         VALUES (
           $code,
+          $user,
           $clientId,
           $redirectUri,
           $scope,
-          $sub,
-          $email,
-          $emailVerified,
           $codeChallengeMethod,
           $codeChallengeValue
         )`,
     ).run({
       code,
       redirectUri,
+      user: formData.get("user") ?? null,
       clientId: formData.get("client_id") ?? null,
       scope: formData.get("scope") ?? null,
-      sub: formData.get("id_token_sub") ?? null,
-      email: formData.get("email") ?? null,
-      emailVerified: formData.get("email_verified") ?? null,
       codeChallengeMethod: formData.get("code_challenge_method") ?? null,
       codeChallengeValue: formData.get("code_challenge") ?? null,
     });
@@ -132,7 +114,7 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
 
 export async function handle(req: Request, ctx: Context): Promise<Response> {
   if (req.method === "GET") {
-    return handleGet(req);
+    return handleGet(req, ctx);
   }
 
   if (req.method === "POST") {

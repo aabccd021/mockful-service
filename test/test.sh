@@ -6,18 +6,18 @@ reset=$(printf "\033[0m")
 export NETERO_STATE="./var/lib/netero"
 netero_init
 
-mkfifo "./ready0.fifo"
-mkfifo "./ready1.fifo"
+mkfifo "./server-ready.fifo"
+mkfifo "./oauth-ready.fifo"
 
 server 2>&1 | sed "s/^/${yellow}[server]${reset} /" &
 
 netero-oauth-mock \
-  --db "./db.sqlite" \
-  --on-ready-pipe "./ready1.fifo" \
+  --data "$DATA_FILE" \
+  --on-ready-pipe "./oauth-ready.fifo" \
   --port 3001 2>&1 | sed "s/^/${green}[oauth]${reset} /" &
 
-timeout 5 cat ./ready0.fifo >/dev/null
-timeout 5 cat ./ready1.fifo >/dev/null
+timeout 5 cat ./server-ready.fifo >/dev/null
+timeout 5 cat ./oauth-ready.fifo >/dev/null
 
 bash -euo pipefail "$TEST_FILE" 2>&1 | sed "s/^/${blue}[test]${reset} /"
 

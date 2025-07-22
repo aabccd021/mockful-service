@@ -1,0 +1,17 @@
+{
+  "google": {
+    "nijika": {
+      "sub": "nijika-sub",
+      "email": "nijika@example.com",
+      "email_verified": true
+    },
+    "yamada": {
+      "sub": "yamada-sub",
+      "email": "yamada@example.com",
+      "email_verified": false
+    },
+    "kita": {
+      "sub": "kita-sub"
+    }
+  }
+}

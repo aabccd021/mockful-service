@@ -9,20 +9,27 @@ export type AuthSession = {
   readonly clientId: string;
   readonly redirectUri: string;
   readonly scope?: string;
-  readonly sub?: string;
-  readonly email?: string;
-  readonly emailVerified?: boolean;
+  readonly user: string;
   readonly codeChallenge?: string;
   readonly codeChallengeMethod?: "S256" | "plain";
 };
 
-type AuthData = Pick<AuthSession, "sub" | "email" | "emailVerified">;
-
 function generateGoogleIdToken(
+  ctx: Context,
+  username: string,
   clientId: string,
-  authSession: AuthData,
   accessToken: string,
+  scopes: string[],
 ): string | undefined {
+  if (!scopes.includes("openid")) {
+    return undefined;
+  }
+
+  const user = ctx.data.google?.[username];
+  if (user === undefined) {
+    throw new Error(`User not found in data: ${username}`);
+  }
+
   const atHashRaw = new Bun.CryptoHasher("sha256").update(accessToken).digest();
   const atHash = new Uint8Array(atHashRaw)
     .slice(0, 16)
@@ -46,9 +53,9 @@ function generateGoogleIdToken(
     iat: nowEpoch,
     exp: nowEpoch + 3600,
     at_hash: atHash,
-    sub: authSession.sub,
-    email: authSession.email,
-    email_verified: authSession.emailVerified,
+    sub: user.sub,
+    email: scopes.includes("email") ? user.email : undefined,
+    email_verified: scopes.includes("email") ? user.email_verified : undefined,
   };
 
   const payloadStr = new TextEncoder()
@@ -97,11 +104,6 @@ function decodeAuthSession(authSession: unknown): AuthSession | null {
       ? authSession.scope
       : undefined;
 
-  const sub =
-    "sub" in authSession && typeof authSession.sub === "string"
-      ? authSession.sub
-      : undefined;
-
   const codeChallenge =
     "code_challenge" in authSession &&
     typeof authSession.code_challenge === "string"
@@ -121,32 +123,25 @@ function decodeAuthSession(authSession: unknown): AuthSession | null {
     throw new Error("Absurd codeChallengeMethodObj: invalid value");
   }
 
-  const email =
-    "email" in authSession && typeof authSession.email === "string"
-      ? authSession.email
-      : undefined;
+  if (!("user" in authSession)) {
+    throw new Error("Absurd user: missing in authSession");
+  }
 
-  const emailVerified =
-    "email_verified" in authSession &&
-    (authSession.email_verified === "true"
-      ? true
-      : authSession.email_verified === "false"
-        ? false
-        : undefined);
+  if (typeof authSession.user !== "string") {
+    throw new Error("Absurd user: not a string");
+  }
 
   return {
+    user: authSession.user,
     clientId,
     redirectUri,
     scope,
-    sub,
     codeChallenge,
     codeChallengeMethod: codeChallengeMethod ?? undefined,
-    email,
-    emailVerified,
   };
 }
 
-export async function handle(req: Request, { db }: Context): Promise<Response> {
+export async function handle(req: Request, ctx: Context): Promise<Response> {
   if (req.method !== "POST") {
     return new Response(null, { status: 405 });
   }
@@ -168,7 +163,7 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     return errorMessage("Parameter code is required.");
   }
 
-  const authSessionRaw = db
+  const authSessionRaw = ctx.db
     .query("SELECT * FROM google_auth_session WHERE code = $code")
     .get({ code });
 
@@ -177,7 +172,9 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     return errorMessage(`Auth session not found for code: "${code}".`);
   }
 
-  db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
+  ctx.db
+    .query("DELETE FROM google_auth_session WHERE code = $code")
+    .run({ code });
 
   if (authSession.codeChallenge !== undefined) {
     const codeVerifier = formData.get("code_verifier");
@@ -242,31 +239,31 @@ export async function handle(req: Request, { db }: Context): Promise<Response> {
     );
   }
 
-  const authSessionScope = authSession.scope;
-  if (authSessionScope === undefined) {
+  const scopeStr = authSession.scope;
+  if (scopeStr === undefined) {
     return errorMessage("scope is required.");
   }
 
   const accessToken = crypto.randomUUID();
 
-  const scopes = authSessionScope.split(" ");
-  const idToken = scopes.includes("openid")
-    ? generateGoogleIdToken(clientId, authSession, accessToken)
-    : undefined;
+  const scopes = scopeStr.split(" ");
+  const idToken = generateGoogleIdToken(
+    ctx,
+    authSession.user,
+    clientId,
+    accessToken,
+    scopes,
+  );
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
     access_token: accessToken,
-    scope: authSessionScope,
+    scope: scopeStr,
     token_type: "Bearer",
     expires_in: 3599,
   };
 
-  const cleanResponseBody = Object.fromEntries(
-    Object.entries(responseBody).filter(([_, value]) => value !== undefined),
-  );
-
-  return new Response(JSON.stringify(cleanResponseBody), {
+  return new Response(JSON.stringify(responseBody), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
