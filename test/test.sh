@@ -4,7 +4,7 @@ blue=$(printf "\033[34m")
 reset=$(printf "\033[0m")
 
 export NETERO_STATE="./var/lib/netero"
-netero_init
+netero-init
 mkdir -p "$NETERO_STATE/oauth-mock"
 cp "$DATA_FILE" "$NETERO_STATE/oauth-mock/data.json"
 

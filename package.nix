@@ -15,7 +15,7 @@ let
     mv server "$out/bin/netero-oauth-mock"
   '';
 
-  netero-init = pkgs.writeShellApplication {
+  netero-oauth-mock-init = pkgs.writeShellApplication {
     name = "netero-oauth-mock-init";
     runtimeInputs = [ pkgs.bun ];
     text = ''
@@ -52,6 +52,6 @@ pkgs.symlinkJoin {
   name = "netero-oauth-mock";
   paths = [
     netero-oauth-mock
-    netero-init
+    netero-oauth-mock-init
   ];
 }

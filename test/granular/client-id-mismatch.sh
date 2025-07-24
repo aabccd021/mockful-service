@@ -6,11 +6,11 @@ goto --url "http://localhost:3000\
 &redirect_uri=http://localhost:3000/login-callback\
 "
 
-assert_response_code_equal 200
+assert-response-code-equal 200
 
 submit "//form" --submit-button "//form/button[@value='kita']"
 
-assert_response_code_equal 200
+assert-response-code-equal 200
 
 auth_header=$(echo -n "invalid_client_id:mock_client_secret" | base64)
 code=$(cat ./code.txt)
@@ -33,5 +33,5 @@ curl_options=" \
 
 eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
 
-assert_response_code_equal 400
-assert_equal 'Invalid client_id' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-response-code-equal 400
+assert-equal 'Invalid client_id' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"

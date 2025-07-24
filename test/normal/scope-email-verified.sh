@@ -6,11 +6,11 @@ goto --url "http://localhost:3000\
 &redirect_uri=http://localhost:3000/login-callback\
 "
 
-assert_response_code_equal 200
+assert-response-code-equal 200
 
 submit "//form" --submit-button "//form/button[@value='yamada']"
 
-assert_response_code_equal 200
+assert-response-code-equal 200
 
 payload=$(
   jq -r ".id_token" "$NETERO_STATE/browser/1/tab/1/body" |
@@ -19,10 +19,10 @@ payload=$(
 )
 
 sub=$(echo "$payload" | jq -r ".sub")
-assert_equal "yamada-sub" "$sub"
+assert-equal "yamada-sub" "$sub"
 
 email=$(echo "$payload" | jq -r ".email")
-assert_equal "yamada@example.com" "$email"
+assert-equal "yamada@example.com" "$email"
 
 email_verified=$(echo "$payload" | jq -r ".email_verified")
-assert_equal "false" "$email_verified"
+assert-equal "false" "$email_verified"

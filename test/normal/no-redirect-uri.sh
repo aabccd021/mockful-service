@@ -6,5 +6,5 @@ goto --url "http://localhost:3000\
 &client_id=mock_client_id\
 "
 
-assert_response_code_equal 400
-assert_equal 'Parameter redirect_uri is required.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-response-code-equal 400
+assert-equal 'Parameter redirect_uri is required.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"

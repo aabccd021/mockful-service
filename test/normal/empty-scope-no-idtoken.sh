@@ -7,11 +7,11 @@ goto --url "http://localhost:3000\
 &redirect_uri=http://localhost:3000/login-callback\
 "
 
-assert_response_code_equal 200
+assert-response-code-equal 200
 
 submit "//form" --submit-button "//form/button[@value='kita']"
 
-assert_response_code_equal 200
+assert-response-code-equal 200
 
 keys=$(jq -r "keys[]" "$NETERO_STATE/browser/1/tab/1/body" | tr '\n' ' ')
-assert_equal "access_token expires_in scope token_type " "$keys"
+assert-equal "access_token expires_in scope token_type " "$keys"
