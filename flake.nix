@@ -29,19 +29,10 @@
 
       overlays.default = (
         final: prev: {
-          netero-oauth-mock = final.runCommand "compiled-server" { } ''
-            cp -Lr ${nodeModules}/node_modules ./node_modules
-            cp -Lr ${./src} ./src
-            cp -L ${./tsconfig.json} ./tsconfig.json
-            ${final.bun}/bin/bun build ./src/index.ts \
-              --compile \
-              --minify \
-              --sourcemap \
-              --bytecode \
-              --outfile server
-            mkdir -p "$out/bin"
-            mv server "$out/bin/netero-oauth-mock"
-          '';
+          netero-oauth-mock = import ./package.nix {
+            pkgs = final;
+            nodeModules = nodeModules;
+          };
         }
       );
 
