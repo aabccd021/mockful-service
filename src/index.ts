@@ -27,9 +27,6 @@ async function handle(req: Request, ctx: Context): Promise<Response> {
 const args = util.parseArgs({
   args: process.argv.slice(2),
   options: {
-    port: {
-      type: "string",
-    },
     "on-ready-pipe": {
       type: "string",
     },
@@ -48,6 +45,8 @@ const dataJson = fs.readFileSync(
 const data: unknown = JSON.parse(dataJson);
 assert(data, Data);
 
+const fileExists = fs.existsSync(`${neteroState}/oauth-mock/db.sqlite`);
+
 const db = new sqlite.Database(`${neteroState}/oauth-mock/db.sqlite`, {
   create: true,
   strict: true,
@@ -57,21 +56,22 @@ const db = new sqlite.Database(`${neteroState}/oauth-mock/db.sqlite`, {
 db.exec("PRAGMA journal_mode = WAL;");
 db.exec("PRAGMA foreign_keys = ON;");
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS google_auth_session (
-    code TEXT PRIMARY KEY,
-    user TEXT NOT NULL,
-    client_id TEXT NOT NULL,
-    redirect_uri TEXT NOT NULL,
-    scope TEXT,
-    code_challenge TEXT,
-    code_challenge_method TEXT CHECK (code_challenge_method IN ('S256', 'plain'))
-  ) STRICT;
-`);
+if (!fileExists) {
+  db.exec(`
+    CREATE TABLE google_auth_session (
+      code TEXT PRIMARY KEY,
+      user TEXT NOT NULL,
+      client_id TEXT NOT NULL,
+      redirect_uri TEXT NOT NULL,
+      scope TEXT,
+      code_challenge TEXT,
+      code_challenge_method TEXT CHECK (code_challenge_method IN ('S256', 'plain'))
+    ) STRICT;
+  `);
+}
 
 Bun.serve({
-  port:
-    args.values.port === undefined ? undefined : parseInt(args.values.port, 10),
+  port: data.server?.port,
   fetch: (req): Promise<Response> => handle(req, { db, data }),
 });
 

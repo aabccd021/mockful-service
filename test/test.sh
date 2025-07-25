@@ -13,9 +13,8 @@ mkfifo "./oauth-ready.fifo"
 
 server 2>&1 | sed "s/^/${yellow}[server]${reset} /" &
 
-netero-oauth-mock \
-  --on-ready-pipe "./oauth-ready.fifo" \
-  --port 3001 2>&1 | sed "s/^/${green}[oauth]${reset} /" &
+netero-oauth-mock --on-ready-pipe "./oauth-ready.fifo" 2>&1 |
+  sed "s/^/${green}[oauth]${reset} /" &
 
 timeout 5 cat ./server-ready.fifo >/dev/null
 timeout 5 cat ./oauth-ready.fifo >/dev/null

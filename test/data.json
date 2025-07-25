@@ -1,4 +1,7 @@
 {
+  "server": {
+    "port": 3001
+  },
   "google": {
     "nijika": {
       "sub": "nijika-sub",
