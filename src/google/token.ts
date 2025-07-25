@@ -1,6 +1,5 @@
 import { assert, enums, type Infer, nullable, string, type } from "superstruct";
 import {
-  assertNever,
   type Context,
   errorMessage,
   type GoogleUser,
@@ -164,7 +163,8 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
         return errorMessage("Code verifier does not match code challenge.");
       }
     } else {
-      assertNever(code_challengeMethod);
+      code_challengeMethod satisfies never;
+      throw new Error(`Unknown code_challenge_method: ${code_challengeMethod}`);
     }
   }
 
