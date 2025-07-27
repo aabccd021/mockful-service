@@ -34,4 +34,4 @@ curl_options=" \
 eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
 
 assert-response-code-equal 400
-assert-equal 'Invalid client_secret. Expected "mock_client_secret". Never use production client_secret in tests.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-equal 'Invalid client_secret. Expected "mock_client_secret", got "invalid_client_secret".' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"

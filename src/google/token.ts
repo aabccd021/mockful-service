@@ -14,6 +14,10 @@ const GoogleAuthUser = object({
   email_verified: nullable(enums(["true", "false"])),
 });
 
+const Client = object({
+  secret: string(),
+});
+
 export type GoogleAuthUser = Infer<typeof GoogleAuthUser>;
 
 const AuthSession = type({
@@ -217,10 +221,14 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return errorMessage("Invalid client_id");
   }
 
-  if (clientSecret !== "mock_client_secret") {
+  const client = ctx.db
+    .query("SELECT secret FROM google_auth_client WHERE id = $id")
+    .get({ id: clientId });
+  assert(client, Client);
+
+  if (clientSecret !== client.secret) {
     return errorMessage(
-      `Invalid client_secret. Expected "mock_client_secret".`,
-      "Never use production client_secret in tests.",
+      `Invalid client_secret. Expected "${client.secret}", got "${clientSecret}".`,
     );
   }
 

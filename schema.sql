@@ -14,3 +14,8 @@ CREATE TABLE google_auth_user (
   email_verified TEXT,
   CONSTRAINT google_auth_user_email_verified_boolean CHECK (email_verified IN ('true', 'false'))
 ) STRICT;
+
+CREATE TABLE google_auth_client (
+  id TEXT PRIMARY KEY,
+  secret TEXT NOT NULL
+) STRICT;
