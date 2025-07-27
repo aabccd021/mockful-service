@@ -1,10 +1,20 @@
-import { assert, enums, type Infer, nullable, string, type } from "superstruct";
 import {
-  type Context,
-  errorMessage,
-  type GoogleUser,
-  getStringFormData,
-} from "../util.ts";
+  assert,
+  enums,
+  type Infer,
+  nullable,
+  object,
+  string,
+  type,
+} from "superstruct";
+import { type Context, errorMessage, getStringFormData } from "../util.ts";
+
+const GoogleAuthUser = object({
+  email: string(),
+  email_verified: nullable(enums(["true", "false"])),
+});
+
+export type GoogleAuthUser = Infer<typeof GoogleAuthUser>;
 
 const AuthSession = type({
   client_id: string(),
@@ -19,9 +29,25 @@ const NullableAuthSession = nullable(AuthSession);
 
 type AuthSession = Infer<typeof AuthSession>;
 
+function serializeBoolean(value: "true" | "false" | null): boolean {
+  if (value === "true") {
+    return true;
+  }
+  if (value === "false") {
+    return false;
+  }
+  if (value === null) {
+    throw new Error("User email_verified is required for email scope.");
+  }
+  value satisfies never;
+  throw new Error(
+    `Invalid boolean value: ${value}. Expected "true" or "false".`,
+  );
+}
+
 function getEmailScopeData(
   scopes: string[],
-  user: GoogleUser,
+  user: GoogleAuthUser,
 ):
   | undefined
   | {
@@ -31,15 +57,9 @@ function getEmailScopeData(
   if (!scopes.includes("email")) {
     return undefined;
   }
-  if (user.email === undefined) {
-    throw new Error("User email is required for email scope.");
-  }
-  if (user.email_verified === undefined) {
-    throw new Error("User email_verified is required for email scope.");
-  }
   return {
     email: user.email,
-    email_verified: user.email_verified,
+    email_verified: serializeBoolean(user.email_verified),
   };
 }
 
@@ -54,10 +74,12 @@ function generateGoogleIdToken(
     return undefined;
   }
 
-  const user = ctx.data.google?.[authSession.user];
-  if (user === undefined) {
-    throw errorMessage(`User not found in data: ${authSession.user}`);
-  }
+  const sub = authSession.user;
+
+  const user = ctx.db
+    .query("SELECT email,email_verified FROM google_auth_user WHERE sub = $sub")
+    .get({ sub });
+  assert(user, GoogleAuthUser);
 
   const atHashRaw = new Bun.CryptoHasher("sha256").update(accessToken).digest();
   const atHash = new Uint8Array(atHashRaw)
@@ -83,7 +105,7 @@ function generateGoogleIdToken(
     iat: nowEpoch,
     exp: nowEpoch + 3600,
     at_hash: atHash,
-    sub: user.sub,
+    sub,
   };
 
   const payloadStr = new TextEncoder()

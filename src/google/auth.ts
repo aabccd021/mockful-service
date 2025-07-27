@@ -1,4 +1,12 @@
+import { array, assert, object, string } from "superstruct";
 import { type Context, errorMessage, getStringFormData } from "../util.ts";
+
+const Users = array(
+  object({
+    sub: string(),
+    email: string(),
+  }),
+);
 
 function handleGet(req: Request, ctx: Context): Response {
   const searchParams = new URL(req.url).searchParams;
@@ -26,15 +34,13 @@ function handleGet(req: Request, ctx: Context): Response {
 
   const redirectHost = new URL(redirectUri).host;
 
-  const users = ctx.data.google;
-  if (users === undefined) {
-    return errorMessage("No users configured for Google login.");
-  }
+  const users = ctx.db.query(`SELECT sub,email FROM google_auth_user`).all();
+  assert(users, Users);
 
-  const userSubmitButton = Object.keys(users)
+  const userSubmitButton = users
     .map(
-      (userId) =>
-        `<button style="height: 2rem" type="submit" name="user" value="${userId}"> ${userId} </button>`,
+      (user) =>
+        `<button style="height: 2rem" type="submit" name="user" value="${user.sub}">${user.email}</button>`,
     )
     .join("");
 

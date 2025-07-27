@@ -9,7 +9,7 @@ goto --url "http://localhost:3000\
 
 assert-response-code-equal 200
 
-submit "//form" --submit-button "//form/button[@value='kita']"
+submit "//form" --submit-button "//form/button[@value='kita-sub']"
 
 assert-response-code-equal 200
 

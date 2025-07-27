@@ -6,9 +6,19 @@ trap 'git reset' EXIT
 git add -A
 
 export NETERO_STATE="/tmp/netero-oauth-mock/var/lib/netero"
-mkdir -p "$NETERO_STATE/oauth-mock"
-cp "$DATA_FILE" "$NETERO_STATE/oauth-mock/data.json"
-chmod 644 "$NETERO_STATE/oauth-mock/data.json"
+rm -rf "$NETERO_STATE"
+set -x
+netero-oauth-mock-init
+echo foo
+
+sqlite3 "$NETERO_STATE/mock.sqlite" <<EOF
+INSERT INTO google_auth_user (sub, email, email_verified) 
+  VALUES ('nijika-sub', 'nijika@example.com', 'true');
+INSERT INTO google_auth_user (sub, email, email_verified) 
+  VALUES ('yamada-sub', 'yamada@example.com', 'false');
+INSERT INTO google_auth_user (sub, email)
+  VALUES ('kita-sub', 'kita@example.com');
+EOF
 
 rm -rf ./node_modules
 cp --dereference --recursive "$NODE_MODULES/node_modules/" ./node_modules

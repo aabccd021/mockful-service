@@ -11,7 +11,7 @@ goto --url "http://localhost:3000\
 
 assert-response-code-equal 200
 
-submit "//form" --submit-button "//form/button[@value='kita']"
+submit "//form" --submit-button "//form/button[@value='kita-sub']"
 
 assert-response-code-equal 400
 assert-equal 'Code verifier does not match code challenge.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"

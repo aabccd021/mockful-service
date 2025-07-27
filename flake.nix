@@ -103,9 +103,10 @@
         name = "dev";
         runtimeInputs = [
           pkgs.bun
+          pkgs.netero-oauth-mock
+          pkgs.sqlite
         ];
         runtimeEnv.NODE_MODULES = nodeModules;
-        runtimeEnv.DATA_FILE = ./test/data.json;
         text = builtins.readFile ./dev.sh;
       };
 

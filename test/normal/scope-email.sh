@@ -8,7 +8,7 @@ goto --url "http://localhost:3000\
 
 assert-response-code-equal 200
 
-submit "//form" --submit-button "//form/button[@value='nijika']"
+submit "//form" --submit-button "//form/button[@value='nijika-sub']"
 
 assert-response-code-equal 200
 

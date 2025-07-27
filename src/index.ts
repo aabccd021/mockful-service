@@ -1,10 +1,9 @@
 import * as sqlite from "bun:sqlite";
 import * as fs from "node:fs";
 import * as util from "node:util";
-import { assert } from "superstruct";
 import { handle as googleAuth } from "./google/auth.ts";
 import { handle as googleToken } from "./google/token.ts";
-import { type Context, Data, type Handle } from "./util.ts";
+import type { Context, Handle } from "./util.ts";
 
 const urlToServe: Record<string, Handle> = {
   "https://accounts.google.com/o/oauth2/v2/auth": googleAuth,
@@ -30,6 +29,11 @@ const args = util.parseArgs({
     "on-ready-pipe": {
       type: "string",
     },
+    port: {
+      type: "string",
+      default: "3000",
+      short: "p",
+    },
   },
 });
 
@@ -38,41 +42,30 @@ if (neteroState === undefined) {
   throw new Error("Environment variable NETERO_STATE is required.");
 }
 
-const dataJson = fs.readFileSync(
-  `${neteroState}/oauth-mock/data.json`,
-  "utf-8",
-);
-const data: unknown = JSON.parse(dataJson);
-assert(data, Data);
-
-const fileExists = fs.existsSync(`${neteroState}/oauth-mock/db.sqlite`);
-
-const db = new sqlite.Database(`${neteroState}/oauth-mock/db.sqlite`, {
-  create: true,
+const db = new sqlite.Database(`${neteroState}/mock.sqlite`, {
   strict: true,
   safeIntegers: true,
+});
+
+process.on("SIGTERM", () => {
+  db.close();
+});
+
+process.on("SIGINT", () => {
+  db.close();
+});
+
+process.on("exit", () => {
+  db.close();
 });
 
 db.exec("PRAGMA journal_mode = WAL;");
 db.exec("PRAGMA foreign_keys = ON;");
 
-if (!fileExists) {
-  db.exec(`
-    CREATE TABLE google_auth_session (
-      code TEXT PRIMARY KEY,
-      user TEXT NOT NULL,
-      client_id TEXT NOT NULL,
-      redirect_uri TEXT NOT NULL,
-      scope TEXT,
-      code_challenge TEXT,
-      code_challenge_method TEXT CHECK (code_challenge_method IN ('S256', 'plain'))
-    ) STRICT;
-  `);
-}
-
 Bun.serve({
-  port: data.server?.port,
-  fetch: (req): Promise<Response> => handle(req, { db, data }),
+  port: parseInt(args.values.port, 10),
+  development: false,
+  fetch: (req) => handle(req, { db }),
 });
 
 const onReadyPipe = args.values["on-ready-pipe"];

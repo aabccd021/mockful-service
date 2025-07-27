@@ -21,7 +21,6 @@ let
     prefix: server: dir: name:
     pkgs.runCommandLocal "${prefix}${name}" {
       env.TEST_FILE = "${dir}/${name}.sh";
-      env.DATA_FILE = "${./data.json}";
       buildInputs = [
         pkgs.jq
         pkgs.netero-test
@@ -29,6 +28,7 @@ let
         pkgs.jwt-cli
         pkgs.curl
         pkgs.tinyxxd
+        pkgs.sqlite
         server
       ];
     } (builtins.readFile ./test.sh);

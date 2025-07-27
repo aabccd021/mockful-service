@@ -5,15 +5,22 @@ reset=$(printf "\033[0m")
 
 export NETERO_STATE="./var/lib/netero"
 netero-init
-mkdir -p "$NETERO_STATE/oauth-mock"
-cp "$DATA_FILE" "$NETERO_STATE/oauth-mock/data.json"
+netero-oauth-mock-init
+sqlite3 "$NETERO_STATE/mock.sqlite" <<EOF
+INSERT INTO google_auth_user (sub, email, email_verified) 
+  VALUES ('nijika-sub', 'nijika@example.com', 'true');
+INSERT INTO google_auth_user (sub, email, email_verified) 
+  VALUES ('yamada-sub', 'yamada@example.com', 'false');
+INSERT INTO google_auth_user (sub, email)
+  VALUES ('kita-sub', 'kita@example.com');
+EOF
 
 mkfifo "./server-ready.fifo"
 mkfifo "./oauth-ready.fifo"
 
 server 2>&1 | sed "s/^/${yellow}[server]${reset} /" &
 
-netero-oauth-mock --on-ready-pipe "./oauth-ready.fifo" 2>&1 |
+netero-oauth-mock --port 3001 --on-ready-pipe "./oauth-ready.fifo" 2>&1 |
   sed "s/^/${green}[oauth]${reset} /" &
 
 timeout 5 cat ./server-ready.fifo >/dev/null

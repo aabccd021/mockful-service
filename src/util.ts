@@ -1,13 +1,4 @@
 import type { Database } from "bun:sqlite";
-import {
-  boolean,
-  type Infer,
-  number,
-  object,
-  optional,
-  record,
-  string,
-} from "superstruct";
 
 export function errorMessage(...message: string[]): Response {
   console.error(message.join(" "));
@@ -32,26 +23,6 @@ export async function getStringFormData(
 
 export type Context = {
   db: Database;
-  data: Data;
 };
 
 export type Handle = (req: Request, ctx: Context) => Promise<Response>;
-
-const GoogleUser = object({
-  sub: optional(string()),
-  email: optional(string()),
-  email_verified: optional(boolean()),
-});
-
-export type GoogleUser = Infer<typeof GoogleUser>;
-
-export const Data = object({
-  server: optional(
-    object({
-      port: optional(number()),
-    }),
-  ),
-  google: optional(record(string(), GoogleUser)),
-});
-
-export type Data = Infer<typeof Data>;

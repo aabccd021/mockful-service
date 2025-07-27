@@ -17,33 +17,17 @@ let
 
   netero-oauth-mock-init = pkgs.writeShellApplication {
     name = "netero-oauth-mock-init";
-    runtimeInputs = [ pkgs.bun ];
+    runtimeInputs = [
+      pkgs.bun
+      pkgs.sqlite
+    ];
     text = ''
       if [ -z "$NETERO_STATE" ]; then
         echo "NETERO_STATE environment variable is not set."
         exit 1
       fi
-      mkdir --parents "$NETERO_STATE/oauth-mock"
-
-      data_file=""
-
-      while [ "$#" -gt 0 ]; do
-        case "$1" in
-          --data-file)
-            data_file="$2"
-            shift
-            ;;
-          *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-        esac
-        shift
-      done
-
-      if [ -n "$data_file" ]; then
-        cp --dereference "$data_file" "$NETERO_STATE/oauth-mock/data.json"
-      fi
+      mkdir -p "$NETERO_STATE"
+      sqlite3 "$NETERO_STATE/mock.sqlite" < ${./schema.sql}
     '';
   };
 
