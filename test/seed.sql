@@ -1,0 +1,33 @@
+INSERT INTO google_auth_user (sub, email, email_verified) 
+  VALUES ('nijika-sub', 'nijika@example.com', 'true');
+
+INSERT INTO google_auth_user (sub, email, email_verified) 
+  VALUES ('yamada-sub', 'yamada@example.com', 'false');
+
+INSERT INTO google_auth_user (sub, email)
+  VALUES ('kita-sub', 'kita@example.com');
+
+INSERT INTO google_auth_client (id, secret)
+  VALUES ('mock_client_id', 'mock_client_secret');
+
+INSERT INTO paddle_tenant (id) VALUES ('mock_tenant_id');
+
+INSERT INTO paddle_api_key (tenant_id, key)
+  VALUES (
+    'mock_tenant_id', 
+    'pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO'
+  );
+
+INSERT INTO paddle_customer (tenant_id, id, email)
+  VALUES (
+    'mock_tenant_id', 
+    'ctm_01k12d0myryxjwp6ckgs3q6sz0',
+    'jo@example.com'
+  );
+
+INSERT INTO paddle_product (tenant_id, id)
+  VALUES (
+    'mock_tenant_id',
+    'pro_01jwq53zc9rs314acj69gf098j'
+  );
+
