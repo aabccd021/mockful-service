@@ -64,3 +64,24 @@ CREATE TABLE paddle_price (
   CONSTRAINT paddle_price_product_id_fkey FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON DELETE CASCADE,
   CONSTRAINT paddle_price_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
 );
+
+CREATE TABLE paddle_transaction (
+  tenant_id TEXT NOT NULL,
+  customer_id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
+  CONSTRAINT paddle_transaction_id_prefix CHECK (id LIKE 'txn_%'),
+  CONSTRAINT paddle_transaction_id_length CHECK (LENGTH(id) = 30),
+  CONSTRAINT paddle_transaction_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CONSTRAINT paddle_transaction_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON DELETE CASCADE,
+  CONSTRAINT paddle_transaction_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE paddle_transaction_item (
+  transaction_id TEXT NOT NULL,
+  price_id TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  CONSTRAINT paddle_transaction_item_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES paddle_transaction(id) ON DELETE CASCADE,
+  CONSTRAINT paddle_transaction_item_price_id_fkey FOREIGN KEY (price_id) REFERENCES paddle_price(id) ON DELETE CASCADE
+)
+

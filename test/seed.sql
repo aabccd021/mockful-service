@@ -37,3 +37,17 @@ INSERT INTO paddle_price (tenant_id, product_id, id)
     'pro_01jwq53zc9rs314acj69gf098j',
     'pri_01gsz91wy9k1yn7kx82aafwvea'
   );
+
+INSERT INTO paddle_transaction (tenant_id, customer_id, id)
+  VALUES (
+    'mock_tenant_id',
+    'ctm_01k12d0myryxjwp6ckgs3q6sz0',
+    'txn_01gt261m3y0bngp73j1j8c6dge'
+  );
+
+INSERT INTO paddle_transaction_item (transaction_id, price_id, quantity)
+  VALUES (
+    'txn_01gt261m3y0bngp73j1j8c6dge',
+    'pri_01gsz91wy9k1yn7kx82aafwvea',
+    1
+  );
