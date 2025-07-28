@@ -18,6 +18,9 @@ INSERT INTO google_auth_user (sub, email)
 
 INSERT INTO google_auth_client (id, secret)
   VALUES ('mock_client_id', 'mock_client_secret');
+
+INSERT INTO paddle_tenant (id) VALUES ('mock_tenant_id');
+
 EOF
 
 mkfifo "./server-ready.fifo"

@@ -34,6 +34,7 @@ CREATE TABLE paddle_api_key (
   CONSTRAINT paddle_api_key_id_length CHECK (LENGTH(key) = 69),
   CONSTRAINT paddle_api_key_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
 );
+
 CREATE TABLE paddle_customer (
   tenant_id TEXT NOT NULL,
   id TEXT PRIMARY KEY,
