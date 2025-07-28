@@ -26,6 +26,13 @@ INSERT INTO paddle_api_key (tenant_id, key)
     'mock_tenant_id', 
     'pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO'
   );
+
+INSERT INTO paddle_customer (tenant_id, id, email)
+  VALUES (
+    'mock_tenant_id', 
+    'ctm_01k12d0myryxjwp6ckgs3q6sz0',
+    'jo@example.com'
+  );
 EOF
 
 mkfifo "./server-ready.fifo"
