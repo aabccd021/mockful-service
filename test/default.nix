@@ -1,5 +1,6 @@
 { pkgs }:
 let
+  lib = pkgs.lib;
 
   mkServer =
     src:
@@ -19,8 +20,14 @@ let
 
   mkTest =
     prefix: server: dir: name:
+    let
+      src = lib.fileset.toSource {
+        root = dir;
+        fileset = dir + "/${name}.sh";
+      };
+    in
     pkgs.runCommandLocal "${prefix}${name}" {
-      env.TEST_FILE = "${dir}/${name}.sh";
+      env.TEST_FILE = "${src}/${name}.sh";
       env.SEED_FILE = "${./seed.sql}";
       buildInputs = [
         pkgs.jq
