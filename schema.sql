@@ -21,24 +21,26 @@ CREATE TABLE google_auth_client (
 ) STRICT;
 
 CREATE TABLE paddle_tenant (
-  id TEXT PRIMARY KEY
+  id TEXT,
+  CONSTRAINT paddle_tenant_pkey PRIMARY KEY (id)
 );
 
 -- https://developer.paddle.com/api-reference/about/paddle-ids#common-examples
 
 CREATE TABLE paddle_api_key (
   tenant_id TEXT NOT NULL,
-  key TEXT PRIMARY KEY,
-  -- https://developer.paddle.com/api-reference/about/api-keys#format
-  CONSTRAINT paddle_api_key_id_prefix CHECK (key LIKE 'pdl_live_apikey_%'),
+  key TEXT,
+  CONSTRAINT paddle_price_pkey PRIMARY KEY (key),
+  CONSTRAINT paddle_api_key_id_prefix CHECK (key LIKE 'pdl_live_apikey_%'), -- https://developer.paddle.com/api-reference/about/api-keys#format
   CONSTRAINT paddle_api_key_id_length CHECK (LENGTH(key) = 69),
   CONSTRAINT paddle_api_key_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
 );
 
 CREATE TABLE paddle_customer (
   tenant_id TEXT NOT NULL,
-  id TEXT PRIMARY KEY,
+  id TEXT,
   email TEXT NOT NULL UNIQUE,
+  CONSTRAINT paddle_price_pkey PRIMARY KEY (id),
   CONSTRAINT paddle_customer_id_prefix CHECK (id LIKE 'ctm_%'),
   CONSTRAINT paddle_customer_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_customer_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
@@ -47,7 +49,8 @@ CREATE TABLE paddle_customer (
 
 CREATE TABLE paddle_product (
   tenant_id TEXT NOT NULL,
-  id TEXT PRIMARY KEY,
+  id TEXT,
+  CONSTRAINT paddle_price_pkey PRIMARY KEY (id),
   CONSTRAINT paddle_product_id_prefix CHECK (id LIKE 'pro_%'),
   CONSTRAINT paddle_product_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_product_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
@@ -57,7 +60,8 @@ CREATE TABLE paddle_product (
 CREATE TABLE paddle_price (
   tenant_id TEXT NOT NULL,
   product_id TEXT NOT NULL,
-  id TEXT PRIMARY KEY,
+  id TEXT,
+  CONSTRAINT paddle_price_pkey PRIMARY KEY (id),
   CONSTRAINT paddle_price_id_prefix CHECK (id LIKE 'pri_%'),
   CONSTRAINT paddle_price_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_price_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
@@ -68,7 +72,8 @@ CREATE TABLE paddle_price (
 CREATE TABLE paddle_transaction (
   tenant_id TEXT NOT NULL,
   customer_id TEXT NOT NULL,
-  id TEXT PRIMARY KEY,
+  id TEXT,
+  CONSTRAINT paddle_transaction_pkey PRIMARY KEY (id),
   CONSTRAINT paddle_transaction_id_prefix CHECK (id LIKE 'txn_%'),
   CONSTRAINT paddle_transaction_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_transaction_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
