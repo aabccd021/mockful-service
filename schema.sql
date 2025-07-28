@@ -25,8 +25,9 @@ CREATE TABLE google_auth_user (
 
 CREATE TABLE google_auth_client (
   id TEXT,
-  secret TEXT NOT NULL,
-  CONSTRAINT google_auth_client_pk PRIMARY KEY (id)
+  secret TEXT,
+  CONSTRAINT google_auth_client_id_pk PRIMARY KEY (id),
+  CONSTRAINT google_auth_client_secret_not_null CHECK (secret IS NOT NULL)
 ) STRICT;
 
 CREATE TABLE paddle_tenant (
