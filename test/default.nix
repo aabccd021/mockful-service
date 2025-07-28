@@ -28,14 +28,6 @@ let
     in
     "${src}/${filename}";
 
-  mkTest =
-    prefix: buildInputs: dir: filename:
-    pkgs.runCommandLocal "${prefix}${filename}" {
-      env.TEST_FILE = filtered dir filename;
-      env.SEED_FILE = "${./seed.sql}";
-      buildInputs = buildInputs;
-    } (builtins.readFile ./test.sh);
-
   mapTests =
     {
       prefix,
@@ -47,7 +39,11 @@ let
       builtins.attrNames
       (builtins.map (filename: {
         name = prefix + (lib.strings.removeSuffix ".sh" filename);
-        value = mkTest prefix buildInputs dir filename;
+        value = pkgs.runCommandLocal "${prefix}${filename}" {
+          env.TEST_FILE = filtered dir filename;
+          env.SEED_FILE = "${./seed.sql}";
+          buildInputs = buildInputs;
+        } (builtins.readFile ./test.sh);
       }))
       builtins.listToAttrs
     ];
