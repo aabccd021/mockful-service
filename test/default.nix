@@ -29,26 +29,17 @@ let
     "${src}/${filename}";
 
   mkTest =
-    prefix: server: dir: filename:
+    prefix: buildInputs: dir: filename:
     pkgs.runCommandLocal "${prefix}${filename}" {
       env.TEST_FILE = filtered dir filename;
       env.SEED_FILE = "${./seed.sql}";
-      buildInputs = [
-        pkgs.jq
-        pkgs.netero-test
-        pkgs.netero-oauth-mock
-        pkgs.jwt-cli
-        pkgs.curl
-        pkgs.tinyxxd
-        pkgs.sqlite
-        server
-      ];
+      buildInputs = buildInputs;
     } (builtins.readFile ./test.sh);
 
   mapTests =
     {
       prefix,
-      server,
+      buildInputs,
       dir,
     }:
     lib.pipe dir [
@@ -56,21 +47,39 @@ let
       builtins.attrNames
       (builtins.map (filename: {
         name = prefix + (lib.strings.removeSuffix ".sh" filename);
-        value = mkTest prefix server dir filename;
+        value = mkTest prefix buildInputs dir filename;
       }))
       builtins.listToAttrs
     ];
 
   normalTests = mapTests {
     prefix = "test-google-normal-";
-    server = normalServer;
     dir = ./normal;
+    buildInputs = [
+      pkgs.jq
+      pkgs.netero-test
+      pkgs.netero-oauth-mock
+      pkgs.jwt-cli
+      pkgs.curl
+      pkgs.tinyxxd
+      pkgs.sqlite
+      normalServer
+    ];
   };
 
   granularTests = mapTests {
     prefix = "test-google-granular-";
-    server = granularServer;
     dir = ./granular;
+    buildInputs = [
+      pkgs.jq
+      pkgs.netero-test
+      pkgs.netero-oauth-mock
+      pkgs.jwt-cli
+      pkgs.curl
+      pkgs.tinyxxd
+      pkgs.sqlite
+      granularServer
+    ];
   };
 
 in
