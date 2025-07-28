@@ -81,6 +81,7 @@ CREATE TABLE paddle_transaction_item (
   transaction_id TEXT NOT NULL,
   price_id TEXT NOT NULL,
   quantity INTEGER NOT NULL,
+  CONSTRAINT paddle_transaction_item_pkey PRIMARY KEY (transaction_id, price_id),
   CONSTRAINT paddle_transaction_item_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES paddle_transaction(id) ON DELETE CASCADE,
   CONSTRAINT paddle_transaction_item_price_id_fkey FOREIGN KEY (price_id) REFERENCES paddle_price(id) ON DELETE CASCADE
 )
