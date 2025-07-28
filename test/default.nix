@@ -18,16 +18,20 @@ let
   normalServer = mkServer ./normal_server.ts;
   granularServer = mkServer ./granular_server.ts;
 
-  mkTest =
-    prefix: server: dir: name:
+  filtered =
+    dir: filename:
     let
       src = lib.fileset.toSource {
         root = dir;
-        fileset = dir + "/${name}.sh";
+        fileset = dir + "/${filename}";
       };
     in
+    "${src}/${filename}";
+
+  mkTest =
+    prefix: server: dir: name:
     pkgs.runCommandLocal "${prefix}${name}" {
-      env.TEST_FILE = "${src}/${name}.sh";
+      env.TEST_FILE = filtered dir "${name}.sh";
       env.SEED_FILE = "${./seed.sql}";
       buildInputs = [
         pkgs.jq
