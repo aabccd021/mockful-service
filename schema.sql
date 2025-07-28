@@ -15,9 +15,11 @@ CREATE TABLE google_auth_session (
 
 CREATE TABLE google_auth_user (
   sub TEXT,
-  email TEXT UNIQUE NOT NULL,
+  email TEXT,
   email_verified TEXT,
-  CONSTRAINT google_auth_user_pk PRIMARY KEY (sub),
+  CONSTRAINT google_auth_user_sub_pk PRIMARY KEY (sub),
+  CONSTRAINT google_auth_user_email_not_null CHECK (email IS NOT NULL),
+  CONSTRAINT google_auth_user_email_unique UNIQUE (email),
   CONSTRAINT google_auth_user_email_verified_boolean CHECK (email_verified IN ('true', 'false'))
 ) STRICT;
 
