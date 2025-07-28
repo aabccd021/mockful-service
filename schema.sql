@@ -19,3 +19,31 @@ CREATE TABLE google_auth_client (
   id TEXT PRIMARY KEY,
   secret TEXT NOT NULL
 ) STRICT;
+
+CREATE TABLE paddle_tenant (
+  id TEXT PRIMARY KEY
+);
+
+CREATE TABLE paddle_api_key (
+  tenant_id TEXT NOT NULL,
+  secret TEXT PRIMARY KEY,
+  CONSTRAINT paddle_api_key_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
+);
+
+CREATE TABLE paddle_customer (
+  tenant_id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  CONSTRAINT paddle_customer_id_prefix CHECK (id LIKE 'ctm_%'),
+  CONSTRAINT paddle_customer_id_length CHECK (LENGTH(id) = 30),
+  CONSTRAINT paddle_customer_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CONSTRAINT paddle_customer_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
+);
+
+-- CREATE TABLE paddle_product (
+--   tenant_id TEXT NOT NULL,
+--   id TEXT PRIMARY KEY,
+--   name TEXT NOT NULL,
+--   description TEXT,
+--   CONSTRAINT paddle_product_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
+-- );
