@@ -10,44 +10,44 @@ INSERT INTO google_auth_user (sub, email)
 INSERT INTO google_auth_client (id, secret)
   VALUES ('mock_client_id', 'mock_client_secret');
 
-INSERT INTO paddle_tenant (id) VALUES ('mock_tenant_id');
-
-INSERT INTO paddle_api_key (tenant_id, key)
-  VALUES (
-    'mock_tenant_id', 
-    'pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO'
-  );
-
-INSERT INTO paddle_customer (tenant_id, id, email)
-  VALUES (
-    'mock_tenant_id', 
-    'ctm_01k12d0myryxjwp6ckgs3q6sz0',
-    'jo@example.com'
-  );
-
-INSERT INTO paddle_product (tenant_id, id)
-  VALUES (
-    'mock_tenant_id',
-    'pro_01jwq53zc9rs314acj69gf098j'
-  );
-
-INSERT INTO paddle_price (tenant_id, product_id, id)
-  VALUES (
-    'mock_tenant_id',
-    'pro_01jwq53zc9rs314acj69gf098j',
-    'pri_01gsz91wy9k1yn7kx82aafwvea'
-  );
-
-INSERT INTO paddle_transaction (tenant_id, customer_id, id)
-  VALUES (
-    'mock_tenant_id',
-    'ctm_01k12d0myryxjwp6ckgs3q6sz0',
-    'txn_01gt261m3y0bngp73j1j8c6dge'
-  );
-
-INSERT INTO paddle_transaction_item (transaction_id, price_id, quantity)
-  VALUES (
-    'txn_01gt261m3y0bngp73j1j8c6dge',
-    'pri_01gsz91wy9k1yn7kx82aafwvea',
-    1
-  );
+-- INSERT INTO paddle_tenant (id) VALUES ('mock_tenant_id');
+--
+-- INSERT INTO paddle_api_key (tenant_id, key)
+--   VALUES (
+--     'mock_tenant_id', 
+--     'pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO'
+--   );
+--
+-- INSERT INTO paddle_customer (tenant_id, id, email)
+--   VALUES (
+--     'mock_tenant_id', 
+--     'ctm_01k12d0myryxjwp6ckgs3q6sz0',
+--     'jo@example.com'
+--   );
+--
+-- INSERT INTO paddle_product (tenant_id, id)
+--   VALUES (
+--     'mock_tenant_id',
+--     'pro_01jwq53zc9rs314acj69gf098j'
+--   );
+--
+-- INSERT INTO paddle_price (tenant_id, product_id, id)
+--   VALUES (
+--     'mock_tenant_id',
+--     'pro_01jwq53zc9rs314acj69gf098j',
+--     'pri_01gsz91wy9k1yn7kx82aafwvea'
+--   );
+--
+-- INSERT INTO paddle_transaction (tenant_id, customer_id, id)
+--   VALUES (
+--     'mock_tenant_id',
+--     'ctm_01k12d0myryxjwp6ckgs3q6sz0',
+--     'txn_01gt261m3y0bngp73j1j8c6dge'
+--   );
+--
+-- INSERT INTO paddle_transaction_item (transaction_id, price_id, quantity)
+--   VALUES (
+--     'txn_01gt261m3y0bngp73j1j8c6dge',
+--     'pri_01gsz91wy9k1yn7kx82aafwvea',
+--     1
+--   );
