@@ -52,8 +52,13 @@
         programs.nixfmt.enable = true;
         programs.biome.enable = true;
         programs.shfmt.enable = true;
+        programs.shellcheck.enable = true;
         settings.formatter.prettier.priority = 1;
         settings.formatter.biome.priority = 2;
+        settings.formatter.shellcheck.options = [
+          "-s"
+          "sh"
+        ];
         settings.global.excludes = [
           "LICENSE"
           "*.ico"
@@ -68,7 +73,7 @@
         cp -Lr ${./src} ./src
         cp -L ${./tsconfig.json} ./tsconfig.json
         ${pkgs.typescript}/bin/tsc
-        touch $out
+        touch "$out"
       '';
 
       lintCheck = pkgs.runCommand "lintCheck" { } ''
@@ -78,7 +83,7 @@
         cp -L ${./tsconfig.json} ./tsconfig.json
         cp -L ${./package.json} ./package.json
         ${pkgs.biome}/bin/biome check --error-on-warnings
-        touch $out
+        touch "$out"
       '';
 
       inputPackages = {

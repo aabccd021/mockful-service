@@ -11,8 +11,8 @@ let
         --bytecode \
         --sourcemap \
         --outfile server
-      mkdir -p $out/bin
-      mv server $out/bin/server
+      mkdir -p "$out/bin"
+      mv server "$out/bin/server"
     '';
 
   normalServer = mkServer ./normal_server.ts;
@@ -28,6 +28,43 @@ let
     in
     "${src}/${filename}";
 
+  mkTest =
+    {
+      prefix,
+      filename,
+      dir,
+      buildInputs,
+    }:
+    pkgs.runCommandLocal "${prefix}${filename}"
+      {
+        env.TEST_FILE = filtered dir filename;
+        buildInputs = buildInputs;
+      }
+      ''
+        green=$(printf "\033[32m")
+        yellow=$(printf "\033[33m")
+        reset=$(printf "\033[0m")
+
+        export NETERO_STATE="./var/lib/netero"
+        netero-init
+        netero-oauth-mock-init
+
+        mkfifo "./server-ready.fifo"
+        mkfifo "./oauth-ready.fifo"
+
+        server 2>&1 | sed "s/^/''${yellow}[server]''${reset} /" &
+
+        netero-oauth-mock --port 3001 --on-ready-pipe "./oauth-ready.fifo" 2>&1 |
+          sed "s/^/''${green}[oauth]''${reset} /" &
+
+        timeout 5 cat ./server-ready.fifo
+        timeout 5 cat ./oauth-ready.fifo
+
+        bash -euo pipefail "$TEST_FILE"
+
+        mkdir "$out"
+      '';
+
   mapTests =
     {
       prefix,
@@ -39,10 +76,12 @@ let
       builtins.attrNames
       (builtins.map (filename: {
         name = prefix + (lib.strings.removeSuffix ".sh" filename);
-        value = pkgs.runCommandLocal "${prefix}${filename}" {
-          env.TEST_FILE = filtered dir filename;
+        value = mkTest {
+          prefix = prefix;
+          filename = filename;
+          dir = dir;
           buildInputs = buildInputs;
-        } (builtins.readFile ./test.sh);
+        };
       }))
       builtins.listToAttrs
     ];

@@ -12,9 +12,6 @@ INSERT INTO google_auth_client (id, secret)
   VALUES ('mock_client_id', 'mock_client_secret');
 EOF
 
-#!/bin/bash
-set -euo pipefail
-
 response=$(curl -s -o /dev/null -w "%{http_code}" -X GET "http://localhost:3001/non-existent-path")
 
 if [ "$response" != "404" ]; then

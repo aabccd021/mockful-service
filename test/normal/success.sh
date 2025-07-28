@@ -55,7 +55,7 @@ access_token=$(jq -r ".access_token" "$NETERO_STATE/browser/1/tab/1/body")
 
 at_hash=$(echo "$payload" | jq -r ".at_hash")
 expected_at_hash=$(
-  echo -n "$access_token" |
+  printf "%s" "$access_token" |
     sha256sum |
     cut -c 1-32 |
     xxd -r -p |

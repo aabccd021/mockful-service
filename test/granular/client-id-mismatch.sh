@@ -26,7 +26,7 @@ submit "//form" --submit-button "//form/button[@value='kita-sub']"
 
 assert-response-code-equal 200
 
-auth_header=$(echo -n "invalid_client_id:mock_client_secret" | base64)
+auth_header=$(printf "invalid_client_id:mock_client_secret" | base64)
 code=$(cat ./code.txt)
 
 curl_options=" \
