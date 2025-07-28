@@ -1,5 +1,5 @@
 import { array, assert, object, string } from "superstruct";
-import { type Context, errorMessage, getStringFormData } from "../util.ts";
+import { type Context, errorMessage, getStringFormData } from "./util.ts";
 
 const Users = array(
   object({

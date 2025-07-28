@@ -7,7 +7,7 @@ import {
   string,
   type,
 } from "superstruct";
-import { type Context, errorMessage, getStringFormData } from "../util.ts";
+import { type Context, errorMessage, getStringFormData } from "./util.ts";
 
 const GoogleAuthUser = object({
   email: string(),
