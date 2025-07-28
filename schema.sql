@@ -1,12 +1,16 @@
 CREATE TABLE google_auth_session (
   code TEXT,
-  user TEXT NOT NULL,
-  client_id TEXT NOT NULL,
-  redirect_uri TEXT NOT NULL,
+  user TEXT,
+  client_id TEXT,
+  redirect_uri TEXT,
   scope TEXT,
   code_challenge TEXT,
-  code_challenge_method TEXT CHECK (code_challenge_method IN ('S256', 'plain')),
-  CONSTRAINT google_auth_session_pk PRIMARY KEY (code)
+  code_challenge_method TEXT,
+  CONSTRAINT google_auth_session_code_pk PRIMARY KEY (code),
+  CONSTRAINT google_auth_session_user_not_null CHECK (user IS NOT NULL),
+  CONSTRAINT google_auth_session_client_id_not_null CHECK (client_id IS NOT NULL),
+  CONSTRAINT google_auth_session_redirect_uri_not_null CHECK (redirect_uri IS NOT NULL),
+  CONSTRAINT google_auth_session_challenge_method_enum CHECK (code_challenge_method IN ('S256', 'plain'))
 ) STRICT;
 
 CREATE TABLE google_auth_user (
