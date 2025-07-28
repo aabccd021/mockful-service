@@ -29,9 +29,9 @@ let
     "${src}/${filename}";
 
   mkTest =
-    prefix: server: dir: name:
-    pkgs.runCommandLocal "${prefix}${name}" {
-      env.TEST_FILE = filtered dir name;
+    prefix: server: dir: filename:
+    pkgs.runCommandLocal "${prefix}${filename}" {
+      env.TEST_FILE = filtered dir filename;
       env.SEED_FILE = "${./seed.sql}";
       buildInputs = [
         pkgs.jq
@@ -46,7 +46,11 @@ let
     } (builtins.readFile ./test.sh);
 
   mapTests =
-    prefix: server: dir:
+    {
+      prefix,
+      server,
+      dir,
+    }:
     lib.pipe dir [
       builtins.readDir
       builtins.attrNames
@@ -57,9 +61,17 @@ let
       builtins.listToAttrs
     ];
 
-  normalTests = mapTests "test-google-normal-" normalServer ./normal;
+  normalTests = mapTests {
+    prefix = "test-google-normal-";
+    server = normalServer;
+    dir = ./normal;
+  };
 
-  granularTests = mapTests "test-google-granular-" granularServer ./granular;
+  granularTests = mapTests {
+    prefix = "test-google-granular-";
+    server = granularServer;
+    dir = ./granular;
+  };
 
 in
 normalTests
