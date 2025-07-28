@@ -41,7 +41,7 @@ CREATE TABLE paddle_api_key (
   tenant_id TEXT,
   key TEXT,
   CONSTRAINT paddle_api_key_pk PRIMARY KEY (key),
-  CONSTRAINT paddle_api_key_id_prefix CHECK (key LIKE 'pdl_live_apikey_%'), -- https://developer.paddle.com/api-reference/about/api-keys#format
+  CONSTRAINT paddle_api_key_id_prefix CHECK (key LIKE 'pdl_live_apikey_%' OR key LIKE 'pdl_sdbx_apikey_%'), -- https://developer.paddle.com/api-reference/about/api-keys#format
   CONSTRAINT paddle_api_key_id_length CHECK (LENGTH(key) = 69),
   CONSTRAINT paddle_api_key_tenant_id_not_null CHECK (tenant_id IS NOT NULL),
   CONSTRAINT paddle_api_key_tenant_id_fk FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
