@@ -15,9 +15,9 @@ server 2>&1 | sed "s/^/${yellow}[server]${reset} /" &
 netero-oauth-mock --port 3001 --on-ready-pipe "./oauth-ready.fifo" 2>&1 |
   sed "s/^/${green}[oauth]${reset} /" &
 
-timeout 5 cat ./server-ready.fifo >/dev/null
-timeout 5 cat ./oauth-ready.fifo >/dev/null
+timeout 5 cat ./server-ready.fifo
+timeout 5 cat ./oauth-ready.fifo
 
-bash -euo pipefail "$TEST_FILE" 2>&1 | sed "s/^/${blue}[test]${reset} /"
+bash -euo pipefail "$TEST_FILE"
 
 mkdir $out
