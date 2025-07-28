@@ -24,12 +24,16 @@ CREATE TABLE paddle_tenant (
   id TEXT PRIMARY KEY
 );
 
+-- https://developer.paddle.com/api-reference/about/paddle-ids#common-examples
+
 CREATE TABLE paddle_api_key (
   tenant_id TEXT NOT NULL,
-  secret TEXT PRIMARY KEY,
+  key TEXT PRIMARY KEY,
+  -- https://developer.paddle.com/api-reference/about/api-keys#format
+  CONSTRAINT paddle_api_key_id_prefix CHECK (key LIKE 'pdl_live_apikey_%'),
+  CONSTRAINT paddle_api_key_id_length CHECK (LENGTH(key) = 69),
   CONSTRAINT paddle_api_key_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
 );
-
 CREATE TABLE paddle_customer (
   tenant_id TEXT NOT NULL,
   id TEXT PRIMARY KEY,
