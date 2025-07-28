@@ -21,6 +21,11 @@ INSERT INTO google_auth_client (id, secret)
 
 INSERT INTO paddle_tenant (id) VALUES ('mock_tenant_id');
 
+INSERT INTO paddle_api_key (tenant_id, key)
+  VALUES (
+    'mock_tenant_id', 
+    'pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO'
+  );
 EOF
 
 mkfifo "./server-ready.fifo"
