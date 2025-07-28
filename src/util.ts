@@ -26,3 +26,13 @@ export type Context = {
 };
 
 export type Handle = (req: Request, ctx: Context) => Promise<Response>;
+
+export type ResponseOr<T> =
+  | {
+      type: "response";
+      response: Response;
+    }
+  | {
+      type: "value";
+      value: T;
+    };

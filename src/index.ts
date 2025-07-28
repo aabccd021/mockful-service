@@ -3,11 +3,13 @@ import * as fs from "node:fs";
 import * as util from "node:util";
 import { handle as googleAuth } from "./google-auth.ts";
 import { handle as googleToken } from "./google-token.ts";
+import { handle as paddleCustomer } from "./paddle-customer.ts";
 import type { Context, Handle } from "./util.ts";
 
 const urlToServe: Record<string, Handle> = {
   "https://accounts.google.com/o/oauth2/v2/auth": googleAuth,
   "https://oauth2.googleapis.com/token": googleToken,
+  "https://sandbox-api.paddle.com/customers": paddleCustomer,
 };
 
 async function handle(req: Request, ctx: Context): Promise<Response> {
