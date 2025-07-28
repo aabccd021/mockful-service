@@ -47,15 +47,15 @@ let
 
   mapTests =
     prefix: server: dir:
-    let
-      filenames = builtins.attrNames (builtins.readDir dir);
-    in
-    builtins.listToAttrs (
-      builtins.map (name: {
-        name = prefix + (lib.strings.removeSuffix ".sh" name);
-        value = mkTest prefix server dir name;
-      }) filenames
-    );
+    lib.pipe dir [
+      builtins.readDir
+      builtins.attrNames
+      (builtins.map (filename: {
+        name = prefix + (lib.strings.removeSuffix ".sh" filename);
+        value = mkTest prefix server dir filename;
+      }))
+      builtins.listToAttrs
+    ];
 
   normalTests = mapTests "test-google-normal-" normalServer ./normal;
 
