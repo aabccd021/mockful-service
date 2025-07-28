@@ -2,14 +2,6 @@ import { assert, nullable, object, string } from "superstruct";
 import { generateId, getTenantId } from "./paddle-util";
 import type { Context } from "./util";
 
-const Customer = nullable(
-  object({
-    tenant_id: string(),
-    id: string(),
-    email: string(),
-  }),
-);
-
 async function get(
   req: Request,
   ctx: Context,
@@ -25,7 +17,16 @@ async function get(
           "SELECT * FROM paddle_customer WHERE email = $email AND tenant_id = $tenantId",
         )
         .get({ email, tenantId });
-      assert(customer, Customer);
+      assert(
+        customer,
+        nullable(
+          object({
+            tenant_id: string(),
+            id: string(),
+            email: string(),
+          }),
+        ),
+      );
       return customer;
     })
     .filter((c) => c !== null)
