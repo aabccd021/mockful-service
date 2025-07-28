@@ -42,7 +42,8 @@ CREATE TABLE paddle_api_key (
 CREATE TABLE paddle_customer (
   tenant_id TEXT NOT NULL,
   id TEXT,
-  email TEXT NOT NULL UNIQUE,
+  email TEXT NOT NULL,
+  CONSTRAINT paddle_customer_email_unique UNIQUE (tenant_id, email),
   CONSTRAINT paddle_customer_price_pkey PRIMARY KEY (id),
   CONSTRAINT paddle_customer_id_prefix CHECK (id LIKE 'ctm_%'),
   CONSTRAINT paddle_customer_id_length CHECK (LENGTH(id) = 30),
