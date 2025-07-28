@@ -53,3 +53,14 @@ CREATE TABLE paddle_product (
   CONSTRAINT paddle_product_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CONSTRAINT paddle_product_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
 );
+
+CREATE TABLE paddle_price (
+  tenant_id TEXT NOT NULL,
+  product_id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
+  CONSTRAINT paddle_price_id_prefix CHECK (id LIKE 'pri_%'),
+  CONSTRAINT paddle_price_id_length CHECK (LENGTH(id) = 30),
+  CONSTRAINT paddle_price_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CONSTRAINT paddle_price_product_id_fkey FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON DELETE CASCADE,
+  CONSTRAINT paddle_price_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
+);

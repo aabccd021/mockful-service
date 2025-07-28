@@ -31,3 +31,9 @@ INSERT INTO paddle_product (tenant_id, id)
     'pro_01jwq53zc9rs314acj69gf098j'
   );
 
+INSERT INTO paddle_price (tenant_id, product_id, id)
+  VALUES (
+    'mock_tenant_id',
+    'pro_01jwq53zc9rs314acj69gf098j',
+    'pri_01gsz91wy9k1yn7kx82aafwvea'
+  );
