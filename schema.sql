@@ -23,7 +23,7 @@ CREATE TABLE google_auth_client (
 CREATE TABLE paddle_tenant (
   id TEXT,
   CONSTRAINT paddle_tenant_pkey PRIMARY KEY (id)
-);
+) STRICT;
 
 -- https://developer.paddle.com/api-reference/about/paddle-ids#common-examples
 
@@ -34,7 +34,7 @@ CREATE TABLE paddle_api_key (
   CONSTRAINT paddle_api_key_id_prefix CHECK (key LIKE 'pdl_live_apikey_%'), -- https://developer.paddle.com/api-reference/about/api-keys#format
   CONSTRAINT paddle_api_key_id_length CHECK (LENGTH(key) = 69),
   CONSTRAINT paddle_api_key_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE paddle_customer (
   tenant_id TEXT NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE paddle_customer (
   CONSTRAINT paddle_customer_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_customer_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CONSTRAINT paddle_customer_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE paddle_product (
   tenant_id TEXT NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE paddle_product (
   CONSTRAINT paddle_product_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_product_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CONSTRAINT paddle_product_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE paddle_price (
   tenant_id TEXT NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE paddle_price (
   CONSTRAINT paddle_price_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CONSTRAINT paddle_price_product_id_fkey FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON DELETE CASCADE,
   CONSTRAINT paddle_price_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
-);
+) STRICT;
 
 CREATE TABLE paddle_transaction (
   tenant_id TEXT NOT NULL,
@@ -79,8 +79,7 @@ CREATE TABLE paddle_transaction (
   CONSTRAINT paddle_transaction_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CONSTRAINT paddle_transaction_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON DELETE CASCADE,
   CONSTRAINT paddle_transaction_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
-);
-
+) STRICT;
 
 CREATE TABLE paddle_transaction_item (
   transaction_id TEXT NOT NULL,
@@ -89,5 +88,4 @@ CREATE TABLE paddle_transaction_item (
   CONSTRAINT paddle_transaction_item_pkey PRIMARY KEY (transaction_id, price_id),
   CONSTRAINT paddle_transaction_item_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES paddle_transaction(id) ON DELETE CASCADE,
   CONSTRAINT paddle_transaction_item_price_id_fkey FOREIGN KEY (price_id) REFERENCES paddle_price(id) ON DELETE CASCADE
-)
-
+) STRICT
