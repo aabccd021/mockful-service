@@ -31,7 +31,7 @@ let
   mkTest =
     prefix: server: dir: name:
     pkgs.runCommandLocal "${prefix}${name}" {
-      env.TEST_FILE = filtered dir "${name}.sh";
+      env.TEST_FILE = filtered dir name;
       env.SEED_FILE = "${./seed.sql}";
       buildInputs = [
         pkgs.jq
@@ -46,46 +46,20 @@ let
     } (builtins.readFile ./test.sh);
 
   mapTests =
-    prefix: server: dir: names:
+    prefix: server: dir:
+    let
+      filenames = builtins.attrNames (builtins.readDir dir);
+    in
     builtins.listToAttrs (
       builtins.map (name: {
-        name = prefix + name;
+        name = prefix + (lib.strings.removeSuffix ".sh" name);
         value = mkTest prefix server dir name;
-      }) names
+      }) filenames
     );
 
-  normalTests = mapTests "test-google-normal-" normalServer ./normal [
-    "empty-scope-no-idtoken"
-    "no-client-id"
-    "no-redirect-uri"
-    "no-scope"
-    "response-type-token"
-    "success"
-    "success-s256"
-    "success-plain"
-    "success-no-challenge-method"
-    "s256-mismatch"
-    "scope-email"
-    "scope-email-verified"
-  ];
+  normalTests = mapTests "test-google-normal-" normalServer ./normal;
 
-  granularTests = mapTests "test-google-granular-" granularServer ./granular [
-    "auth-not-basic"
-    "auth-session-not-found"
-    "callback-url-mismatch"
-    "client-id-mismatch"
-    "client-secret-mismatch"
-    "invalid-grant-type"
-    "no-code"
-    "no-code-verifier"
-    "no-credentials"
-    "no-grant-type"
-    "no-auth-header"
-    "not-found-path"
-    "success"
-    "success-s256"
-    "get"
-  ];
+  granularTests = mapTests "test-google-granular-" granularServer ./granular;
 
 in
 normalTests
