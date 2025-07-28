@@ -45,10 +45,11 @@ CREATE TABLE paddle_customer (
   CONSTRAINT paddle_customer_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
 );
 
--- CREATE TABLE paddle_product (
---   tenant_id TEXT NOT NULL,
---   id TEXT PRIMARY KEY,
---   name TEXT NOT NULL,
---   description TEXT,
---   CONSTRAINT paddle_product_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
--- );
+CREATE TABLE paddle_product (
+  tenant_id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
+  CONSTRAINT paddle_product_id_prefix CHECK (id LIKE 'pro_%'),
+  CONSTRAINT paddle_product_id_length CHECK (LENGTH(id) = 30),
+  CONSTRAINT paddle_product_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CONSTRAINT paddle_product_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES paddle_tenant(id) ON DELETE CASCADE
+);

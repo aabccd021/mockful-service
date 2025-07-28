@@ -33,6 +33,12 @@ INSERT INTO paddle_customer (tenant_id, id, email)
     'ctm_01k12d0myryxjwp6ckgs3q6sz0',
     'jo@example.com'
   );
+
+INSERT INTO paddle_product (tenant_id, id)
+  VALUES (
+    'mock_tenant_id',
+    'pro_01jwq53zc9rs314acj69gf098j'
+  );
 EOF
 
 mkfifo "./server-ready.fifo"
