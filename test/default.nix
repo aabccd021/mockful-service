@@ -41,7 +41,6 @@ let
         name = prefix + (lib.strings.removeSuffix ".sh" filename);
         value = pkgs.runCommandLocal "${prefix}${filename}" {
           env.TEST_FILE = filtered dir filename;
-          env.SEED_FILE = "${./seed.sql}";
           buildInputs = buildInputs;
         } (builtins.readFile ./test.sh);
       }))
