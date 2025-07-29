@@ -195,6 +195,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   if (formData.get("redirect_uri") !== authSession.redirect_uri) {
+    // body: {
+    //   error: "invalid_request",
+    //   error_description: "Missing parameter: redirect_uri",
+    // },
     return errorMessage("Invalid redirect_uri.");
   }
 
