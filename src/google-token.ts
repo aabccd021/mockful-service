@@ -138,7 +138,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const formData = await getStringFormData(req);
 
-  const grantType = formData.get("grant_type");
+  const grantType = formData.get("grant_type") ?? "";
   if (grantType !== "authorization_code") {
     return Response.json(
       {
