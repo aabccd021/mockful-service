@@ -25,7 +25,7 @@ let
 
         ln -s ${nodeModules}/node_modules ./node_modules
         cp -L ${src}/${filename} .
-        ${pkgs.bun}/bin/bun test ./${filename}
+        ${pkgs.bun}/bin/bun ./${filename}
 
         mkdir "$out"
       '';
