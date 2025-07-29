@@ -47,4 +47,4 @@ const tokenResponse = await fetch(
 );
 
 expect(tokenResponse.status).toEqual(400);
-expect(await tokenResponse.text()).toEqual("scope is required.");
+expect(tokenResponse.text()).resolves.toEqual("scope is required.");
