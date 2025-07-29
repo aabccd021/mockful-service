@@ -57,9 +57,19 @@ function handle(req: Request): Response {
   if (path === "/login-callback") {
     if (req.method === "GET") {
       const url = new URL(req.url);
-      writeFileSync("./code.txt", url.searchParams.get("code") ?? "");
-
-      return new Response(null, { status: 200 });
+      const cookieHeader = req.headers.get("cookie");
+      return new Response(
+        JSON.stringify(
+          {
+            params: url.searchParams,
+            cookie:
+              cookieHeader !== null ? new Bun.CookieMap(cookieHeader) : null,
+          },
+          undefined,
+          2,
+        ),
+        { status: 200 },
+      );
     }
     return new Response(null, { status: 405 });
   }

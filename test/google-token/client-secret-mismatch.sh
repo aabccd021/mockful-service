@@ -32,7 +32,7 @@ submit "//form" --submit-button "//form/button[@value='kita-sub']"
 assert-response-code-equal 200
 
 auth_header=$(printf "mock_client_id:invalid_client_secret" | base64)
-code=$(cat ./code.txt)
+code=$(jq --raw-output ".params.code" "$NETERO_STATE/browser/1/tab/1/body")
 
 curl \
   --output "$NETERO_STATE/browser/1/tab/1/page.html" \
