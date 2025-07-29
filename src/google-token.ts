@@ -223,7 +223,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
-    return errorMessage("Authorization header is required.");
+    return badRequest({
+      error: "invalid_request",
+      error_description: "Could not determine client ID from request.",
+    });
   }
 
   const [prefix, credentials] = authHeader.split(" ");
