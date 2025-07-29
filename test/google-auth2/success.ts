@@ -1,7 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import { expect } from "bun:test";
 import * as jose from "jose";
-import { assert, number, string, type } from "superstruct";
+import { assert, number, object, string } from "superstruct";
 
 const neteroState = process.env["NETERO_STATE"];
 
@@ -76,7 +76,7 @@ const tokenBody = await tokenResponse.json();
 
 assert(
   tokenBody,
-  type({
+  object({
     id_token: string(),
     access_token: string(),
     scope: string(),
