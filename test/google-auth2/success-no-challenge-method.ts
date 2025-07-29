@@ -25,7 +25,6 @@ const loginResponse = await fetch(
       redirect_uri: `https://localhost:3000/login-callback`,
       state: "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
       prompt: "select_account consent",
-      code_challenge: "AWnuB2qLobencpDhxdlDb_yeTixrfG9SiKYOjwYrz4I",
     }),
   },
 );
