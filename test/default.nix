@@ -13,7 +13,7 @@ let
         root = dir;
         fileset = dir + "/${filename}";
       };
-      exe = pkgs.runCommand "build-${filename}" { } ''
+      exe = pkgs.runCommand "build-${name}" { } ''
         ${pkgs.bun}/bin/bun build ${src}/${filename} \
           --compile \
           --minify \
@@ -24,25 +24,22 @@ let
         mv ./bin "$out/bin/test"
       '';
     in
-    pkgs.runCommand name
-      {
-        buildInputs = [ pkgs.netero-oauth-mock ];
-      }
-      ''
-        green=$(printf "\033[32m")
-        reset=$(printf "\033[0m")
+    pkgs.runCommand name { } ''
+      green=$(printf "\033[32m")
+      reset=$(printf "\033[0m")
 
-        export NETERO_STATE="./var/lib/netero"
-        netero-oauth-mock-init
+      export NETERO_STATE="./var/lib/netero"
+      ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-init
 
-        netero-oauth-mock-prepare
-        netero-oauth-mock --port 3001  2>&1 | sed "s/^/''${green}[mock]''${reset} /" &
-        netero-oauth-mock-wait
+      ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-prepare
+      ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001  2>&1 | 
+        sed "s/^/''${green}[mock]''${reset} /" &
+      ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-wait
 
-        ${exe}/bin/test
+      ${exe}/bin/test
 
-        mkdir "$out"
-      '';
+      mkdir "$out"
+    '';
 
   mapTests =
     dir:
