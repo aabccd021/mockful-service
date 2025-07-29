@@ -44,7 +44,10 @@
         ];
       };
 
-      test = import ./test { pkgs = pkgs; };
+      test = import ./test {
+        pkgs = pkgs;
+        nodeModules = nodeModules;
+      };
 
       treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";

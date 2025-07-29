@@ -30,6 +30,12 @@
     url = "https://registry.npmjs.org/csstype/-/csstype-3.1.3.tgz";
     hash = "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==";
   };
+  "jose" = {
+    out_path = "jose";
+    name = "jose@6.0.12";
+    url = "https://registry.npmjs.org/jose/-/jose-6.0.12.tgz";
+    hash = "sha512-T8xypXs8CpmiIi78k0E+Lk7T2zlK4zDyg+o1CZ4AkOHgDg98ogdP2BeZ61lTFKFyoEwJ9RgAgN+SdM3iPgNonQ==";
+  };
   "superstruct" = {
     out_path = "superstruct";
     name = "superstruct@2.0.2";

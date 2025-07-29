@@ -1,5 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import { expect } from "bun:test";
+import * as jose from "jose";
+import { assert, string, type } from "superstruct";
 
 const neteroState = process.env["NETERO_STATE"];
 
@@ -68,8 +70,12 @@ const tokenResponse = await fetch(
   },
 );
 
+expect(tokenResponse.status).toBe(200);
+
 const tokenBody = await tokenResponse.json();
 expect(tokenBody.scope).toBe("openid");
 expect(tokenBody.access_token).toBeDefined();
 
-expect(tokenResponse.status).toBe(200);
+assert(tokenBody, type({ id_token: string() }));
+const idToken = jose.decodeJwt(tokenBody.id_token);
+expect(idToken.sub).toBe("kita-sub");

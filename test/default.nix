@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, nodeModules }:
 let
   lib = pkgs.lib;
 
@@ -26,7 +26,9 @@ let
         sed "s/^/''${green}[mock]''${reset} /" &
       ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-wait
 
-      ${pkgs.bun}/bin/bun test ${src}/${filename}
+      ln -s ${nodeModules}/node_modules ./node_modules
+      cp -L ${src}/${filename} .
+      ${pkgs.bun}/bin/bun test ./${filename}
 
       mkdir "$out"
     '';

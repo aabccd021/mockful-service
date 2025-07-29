@@ -4,7 +4,8 @@
     "postinstall": "cd $(dirname $npm_package_json) && nix run .#bun2nix -- --output-file ./bun.nix"
   },
   "dependencies": {
-    "superstruct": "latest",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "jose": "latest",
+    "superstruct": "latest"
   }
 }
