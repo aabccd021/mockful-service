@@ -186,7 +186,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
     if (code_challengeMethod === "plain") {
       if (authSession.code_challenge !== codeVerifier) {
-        return errorMessage("Code verifier does not match code challenge.");
+        return badRequest({
+          error: "invalid_grant",
+          error_description: "Invalid code verifier.",
+        });
       }
     } else if (code_challengeMethod === "S256") {
       const hashBinary = new Bun.CryptoHasher("sha256")
@@ -197,7 +200,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
         omitPadding: true,
       });
       if (authSession.code_challenge !== codeVerifierHash) {
-        return errorMessage("Code verifier does not match code challenge.");
+        return badRequest({
+          error: "invalid_grant",
+          error_description: "Invalid code verifier.",
+        });
       }
     } else {
       code_challengeMethod satisfies never;

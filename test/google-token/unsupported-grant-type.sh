@@ -14,7 +14,7 @@ EOF
 
 netero-init
 mkfifo "./server-ready.fifo"
-google-auth-client 2>&1 &
+google-token-client 2>&1 &
 timeout 5 cat ./server-ready.fifo
 
 goto --url "http://localhost:3000\
@@ -22,7 +22,6 @@ goto --url "http://localhost:3000\
 &state=sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4\
 &code_challenge=G5k-xbS5eqMAekQELZ07AhN64LQxBuB4wVG7wryu5b8\
 &code_challenge_method=S256\
-&code_verifier=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
 &scope=openid\
 &client_id=mock_client_id\
 &redirect_uri=http://localhost:3000/login-callback\
@@ -32,5 +31,31 @@ assert-response-code-equal 200
 
 submit "//form" --submit-button "//form/button[@value='kita-sub']"
 
-assert-response-code-equal 400
-assert-query-returns-equal "//text()" 'Code verifier does not match code challenge.'
+assert-response-code-equal 200
+
+auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
+code=$(jq --raw-output ".params.code" "$NETERO_STATE/browser/1/tab/1/body")
+
+curl \
+  --output ./body.json \
+  --write-out "%output{./response.json}%{json}" \
+  --silent \
+  --location \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --header "Authorization: Basic $auth_header" \
+  --data-urlencode 'grant_type=authorization_code' \
+  --data-urlencode "code=$code" \
+  --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
+  --data-urlencode 'code_verifier=foo' \
+  'http://localhost:3001/https://oauth2.googleapis.com/token'
+
+jq --exit-status '.response_code == 400' ./response.json
+
+cat <<EOF >./expected.json
+{
+  "error": "invalid_grant",
+  "error_description": "Invalid code verifier."
+}
+EOF
+
+json-diff ./body.json ./expected.json
