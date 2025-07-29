@@ -36,18 +36,19 @@ const tokenResponse = await fetch(
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${btoa("mock_client_id:mock_client_secret")}`,
+      Authorization: `Basic ${btoa("mock_client_id:")}`,
     },
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code,
+      redirect_uri: "https://localhost:3000/login-callback",
     }),
   },
 );
 
 expect(tokenResponse.json()).resolves.toEqual({
   error: "invalid_request",
-  error_description: "Missing parameter: redirect_uri",
+  error_description: "client_secret is missing.",
 });
 
 expect(tokenResponse.status).toEqual(400);

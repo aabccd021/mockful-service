@@ -238,7 +238,6 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  // TODO: test
   if (formData.get("redirect_uri") !== authSession.redirect_uri) {
     return Response.json(
       {
@@ -315,8 +314,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  // TODO: test
-  if (clientSecret === undefined) {
+  if (clientSecret === undefined || clientSecret === "") {
     return Response.json(
       {
         error: "invalid_request",
