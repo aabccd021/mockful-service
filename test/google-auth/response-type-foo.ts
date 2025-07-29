@@ -12,11 +12,11 @@ const authUrl = new URL(
   "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
 );
 
-authUrl.searchParams.set("response_type", "token");
+authUrl.searchParams.set("response_type", "foo");
 
 const loginResponse = await fetch(authUrl);
 
 expect(loginResponse.status).toEqual(400);
 expect(await loginResponse.text()).toContain(
-  'Invalid response_type: "token". Expected "code".',
+  'Invalid response_type: "foo". Expected "code".',
 );
