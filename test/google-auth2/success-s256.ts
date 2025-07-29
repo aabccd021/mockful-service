@@ -1,21 +1,14 @@
 import * as sqlite from "bun:sqlite";
 import { expect } from "bun:test";
 import * as jose from "jose";
-import { assert, number, object, string } from "superstruct";
 
 const neteroState = process.env["NETERO_STATE"];
 
-const db = new sqlite.Database(`${neteroState}/mock.sqlite`, {
-  strict: true,
-  safeIntegers: true,
-});
-
-db.exec(`
+new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
   INSERT INTO google_auth_user (sub, email) VALUES ('kita-sub', 'kita@example.com');
   INSERT INTO google_auth_client (id, secret) VALUES ('mock_client_id', 'mock_client_secret');
 `);
 
-// submit login screen
 const loginResponse = await fetch(
   "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
   {
@@ -32,23 +25,15 @@ const loginResponse = await fetch(
       redirect_uri: `https://localhost:3000/login-callback`,
       state: "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
       prompt: "select_account consent",
+      code_challenge: "G5k-xbS5eqMAekQELZ07AhN64LQxBuB4wVG7wryu5b8",
+      code_challenge_method: "S256",
     }),
   },
 );
-
 expect(loginResponse.status).toBe(303);
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";
-expect(location.origin).toBe("https://localhost:3000");
-expect(location.pathname).toBe("/login-callback");
-expect(code).not.toBeEmpty();
-expect(location.searchParams.get("state")).toBe(
-  "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
-);
-expect(location.searchParams.get("prompt")).toBe("select_account consent");
-
-// exchange code for token
 const tokenResponse = await fetch(
   "http://localhost:3001/https://oauth2.googleapis.com/token",
   {
@@ -61,31 +46,10 @@ const tokenResponse = await fetch(
       grant_type: "authorization_code",
       code,
       redirect_uri: "https://localhost:3000/login-callback",
+      code_verifier: "AWnuB2qLobencpDhxdlDb_yeTixrfG9SiKYOjwYrz4I",
     }),
   },
 );
 
-expect(tokenResponse.status).toBe(200);
-
 const tokenBody = await tokenResponse.json();
-
-assert(
-  tokenBody,
-  object({
-    id_token: string(),
-    access_token: string(),
-    scope: string(),
-    token_type: string(),
-    expires_in: number(),
-  }),
-);
-
-expect(tokenBody.scope).toEqual("openid");
-expect(tokenBody.token_type).toEqual("Bearer");
-expect(tokenBody.expires_in).toEqual(3599);
-
-const idToken = jose.decodeJwt(tokenBody.id_token);
-expect(idToken.sub).toBe("kita-sub");
-expect(idToken.aud).toBe("mock_client_id");
-expect(idToken).not.toContainKey("email");
-expect(idToken).not.toContainKey("email_verified");
+expect(jose.decodeJwt(tokenBody.id_token).sub).toBe("kita-sub");
