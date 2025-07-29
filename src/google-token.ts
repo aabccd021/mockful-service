@@ -260,9 +260,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   assert(client, Client);
 
   if (clientSecret !== client.secret) {
-    return errorMessage(
-      `Invalid client_secret. Expected "${client.secret}", got "${clientSecret}".`,
-    );
+    return badRequest({
+      error: "invalid_client",
+      error_description: "Unauthorized",
+    });
   }
 
   const scopeStr = authSession.scope;
