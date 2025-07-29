@@ -28,9 +28,6 @@ async function handle(req: Request, ctx: Context): Promise<Response> {
 const args = util.parseArgs({
   args: process.argv.slice(2),
   options: {
-    "on-ready-pipe": {
-      type: "string",
-    },
     port: {
       type: "string",
       default: "3000",
@@ -70,7 +67,6 @@ Bun.serve({
   fetch: (req) => handle(req, { db }),
 });
 
-const onReadyPipe = args.values["on-ready-pipe"];
-if (onReadyPipe !== undefined) {
-  fs.writeFileSync(onReadyPipe, "");
+if (fs.existsSync(`/tmp/${process.ppid}-netero-oauth-mock.fifo`)) {
+  fs.writeFileSync(`/tmp/${process.ppid}-netero-oauth-mock.fifo`, "");
 }

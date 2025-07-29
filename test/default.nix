@@ -52,12 +52,9 @@ let
         export NETERO_STATE="./var/lib/netero"
         netero-oauth-mock-init
 
-        mkfifo "./oauth-ready.fifo"
-
-        netero-oauth-mock --port 3001 --on-ready-pipe "./oauth-ready.fifo" 2>&1 |
-          sed "s/^/''${green}[oauth]''${reset} /" &
-
-        timeout 5 cat ./oauth-ready.fifo
+        netero-oauth-mock-prepare
+        netero-oauth-mock --port 3001  2>&1 | sed "s/^/''${green}[oauth]''${reset} /" &
+        netero-oauth-mock-wait
 
         bash -euo pipefail "$TEST_FILE"
 

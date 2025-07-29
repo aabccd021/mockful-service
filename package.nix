@@ -31,11 +31,28 @@ let
     '';
   };
 
+  netero-oauth-mock-prepare = pkgs.writeShellApplication {
+    name = "netero-oauth-mock-prepare";
+    text = ''
+      rm -f "/tmp/$PPID-netero-oauth-mock.fifo" > /dev/null 2>&1 || true
+      mkfifo "/tmp/$PPID-netero-oauth-mock.fifo"
+    '';
+  };
+
+  netero-oauth-mock-wait = pkgs.writeShellApplication {
+    name = "netero-oauth-mock-wait";
+    text = ''
+      cat "/tmp/$PPID-netero-oauth-mock.fifo"
+    '';
+  };
+
 in
 pkgs.symlinkJoin {
   name = "netero-oauth-mock";
   paths = [
     netero-oauth-mock
     netero-oauth-mock-init
+    netero-oauth-mock-prepare
+    netero-oauth-mock-wait
   ];
 }
