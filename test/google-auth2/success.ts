@@ -43,8 +43,7 @@ expect(loginResponse.status).toBe(303);
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";
-expect(location.host).toBe("localhost:3000");
-expect(location.protocol).toBe("https:");
+expect(location.origin).toBe("https://localhost:3000");
 expect(location.pathname).toBe("/login-callback");
 expect(code).not.toBeEmpty();
 expect(location.searchParams.get("state")).toBe(
