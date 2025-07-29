@@ -7,16 +7,17 @@ import { handle as paddleCustomer } from "./paddle-customer.ts";
 import type { Context, Handle } from "./util.ts";
 
 const urlToServe: Record<string, Handle> = {
-  "https://accounts.google.com/o/oauth2/v2/auth": googleAuth,
-  "https://oauth2.googleapis.com/token": googleToken,
-  "https://sandbox-api.paddle.com/customers": paddleCustomer,
+  "accounts.google.com": googleAuth,
+  "oauth2.googleapis.com": googleToken,
+  "sandbox-api.paddle.com": paddleCustomer,
 };
 
-async function handle(req: Request, ctx: Context): Promise<Response> {
-  const path = new URL(req.url).pathname;
-  const pathWithoutLeadingSlash = path.slice(1);
+async function handle(originalReq: Request, ctx: Context): Promise<Response> {
+  const path = new URL(originalReq.url).pathname;
+  const url = new URL(path.slice(1));
+  const req = new Request(url, originalReq);
 
-  const subHandle = urlToServe[pathWithoutLeadingSlash];
+  const subHandle = urlToServe[url.hostname];
   if (subHandle === undefined) {
     console.error(`Path not found: ${path}`);
     return new Response(null, { status: 404 });
