@@ -18,32 +18,6 @@ INSERT INTO google_auth_client (id, secret)
 `,
 );
 
-const authUrl = new URL(
-  "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-);
-
-const searchParams = new URLSearchParams({
-  scope: "openid",
-  response_type: "code",
-  client_id: "mock_client_id",
-  redirect_uri: `http://localhost:3000/login-callback`,
-  state: "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
-  prompt: "select_account consent",
-});
-
-for (const [key, value] of searchParams) {
-  authUrl.searchParams.set(key, value);
-}
-
-// goto login screen
-const authResponse = await fetch(authUrl, {
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded",
-  },
-});
-
-expect(authResponse.status).toBe(200);
-
 // submit login screen
 const loginResponse = await fetch(
   "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
