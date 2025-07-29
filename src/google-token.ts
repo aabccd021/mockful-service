@@ -232,9 +232,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   const [prefix, credentials] = authHeader.split(" ");
 
   if (prefix !== "Basic") {
-    return errorMessage(
-      `Invalid Authorization header prefix: "${prefix}". Expected "Basic".`,
-    );
+    return badRequest({
+      error: "invalid_request",
+      error_description: "Could not determine client ID from request.",
+    });
   }
 
   if (credentials === undefined) {
