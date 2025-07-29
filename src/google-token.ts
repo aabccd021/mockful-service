@@ -132,26 +132,13 @@ function generateGoogleIdToken(
 }
 
 export async function handle(req: Request, ctx: Context): Promise<Response> {
-  // TODO
   if (req.method !== "POST") {
     return new Response(null, { status: 405 });
   }
 
   const formData = await getStringFormData(req);
 
-  const grantType = formData.get("grant_type") ?? "";
-
-  // TODO
-  if (grantType === undefined) {
-    return Response.json(
-      {
-        error: "unsupported_grant_type",
-        error_description: `Invalid grant_type: ${grantType}`,
-      },
-      { status: 400 },
-    );
-  }
-
+  const grantType = formData.get("grant_type");
   if (grantType !== "authorization_code") {
     return Response.json(
       {
@@ -241,12 +228,22 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     }
   }
 
-  // TODO: different error if missing vs mismatch
-  if (formData.get("redirect_uri") !== authSession.redirect_uri) {
+  if (formData.get("redirect_uri") === undefined) {
     return Response.json(
       {
         error: "invalid_request",
         error_description: "Missing parameter: redirect_uri",
+      },
+      { status: 400 },
+    );
+  }
+
+  // TODO: test
+  if (formData.get("redirect_uri") !== authSession.redirect_uri) {
+    return Response.json(
+      {
+        error: "redirect_uri_mismatch",
+        error_description: "Bad Request",
       },
       { status: 400 },
     );
@@ -297,14 +294,14 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const [clientId, clientSecret] = atob(credentials).split(":");
 
-  // TODO
+  // TODO: test
   if (clientId === undefined) {
     return Response.json(
       {
-        error: "invalid_client",
-        error_description: "The OAuth client was not found.",
+        error: "invalid_request",
+        error_description: "Could not determine client ID from request.",
       },
-      { status: 401 },
+      { status: 400 },
     );
   }
 
@@ -325,7 +322,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
         error: "invalid_request",
         error_description: "client_secret is missing.",
       },
-      { status: 401 },
+      { status: 400 },
     );
   }
 

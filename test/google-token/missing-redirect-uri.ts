@@ -41,7 +41,6 @@ const tokenResponse = await fetch(
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: "https://localhost:3000/invalid-login-callback",
     }),
   },
 );
