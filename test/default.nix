@@ -57,9 +57,6 @@ let
 
   mapTests =
     dir: buildInputs:
-    let
-      prefix = "test-${builtins.baseNameOf dir}-";
-    in
     lib.pipe dir [
       builtins.readDir
       builtins.attrNames
