@@ -1,5 +1,5 @@
 import { array, assert, enums, type Infer, nullable, object, string, type } from "superstruct";
-import { type Context, errorMessage, getStringFormData } from "./util.ts";
+import { type Context, getStringFormData } from "./util.ts";
 
 const GoogleAuthUser = object({
   email: string(),
@@ -319,11 +319,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  // TODO
-  const scopeStr = authSession.scope;
-  if (scopeStr === null) {
-    return errorMessage("scope is required.");
-  }
+  const scopeStr = authSession.scope ?? "";
 
   const accessToken = crypto.randomUUID();
 
