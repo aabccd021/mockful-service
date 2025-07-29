@@ -5,12 +5,7 @@ import { assert, number, object, string } from "superstruct";
 
 const neteroState = process.env["NETERO_STATE"];
 
-const db = new sqlite.Database(`${neteroState}/mock.sqlite`, {
-  strict: true,
-  safeIntegers: true,
-});
-
-db.exec(`
+new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
   INSERT INTO google_auth_user (sub, email) VALUES ('kita-sub', 'kita@example.com');
   INSERT INTO google_auth_client (id, secret) VALUES ('mock_client_id', 'mock_client_secret');
 `);
