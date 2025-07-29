@@ -101,7 +101,6 @@ let
       pkgs.jq
       pkgs.netero-test
       pkgs.curl
-      pkgs.tinyxxd
       pkgs.sqlite
       (mkServer "granular-server" ./granular_server.ts)
     ];
