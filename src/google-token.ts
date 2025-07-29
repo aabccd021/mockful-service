@@ -165,7 +165,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   assert(authSession, NullableAuthSession);
 
   if (authSession === null) {
-    return errorMessage(`Auth session not found for code: "${code}".`);
+    return badRequest({
+      error: "invalid_grant",
+      error_description: "Malformed auth code.",
+    });
   }
 
   ctx.db
