@@ -36,7 +36,7 @@ code=$(cat ./code.txt)
 curl \
   --cookie "$NETERO_STATE/browser/1/cookie.txt" \
   --cookie-jar "$NETERO_STATE/browser/1/cookie.txt" \
-  --output "$NETERO_STATE/browser/1/tab/1/body" \
+  --output "$NETERO_STATE/browser/1/tab/1/page.html" \
   --write-out "%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
   --compressed \
   --show-error \
@@ -49,4 +49,4 @@ curl \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
 assert-response-code-equal 400
-assert-equal 'Authorization header is required.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-query-returns-equal "//text()" 'Authorization header is required.'
