@@ -43,7 +43,6 @@ curl \
   --header "Authorization: Basic $auth_header" \
   --data-urlencode 'grant_type=authorization_code' \
   --data-urlencode 'code=aab' \
-  --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
 assert-response-code-equal 400
