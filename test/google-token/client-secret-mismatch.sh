@@ -46,7 +46,7 @@ curl \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
-jq --exit-status '.response_code == 400' ./response.json
+jq --exit-status '.response_code == 401' ./response.json
 
 cat <<EOF >./expected.json
 {

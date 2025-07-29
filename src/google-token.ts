@@ -16,6 +16,13 @@ function badRequest(body: unknown): Response {
   });
 }
 
+function unauthorizedRequest(body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status: 401,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 const GoogleAuthUser = object({
   email: string(),
   email_verified: nullable(enums(["true", "false"])),
@@ -248,7 +255,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   const [clientId, clientSecret] = atob(credentials).split(":");
 
   if (clientId !== authSession.client_id) {
-    return badRequest({
+    return unauthorizedRequest({
       error: "invalid_client",
       error_description: "The OAuth client was not found.",
     });
@@ -260,7 +267,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   assert(client, Client);
 
   if (clientSecret !== client.secret) {
-    return badRequest({
+    return unauthorizedRequest({
       error: "invalid_client",
       error_description: "Unauthorized",
     });
