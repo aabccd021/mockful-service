@@ -32,7 +32,10 @@ let
       dir,
       buildInputs,
     }:
-    pkgs.runCommandLocal "${prefix}${filename}"
+    let
+      name = lib.strings.removeSuffix ".sh" filename;
+    in
+    pkgs.runCommandLocal "${prefix}${name}"
       {
         env.TEST_FILE = filtered dir filename;
         buildInputs = buildInputs ++ [
@@ -60,10 +63,12 @@ let
 
   mapTests =
     {
-      prefix,
       buildInputs,
       dir,
     }:
+    let
+      prefix = "test-${builtins.baseNameOf dir}-";
+    in
     lib.pipe dir [
       builtins.readDir
       builtins.attrNames
@@ -82,7 +87,6 @@ let
 in
 
 (mapTests {
-  prefix = "test-google-auth-";
   dir = ./google-auth;
   buildInputs = [
     pkgs.jq
@@ -94,7 +98,6 @@ in
   ];
 })
 // (mapTests {
-  prefix = "test-google-token-";
   dir = ./google-token;
   buildInputs = [
     pkgs.jq
