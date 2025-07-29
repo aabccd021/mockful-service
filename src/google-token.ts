@@ -293,8 +293,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const [clientId, clientSecret] = atob(credentials).split(":");
 
-  // TODO: test
-  if (clientId === undefined) {
+  if (clientId === undefined || clientId === "") {
     return Response.json(
       {
         error: "invalid_request",
