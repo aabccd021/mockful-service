@@ -1,35 +1,42 @@
-import { assert, nullable, object, string } from "superstruct";
+import { assert, is, nullable, object, string } from "superstruct";
 import { generateId, getTenantId } from "./paddle-util";
 import type { Context } from "./util";
+
+const Customer = nullable(
+  object({
+    tenant_id: string(),
+    id: string(),
+    email: string(),
+  }),
+);
+
+function getCustomers(ctx: Context, req: Request, tenantId: string): unknown[] {
+  const url = new URL(req.url);
+
+  const emails = url.searchParams.get("email")?.split(",");
+  if (emails !== undefined) {
+    return emails.map((email) => {
+      return ctx.db
+        .query(
+          "SELECT * FROM paddle_customer WHERE email = $email AND tenant_id = $tenantId",
+        )
+        .get({ email, tenantId });
+    });
+  }
+
+  return ctx.db
+    .query("SELECT * FROM paddle_customer WHERE tenant_id = $tenantId")
+    .all({ tenantId });
+}
 
 async function get(
   req: Request,
   ctx: Context,
   tenantId: string,
 ): Promise<Response> {
-  const url = new URL(req.url);
-  const emails = url.searchParams.get("email")?.split(",") ?? [];
-
-  const customers = emails
-    .map((email) => {
-      const customer = ctx.db
-        .query(
-          "SELECT * FROM paddle_customer WHERE email = $email AND tenant_id = $tenantId",
-        )
-        .get({ email, tenantId });
-      assert(
-        customer,
-        nullable(
-          object({
-            tenant_id: string(),
-            id: string(),
-            email: string(),
-          }),
-        ),
-      );
-      return customer;
-    })
-    .filter((c) => c !== null)
+  const customers = getCustomers(ctx, req, tenantId)
+    .filter((val) => is(val, Customer))
+    .filter((val) => val !== null)
     .map(({ tenant_id: _, ...data }) => data);
 
   return new Response(JSON.stringify({ data: customers }), {

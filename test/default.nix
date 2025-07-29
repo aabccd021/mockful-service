@@ -94,6 +94,12 @@ let
       pkgs.sqlite
       (buildTs ./google-token-client.ts)
     ])
+    (mapTests ./paddle-customer [
+      pkgs.curl
+      pkgs.sqlite
+      pkgs.nodePackages.json-diff
+      pkgs.jq
+    ])
   ];
 
 in
