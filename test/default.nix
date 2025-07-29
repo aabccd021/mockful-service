@@ -30,20 +30,14 @@ let
 
   mkTest =
     {
-      prefix,
+      name,
       filename,
       dir,
       buildInputs,
     }:
-    let
-      name = lib.strings.removeSuffix ".sh" filename;
-    in
-    pkgs.runCommandLocal "${prefix}${name}"
+    pkgs.runCommandLocal name
       {
-        env.TEST_FILE = filtered dir filename;
-        buildInputs = buildInputs ++ [
-          pkgs.netero-oauth-mock
-        ];
+        buildInputs = buildInputs ++ [ pkgs.netero-oauth-mock ];
       }
       ''
         green=$(printf "\033[32m")
@@ -56,7 +50,7 @@ let
         netero-oauth-mock --port 3001  2>&1 | sed "s/^/''${green}[oauth]''${reset} /" &
         netero-oauth-mock-wait
 
-        bash -euo pipefail "$TEST_FILE"
+        bash -euo pipefail ${filtered dir filename}
 
         mkdir "$out"
       '';
@@ -69,15 +63,21 @@ let
     lib.pipe dir [
       builtins.readDir
       builtins.attrNames
-      (builtins.map (filename: {
-        name = prefix + (lib.strings.removeSuffix ".sh" filename);
-        value = mkTest {
-          prefix = prefix;
-          filename = filename;
-          dir = dir;
-          buildInputs = buildInputs;
-        };
-      }))
+      (builtins.map (
+        filename:
+        let
+          name = "test-${builtins.baseNameOf dir}-" + (lib.strings.removeSuffix ".sh" filename);
+        in
+        {
+          name = name;
+          value = mkTest {
+            name = name;
+            filename = filename;
+            dir = dir;
+            buildInputs = buildInputs;
+          };
+        }
+      ))
       builtins.listToAttrs
     ];
 
