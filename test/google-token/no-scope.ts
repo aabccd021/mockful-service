@@ -8,7 +8,6 @@ new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
   INSERT INTO google_auth_client (id, secret) VALUES ('mock_client_id', 'mock_client_secret');
 `);
 
-// submit login screen
 const loginResponse = await fetch(
   "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
   {
