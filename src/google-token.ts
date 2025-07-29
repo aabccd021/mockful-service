@@ -1,4 +1,5 @@
 import {
+  array,
   assert,
   enums,
   type Infer,
@@ -14,9 +15,11 @@ const GoogleAuthUser = object({
   email_verified: nullable(enums(["true", "false"])),
 });
 
-const Client = object({
-  secret: string(),
-});
+const Client = array(
+  object({
+    secret: string(),
+  }),
+);
 
 export type GoogleAuthUser = Infer<typeof GoogleAuthUser>;
 
@@ -225,6 +228,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     }
   }
 
+  // TODO: different error if missing vs mismatch
   if (formData.get("redirect_uri") !== authSession.redirect_uri) {
     return Response.json(
       {
@@ -280,12 +284,24 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  const client = ctx.db
-    .query("SELECT secret FROM google_auth_client WHERE id = $id")
-    .get({ id: clientId });
-  assert(client, Client);
+  // TODO
+  if (clientSecret === undefined) {
+    return Response.json(
+      {
+        error: "invalid_client",
+        error_description: "Unauthorized",
+      },
+      { status: 401 },
+    );
+  }
 
-  if (clientSecret !== client.secret) {
+  const clients = ctx.db
+    .query("SELECT secret FROM google_auth_client WHERE id = $id")
+    .all({ id: clientId });
+  assert(clients, Client);
+
+  const isSecretValid = clients.map((c) => c.secret).includes(clientSecret);
+  if (!isSecretValid) {
     return Response.json(
       {
         error: "invalid_client",
