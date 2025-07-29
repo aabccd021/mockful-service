@@ -2,17 +2,17 @@
 let
   lib = pkgs.lib;
 
-  mkServer =
+  buildTs =
     name: src:
-    pkgs.runCommandLocal "server" { } ''
+    pkgs.runCommandLocal name { } ''
       ${pkgs.bun}/bin/bun build ${src} \
         --compile \
         --minify \
         --bytecode \
         --sourcemap \
-        --outfile server
+        --outfile exe
       mkdir -p "$out/bin"
-      mv server "$out/bin/"${name}
+      mv exe "$out/bin/"${name}
     '';
 
   filtered =
@@ -93,7 +93,7 @@ let
         pkgs.jwt-cli
         pkgs.tinyxxd
         pkgs.sqlite
-        (mkServer "google-auth-client" ./google-auth-client.ts)
+        (buildTs "google-auth-client" ./google-auth-client.ts)
       ];
     }
     {
@@ -103,7 +103,7 @@ let
         pkgs.netero-test
         pkgs.curl
         pkgs.sqlite
-        (mkServer "google-token-client" ./google-token-client.ts)
+        (buildTs "google-token-client" ./google-token-client.ts)
       ];
     }
   ];
