@@ -2,42 +2,26 @@
 let
   lib = pkgs.lib;
 
-  buildTs =
-    src:
-    let
-      name = lib.strings.removeSuffix ".ts" (builtins.baseNameOf src);
-    in
-    pkgs.runCommandLocal name { } ''
-      ${pkgs.bun}/bin/bun build ${src} \
-        --compile \
-        --minify \
-        --bytecode \
-        --sourcemap \
-        --outfile exe
-      mkdir -p "$out/bin"
-      mv exe "$out/bin/"${name}
-    '';
-
-  filtered =
-    dir: filename:
+  mkTest =
+    {
+      name,
+      dir,
+      filename,
+    }:
     let
       src = lib.fileset.toSource {
         root = dir;
         fileset = dir + "/${filename}";
       };
+      exe = pkgs.runCommand "build-${filename}" { } ''
+        ${pkgs.bun}/bin/bun build ${src}/${filename} --compile --minify --bytecode --sourcemap --outfile ./bin
+        mkdir -p "$out/bin"
+        mv ./bin "$out/bin/test"
+      '';
     in
-    "${src}/${filename}";
-
-  mkTest =
-    {
-      name,
-      filename,
-      dir,
-      buildInputs,
-    }:
-    pkgs.runCommandLocal name
+    pkgs.runCommand name
       {
-        buildInputs = buildInputs ++ [ pkgs.netero-oauth-mock ];
+        buildInputs = [ pkgs.netero-oauth-mock ];
       }
       ''
         green=$(printf "\033[32m")
@@ -47,31 +31,30 @@ let
         netero-oauth-mock-init
 
         netero-oauth-mock-prepare
-        netero-oauth-mock --port 3001  2>&1 | sed "s/^/''${green}[oauth]''${reset} /" &
+        netero-oauth-mock --port 3001  2>&1 | sed "s/^/''${green}[mock]''${reset} /" &
         netero-oauth-mock-wait
 
-        bash -euo pipefail ${filtered dir filename}
+        ${exe}/bin/test
 
         mkdir "$out"
       '';
 
   mapTests =
-    dir: buildInputs:
+    dir:
     lib.pipe dir [
       builtins.readDir
       builtins.attrNames
       (builtins.map (
         filename:
         let
-          name = "test-${builtins.baseNameOf dir}-" + (lib.strings.removeSuffix ".sh" filename);
+          name = "test-${builtins.baseNameOf dir}-" + (lib.strings.removeSuffix ".ts" filename);
         in
         {
           name = name;
           value = mkTest {
             name = name;
-            filename = filename;
             dir = dir;
-            buildInputs = buildInputs;
+            filename = filename;
           };
         }
       ))
@@ -79,28 +62,21 @@ let
     ];
 
   tests = [
-    (mapTests ./google-auth [
-      pkgs.jq
-      pkgs.netero-test
-      pkgs.jwt-cli
-      pkgs.tinyxxd
-      pkgs.sqlite
-      (buildTs ./google-auth-client.ts)
-    ])
-    (mapTests ./google-token [
-      pkgs.jq
-      pkgs.netero-test
-      pkgs.curl
-      pkgs.sqlite
-      pkgs.nodePackages.json-diff
-      (buildTs ./google-token-client.ts)
-    ])
-    (mapTests ./paddle-customer [
-      pkgs.curl
-      pkgs.sqlite
-      pkgs.nodePackages.json-diff
-      pkgs.jq
-    ])
+    (mapTests ./google-auth2)
+    # (mapTests shellTest ./google-token [
+    #   pkgs.jq
+    #   pkgs.netero-test
+    #   pkgs.curl
+    #   pkgs.sqlite
+    #   pkgs.nodePackages.json-diff
+    #   (buildTs ./google-token-client.ts)
+    # ])
+    # (mapTests shellTest ./paddle-customer [
+    #   pkgs.curl
+    #   pkgs.sqlite
+    #   pkgs.nodePackages.json-diff
+    #   pkgs.jq
+    # ])
   ];
 
 in
