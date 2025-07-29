@@ -30,20 +30,17 @@ const loginResponse = await fetch(
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";
 
-const tokenResponse = await fetch(
-  "http://localhost:3001/https://oauth2.googleapis.com/token",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: "https://localhost:3000/login-callback",
-    }),
+const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded",
   },
-);
+  body: new URLSearchParams({
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: "https://localhost:3000/login-callback",
+  }),
+});
 
 expect(tokenResponse.status).toEqual(400);
 

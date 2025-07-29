@@ -13,18 +13,12 @@ function handleGet(req: Request, ctx: Context): Response {
 
   const paramInputs = searchParams
     .entries()
-    .map(
-      ([name, value]) =>
-        `<input type="hidden" name="${name}" value="${value}" />`,
-    );
+    .map(([name, value]) => `<input type="hidden" name="${name}" value="${value}" />`);
   const paramInputsStr = Array.from(paramInputs).join("");
 
   const responseType = searchParams.get("response_type");
   if (responseType !== "code") {
-    return errorMessage(
-      `Invalid response_type: "${responseType}".`,
-      `Expected "code".`,
-    );
+    return errorMessage(`Invalid response_type: "${responseType}".`, `Expected "code".`);
   }
 
   const redirectUri = searchParams.get("redirect_uri");

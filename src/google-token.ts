@@ -1,13 +1,4 @@
-import {
-  array,
-  assert,
-  enums,
-  type Infer,
-  nullable,
-  object,
-  string,
-  type,
-} from "superstruct";
+import { array, assert, enums, type Infer, nullable, object, string, type } from "superstruct";
 import { type Context, errorMessage, getStringFormData } from "./util.ts";
 
 const GoogleAuthUser = object({
@@ -47,9 +38,7 @@ function serializeBoolean(value: "true" | "false" | null): boolean {
     throw new Error("User email_verified is required for email scope.");
   }
   value satisfies never;
-  throw new Error(
-    `Invalid boolean value: ${value}. Expected "true" or "false".`,
-  );
+  throw new Error(`Invalid boolean value: ${value}. Expected "true" or "false".`);
 }
 
 function getEmailScopeData(
@@ -119,9 +108,7 @@ function generateGoogleIdToken(
     .encode(JSON.stringify(payload))
     .toBase64({ alphabet: "base64url", omitPadding: true });
 
-  const signature = new Bun.CryptoHasher("sha256")
-    .update(`${headerStr}.${payloadStr}`)
-    .digest();
+  const signature = new Bun.CryptoHasher("sha256").update(`${headerStr}.${payloadStr}`).digest();
 
   const signatureStr = new Uint8Array(signature).toBase64({
     alphabet: "base64url",
@@ -176,9 +163,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  ctx.db
-    .query("DELETE FROM google_auth_session WHERE code = $code")
-    .run({ code });
+  ctx.db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
   if (authSession.code_challenge !== null) {
     const codeVerifier = formData.get("code_verifier");
@@ -192,8 +177,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
       );
     }
 
-    const code_challengeMethod: "S256" | "plain" =
-      authSession.code_challenge_method ?? "plain";
+    const code_challengeMethod: "S256" | "plain" = authSession.code_challenge_method ?? "plain";
 
     if (code_challengeMethod === "plain") {
       if (authSession.code_challenge !== codeVerifier) {
@@ -206,9 +190,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
         );
       }
     } else if (code_challengeMethod === "S256") {
-      const hashBinary = new Bun.CryptoHasher("sha256")
-        .update(codeVerifier)
-        .digest();
+      const hashBinary = new Bun.CryptoHasher("sha256").update(codeVerifier).digest();
       const codeVerifierHash = new Uint8Array(hashBinary).toBase64({
         alphabet: "base64url",
         omitPadding: true,
@@ -347,12 +329,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const accessToken = crypto.randomUUID();
 
-  const idToken = generateGoogleIdToken(
-    ctx,
-    authSession,
-    accessToken,
-    scopeStr,
-  );
+  const idToken = generateGoogleIdToken(ctx, authSession, accessToken, scopeStr);
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,

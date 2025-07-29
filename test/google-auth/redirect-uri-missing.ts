@@ -11,18 +11,21 @@ new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
 const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
 authUrl.searchParams.set("scope", "openid");
 authUrl.searchParams.set("user", "kita-sub");
-authUrl.searchParams.set("response_type", "foo"); // changed
+authUrl.searchParams.set("response_type", "code");
 authUrl.searchParams.set("client_id", "mock_client_id");
-authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+// authUrl.searchParams.set(
+//   "redirect_uri",
+//   "https://localhost:3000/login-callback",
+// );
 authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
 
 const loginResponse = await fetch(authUrl);
 
 expect(loginResponse.text()).resolves.toInclude("");
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-// Access blocked: Authorization Error
-//
+//Access blocked: Authorization Error
+
 // foo@example.com
-// Invalid response_type: foo Learn more about this error
-// If you are a developer of lawkwk, see error details.
+// Missing required parameter: redirect_uri Learn more about this error
+// If you are a developer of this app, see error details.
 // Error 400: invalid_request

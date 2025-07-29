@@ -8,8 +8,7 @@ function forbiddenResponse(): Response {
         type: "request_error",
         code: "forbidden",
         detail: "You aren't permitted to perform this request.",
-        documentation_url:
-          "https://developer.paddle.com/v1/errors/shared/forbidden",
+        documentation_url: "https://developer.paddle.com/v1/errors/shared/forbidden",
       },
     }),
     {
@@ -26,8 +25,7 @@ function authenticationMalformedResponse(): Response {
         type: "request_error",
         code: "authentication_malformed",
         detail: "Authentication header included, but incorrectly formatted.",
-        documentation_url:
-          "https://developer.paddle.com/v1/errors/shared/authentication_malformed",
+        documentation_url: "https://developer.paddle.com/v1/errors/shared/authentication_malformed",
       },
     }),
     {

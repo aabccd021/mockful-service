@@ -8,9 +8,7 @@ export function errorMessage(...message: string[]): Response {
   });
 }
 
-export async function getStringFormData(
-  req: Request,
-): Promise<ReadonlyMap<string, string>> {
+export async function getStringFormData(req: Request): Promise<ReadonlyMap<string, string>> {
   const formDataRaw = await req.formData();
   const data = new Map<string, string>();
   for (const [key, value] of formDataRaw) {

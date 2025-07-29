@@ -37,27 +37,22 @@ const code = location.searchParams.get("code") ?? "";
 expect(location.origin).toEqual("https://localhost:3000");
 expect(location.pathname).toEqual("/login-callback");
 expect(code).not.toEqual("");
-expect(location.searchParams.get("state")).toEqual(
-  "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
-);
+expect(location.searchParams.get("state")).toEqual("sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
 expect(location.searchParams.get("prompt")).toEqual("select_account consent");
 
 // exchange code for token
-const tokenResponse = await fetch(
-  "http://localhost:3001/https://oauth2.googleapis.com/token",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${btoa("mock_client_id:mock_client_secret")}`,
-    },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: "https://localhost:3000/login-callback",
-    }),
+const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Authorization: `Basic ${btoa("mock_client_id:mock_client_secret")}`,
   },
-);
+  body: new URLSearchParams({
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: "https://localhost:3000/login-callback",
+  }),
+});
 
 expect(tokenResponse.status).toEqual(200);
 

@@ -27,6 +27,4 @@ const loginResponse = await fetch(
 );
 
 expect(loginResponse.status).toEqual(400);
-expect(await loginResponse.text()).toEqual(
-  "Parameter redirect_uri is required.",
-);
+expect(await loginResponse.text()).toEqual("Parameter redirect_uri is required.");

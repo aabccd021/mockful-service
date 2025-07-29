@@ -6,7 +6,8 @@
     "useIgnoreFile": true
   },
   "formatter": {
-    "indentStyle": "space"
+    "indentStyle": "space",
+    "lineWidth": 100
   },
   "linter": {
     "rules": {

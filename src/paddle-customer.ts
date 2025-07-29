@@ -17,9 +17,7 @@ function getCustomers(ctx: Context, req: Request, tenantId: string): unknown[] {
   if (emails !== undefined) {
     return emails.map((email) => {
       return ctx.db
-        .query(
-          "SELECT * FROM paddle_customer WHERE email = $email AND tenant_id = $tenantId",
-        )
+        .query("SELECT * FROM paddle_customer WHERE email = $email AND tenant_id = $tenantId")
         .get({ email, tenantId });
     });
   }
@@ -29,11 +27,7 @@ function getCustomers(ctx: Context, req: Request, tenantId: string): unknown[] {
     .all({ tenantId });
 }
 
-async function get(
-  req: Request,
-  ctx: Context,
-  tenantId: string,
-): Promise<Response> {
+async function get(req: Request, ctx: Context, tenantId: string): Promise<Response> {
   const customers = getCustomers(ctx, req, tenantId)
     .filter((val) => is(val, Customer))
     .filter((val) => val !== null)
@@ -44,11 +38,7 @@ async function get(
   });
 }
 
-async function post(
-  req: Request,
-  ctx: Context,
-  tenantId: string,
-): Promise<Response> {
+async function post(req: Request, ctx: Context, tenantId: string): Promise<Response> {
   const reqCustomer = await req.json();
   assert(
     reqCustomer,
