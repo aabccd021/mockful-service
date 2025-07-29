@@ -62,10 +62,7 @@ let
       '';
 
   mapTests =
-    {
-      buildInputs,
-      dir,
-    }:
+    dir: buildInputs:
     let
       prefix = "test-${builtins.baseNameOf dir}-";
     in
@@ -85,28 +82,22 @@ let
     ];
 
   tests = [
-    {
-      dir = ./google-auth;
-      buildInputs = [
-        pkgs.jq
-        pkgs.netero-test
-        pkgs.jwt-cli
-        pkgs.tinyxxd
-        pkgs.sqlite
-        (buildTs ./google-auth-client.ts)
-      ];
-    }
-    {
-      dir = ./google-token;
-      buildInputs = [
-        pkgs.jq
-        pkgs.netero-test
-        pkgs.curl
-        pkgs.sqlite
-        (buildTs ./google-token-client.ts)
-      ];
-    }
+    (mapTests ./google-auth [
+      pkgs.jq
+      pkgs.netero-test
+      pkgs.jwt-cli
+      pkgs.tinyxxd
+      pkgs.sqlite
+      (buildTs ./google-auth-client.ts)
+    ])
+    (mapTests ./google-token [
+      pkgs.jq
+      pkgs.netero-test
+      pkgs.curl
+      pkgs.sqlite
+      (buildTs ./google-token-client.ts)
+    ])
   ];
 
 in
-lib.attrsets.mergeAttrsList (builtins.map mapTests tests)
+lib.attrsets.mergeAttrsList tests
