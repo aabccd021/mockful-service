@@ -35,7 +35,7 @@ auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
 
 curl \
   --output "$NETERO_STATE/browser/1/tab/1/page.html" \
-  --write-out "%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
+  --write-out "%output{./response.json}%{json}" \
   --silent \
   --location \
   --header 'Content-Type: application/x-www-form-urlencoded' \
@@ -44,5 +44,5 @@ curl \
   --data-urlencode 'code=aab' \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
-assert-response-code-equal 400
+jq --exit-status '.response_code == 400' ./response.json
 assert-query-returns-equal "//text()" 'Auth session not found for code: "aab".'
