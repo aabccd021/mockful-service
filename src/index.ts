@@ -19,7 +19,6 @@ async function handle(originalReq: Request, ctx: Context): Promise<Response> {
 
   const subHandle = urlToServe[url.hostname];
   if (subHandle === undefined) {
-    console.error(`Path not found: ${originalUrl}`);
     return new Response(null, { status: 404 });
   }
 

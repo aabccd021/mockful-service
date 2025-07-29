@@ -73,9 +73,8 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
 
   const code = crypto.randomUUID();
 
-  try {
-    db.query(
-      `
+  db.query(
+    `
         INSERT INTO google_auth_session (
           code,
           user,
@@ -94,19 +93,15 @@ async function handlePost(req: Request, { db }: Context): Promise<Response> {
           $codeChallengeMethod,
           $codeChallengeValue
         )`,
-    ).run({
-      code,
-      redirectUri,
-      user: formData.get("user") ?? null,
-      clientId: formData.get("client_id") ?? null,
-      scope: formData.get("scope") ?? null,
-      codeChallengeMethod: formData.get("code_challenge_method") ?? null,
-      codeChallengeValue: formData.get("code_challenge") ?? null,
-    });
-  } catch (err) {
-    console.error(err);
-    return errorMessage("Failed to store login session.");
-  }
+  ).run({
+    code,
+    redirectUri,
+    user: formData.get("user") ?? null,
+    clientId: formData.get("client_id") ?? null,
+    scope: formData.get("scope") ?? null,
+    codeChallengeMethod: formData.get("code_challenge_method") ?? null,
+    codeChallengeValue: formData.get("code_challenge") ?? null,
+  });
 
   const redirectUrl = new URL(redirectUri);
   redirectUrl.searchParams.set("code", code);
