@@ -14,7 +14,12 @@ let
         fileset = dir + "/${filename}";
       };
       exe = pkgs.runCommand "build-${filename}" { } ''
-        ${pkgs.bun}/bin/bun build ${src}/${filename} --compile --minify --bytecode --sourcemap --outfile ./bin
+        ${pkgs.bun}/bin/bun build ${src}/${filename} \
+          --compile \
+          --minify \
+          --bytecode \
+          --sourcemap \
+          --outfile ./bin
         mkdir -p "$out/bin"
         mv ./bin "$out/bin/test"
       '';
