@@ -136,17 +136,6 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  const code = formData.get("code");
-  if (code === undefined) {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Missing required parameter: code",
-      },
-      { status: 400 },
-    );
-  }
-
   if (formData.get("redirect_uri") === undefined) {
     return Response.json(
       {
@@ -222,12 +211,23 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
+  const code = formData.get("code");
+  if (code === undefined) {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Missing required parameter: code",
+      },
+      { status: 400 },
+    );
+  }
+
   const authSession = ctx.db
     .query("SELECT * FROM google_auth_session WHERE code = $code")
     .get({ code });
+  ctx.db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
   assert(authSession, NullableAuthSession);
-
   if (authSession === null) {
     return Response.json(
       {
@@ -237,8 +237,6 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
       { status: 400 },
     );
   }
-
-  ctx.db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
   if (authSession.code_challenge !== null) {
     const codeVerifier = formData.get("code_verifier");
