@@ -86,7 +86,6 @@ let
       pkgs.jq
       pkgs.netero-test
       pkgs.jwt-cli
-      pkgs.curl
       pkgs.tinyxxd
       pkgs.sqlite
       (mkServer "normal-server" ./normal_server.ts)
