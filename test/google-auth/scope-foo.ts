@@ -9,7 +9,7 @@ new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
 `);
 
 const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
-authUrl.searchParams.set("scope", "foo");
+authUrl.searchParams.set("scope", "foo"); // changed
 authUrl.searchParams.set("user", "kita-sub");
 authUrl.searchParams.set("response_type", "code");
 authUrl.searchParams.set("client_id", "mock_client_id");
@@ -19,6 +19,7 @@ authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4")
 const loginResponse = await fetch(authUrl);
 
 expect(loginResponse.text()).resolves.toInclude("");
+// expect(loginResponse.status).toBe(400);
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
 // Access blocked: Authorization Error
 //

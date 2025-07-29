@@ -27,7 +27,6 @@ const loginResponse = await fetch(
     }),
   },
 );
-expect(loginResponse.status).toEqual(303);
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";

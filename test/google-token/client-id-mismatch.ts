@@ -29,7 +29,6 @@ const loginResponse = await fetch(
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";
-
 const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
   method: "POST",
   headers: {
@@ -43,9 +42,8 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
   }),
 });
 
-expect(tokenResponse.status).toEqual(401);
-
 expect(tokenResponse.json()).resolves.toEqual({
   error: "invalid_client",
   error_description: "The OAuth client was not found.",
 });
+expect(tokenResponse.status).toEqual(401);

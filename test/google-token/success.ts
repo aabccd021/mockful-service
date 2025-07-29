@@ -29,7 +29,6 @@ const loginResponse = await fetch(
     }),
   },
 );
-
 expect(loginResponse.status).toEqual(303);
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
@@ -40,7 +39,6 @@ expect(code).not.toEqual("");
 expect(location.searchParams.get("state")).toEqual("sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
 expect(location.searchParams.get("prompt")).toEqual("select_account consent");
 
-// exchange code for token
 const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
   method: "POST",
   headers: {

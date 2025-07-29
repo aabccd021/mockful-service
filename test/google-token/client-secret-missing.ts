@@ -29,7 +29,6 @@ const loginResponse = await fetch(
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";
-
 const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
   method: "POST",
   headers: {
@@ -47,5 +46,4 @@ expect(tokenResponse.json()).resolves.toEqual({
   error: "invalid_request",
   error_description: "client_secret is missing.",
 });
-
 expect(tokenResponse.status).toEqual(400);

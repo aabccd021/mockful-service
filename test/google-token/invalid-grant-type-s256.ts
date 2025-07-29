@@ -31,7 +31,6 @@ const loginResponse = await fetch(
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";
-
 const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
   method: "POST",
   headers: {
@@ -46,9 +45,8 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
   }),
 });
 
-expect(tokenResponse.status).toEqual(400);
-
 expect(tokenResponse.json()).resolves.toEqual({
   error: "invalid_grant",
   error_description: "Invalid code verifier.",
 });
+expect(tokenResponse.status).toEqual(400);

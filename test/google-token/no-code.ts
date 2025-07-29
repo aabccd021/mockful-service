@@ -12,9 +12,8 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
   }),
 });
 
-expect(tokenResponse.status).toEqual(400);
-
 expect(tokenResponse.json()).resolves.toEqual({
   error: "invalid_request",
   error_description: "Missing required parameter: code",
 });
+expect(tokenResponse.status).toEqual(400);
