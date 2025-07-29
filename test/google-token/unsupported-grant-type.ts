@@ -8,7 +8,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
   },
   body: new URLSearchParams({
     grant_type: "foo",
-    redirect_uri: "https://localhost:3000/login-callback",
   }),
 });
 
