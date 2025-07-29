@@ -147,6 +147,81 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
+  if (formData.get("redirect_uri") === undefined) {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Missing parameter: redirect_uri",
+      },
+      { status: 400 },
+    );
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  if (authHeader === null) {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Could not determine client ID from request.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const [prefix, credentials] = authHeader.split(" ");
+
+  if (prefix === undefined) {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Could not determine client ID from request.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (prefix !== "Basic") {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Could not determine client ID from request.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (credentials === undefined) {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Bad Request",
+      },
+      { status: 400 },
+    );
+  }
+
+  const [clientId, clientSecret] = atob(credentials).split(":");
+
+  if (clientId === undefined || clientId === "") {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Could not determine client ID from request.",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (clientSecret === undefined || clientSecret === "") {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "client_secret is missing.",
+      },
+      { status: 400 },
+    );
+  }
+
   const authSession = ctx.db
     .query("SELECT * FROM google_auth_session WHERE code = $code")
     .get({ code });
@@ -210,76 +285,11 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     }
   }
 
-  if (formData.get("redirect_uri") === undefined) {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Missing parameter: redirect_uri",
-      },
-      { status: 400 },
-    );
-  }
-
   if (formData.get("redirect_uri") !== authSession.redirect_uri) {
     return Response.json(
       {
         error: "redirect_uri_mismatch",
         error_description: "Bad Request",
-      },
-      { status: 400 },
-    );
-  }
-
-  const authHeader = req.headers.get("Authorization");
-  if (authHeader === null) {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Could not determine client ID from request.",
-      },
-      { status: 400 },
-    );
-  }
-
-  const [prefix, credentials] = authHeader.split(" ");
-
-  if (prefix === undefined) {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Could not determine client ID from request.",
-      },
-      { status: 400 },
-    );
-  }
-
-  if (prefix !== "Basic") {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Could not determine client ID from request.",
-      },
-      { status: 400 },
-    );
-  }
-
-  if (credentials === undefined) {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Bad Request",
-      },
-      { status: 400 },
-    );
-  }
-
-  const [clientId, clientSecret] = atob(credentials).split(":");
-
-  if (clientId === undefined || clientId === "") {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Could not determine client ID from request.",
       },
       { status: 400 },
     );
@@ -292,16 +302,6 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
         error_description: "The OAuth client was not found.",
       },
       { status: 401 },
-    );
-  }
-
-  if (clientSecret === undefined || clientSecret === "") {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "client_secret is missing.",
-      },
-      { status: 400 },
     );
   }
 
