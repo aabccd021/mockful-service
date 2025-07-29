@@ -50,6 +50,6 @@ const tokenResponse = await fetch(
 
 const tokenBody = await tokenResponse.json();
 const idToken = jose.decodeJwt(tokenBody.id_token);
-expect(idToken.sub).toBe("yamada-sub");
-expect(idToken["email"]).toBe("yamada@example.com");
-expect(idToken["email_verified"]).toBe(false);
+expect(idToken.sub).toEqual("yamada-sub");
+expect(idToken["email"]).toEqual("yamada@example.com");
+expect(idToken["email_verified"]).toEqual(false);

@@ -30,7 +30,7 @@ const loginResponse = await fetch(
     }),
   },
 );
-expect(loginResponse.status).toBe(303);
+expect(loginResponse.status).toEqual(303);
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";
@@ -52,4 +52,4 @@ const tokenResponse = await fetch(
 );
 
 const tokenBody = await tokenResponse.json();
-expect(jose.decodeJwt(tokenBody.id_token).sub).toBe("kita-sub");
+expect(jose.decodeJwt(tokenBody.id_token).sub).toEqual("kita-sub");

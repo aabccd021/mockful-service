@@ -31,17 +31,17 @@ const loginResponse = await fetch(
   },
 );
 
-expect(loginResponse.status).toBe(303);
+expect(loginResponse.status).toEqual(303);
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";
-expect(location.origin).toBe("https://localhost:3000");
-expect(location.pathname).toBe("/login-callback");
-expect(code).not.toBeEmpty();
-expect(location.searchParams.get("state")).toBe(
+expect(location.origin).toEqual("https://localhost:3000");
+expect(location.pathname).toEqual("/login-callback");
+expect(code).not.toEqual("");
+expect(location.searchParams.get("state")).toEqual(
   "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
 );
-expect(location.searchParams.get("prompt")).toBe("select_account consent");
+expect(location.searchParams.get("prompt")).toEqual("select_account consent");
 
 // exchange code for token
 const tokenResponse = await fetch(
@@ -60,7 +60,7 @@ const tokenResponse = await fetch(
   },
 );
 
-expect(tokenResponse.status).toBe(200);
+expect(tokenResponse.status).toEqual(200);
 
 const tokenBody = await tokenResponse.json();
 
@@ -80,7 +80,7 @@ expect(tokenBody.token_type).toEqual("Bearer");
 expect(tokenBody.expires_in).toEqual(3599);
 
 const idToken = jose.decodeJwt(tokenBody.id_token);
-expect(idToken.sub).toBe("kita-sub");
-expect(idToken.aud).toBe("mock_client_id");
+expect(idToken.sub).toEqual("kita-sub");
+expect(idToken.aud).toEqual("mock_client_id");
 expect(idToken).not.toContainKey("email");
 expect(idToken).not.toContainKey("email_verified");
