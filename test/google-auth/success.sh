@@ -14,20 +14,20 @@ EOF
 
 netero-init
 mkfifo "./server-ready.fifo"
-normal-server 2>&1 &
+google-auth-client 2>&1 &
 timeout 5 cat ./server-ready.fifo
 
 goto --url "http://localhost:3000\
 ?response_type=code\
 &state=sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4\
-&scope=openid%20email\
+&scope=openid\
 &client_id=mock_client_id\
 &redirect_uri=http://localhost:3000/login-callback\
 "
 
 assert-response-code-equal 200
 
-submit "//form" --submit-button "//form/button[@value='yamada-sub']"
+submit "//form" --submit-button "//form/button[@value='kita-sub']"
 
 assert-response-code-equal 200
 
@@ -38,10 +38,37 @@ payload=$(
 )
 
 sub=$(echo "$payload" | jq -r ".sub")
-assert-equal "yamada-sub" "$sub"
+assert-equal "kita-sub" "$sub"
 
-email=$(echo "$payload" | jq -r ".email")
-assert-equal "yamada@example.com" "$email"
+now=$(date +%s)
 
-email_verified=$(echo "$payload" | jq -r ".email_verified")
-assert-equal "false" "$email_verified"
+exp=$(echo "$payload" | jq -r ".exp")
+exp_diff=$((exp - now))
+if [ "$exp_diff" -gt 3601 ] || [ "$exp_diff" -lt 3599 ]; then
+  echo "exp is not 1 hour from now: $exp"
+  exit 1
+fi
+
+iat=$(echo "$payload" | jq -r ".iat")
+iat_diff=$((iat - now))
+if [ "$iat_diff" -gt 1 ] || [ "$iat_diff" -lt -1 ]; then
+  echo "iat is not now: $iat"
+  exit 1
+fi
+
+access_token=$(jq -r ".access_token" "$NETERO_STATE/browser/1/tab/1/body")
+
+at_hash=$(echo "$payload" | jq -r ".at_hash")
+expected_at_hash=$(
+  printf "%s" "$access_token" |
+    sha256sum |
+    cut -c 1-32 |
+    xxd -r -p |
+    base64 |
+    tr '+/' '-_' |
+    tr -d '='
+)
+if [ "$at_hash" != "$expected_at_hash" ]; then
+  echo "at_hash mismatch. expected: $expected_at_hash, actual: $at_hash"
+  exit 1
+fi

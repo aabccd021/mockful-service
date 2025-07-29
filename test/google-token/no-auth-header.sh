@@ -14,14 +14,12 @@ EOF
 
 netero-init
 mkfifo "./server-ready.fifo"
-granular-server 2>&1 &
+google-token-client 2>&1 &
 timeout 5 cat ./server-ready.fifo
 
 goto --url "http://localhost:3000\
 ?response_type=code\
 &state=sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4\
-&code_challenge=G5k-xbS5eqMAekQELZ07AhN64LQxBuB4wVG7wryu5b8\
-&code_challenge_method=S256\
 &scope=openid\
 &client_id=mock_client_id\
 &redirect_uri=http://localhost:3000/login-callback\
@@ -33,7 +31,6 @@ submit "//form" --submit-button "//form/button[@value='kita-sub']"
 
 assert-response-code-equal 200
 
-auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
 code=$(cat ./code.txt)
 
 curl_options=" \
@@ -46,7 +43,6 @@ curl_options=" \
   --silent \
   --location \
   --header 'Content-Type: application/x-www-form-urlencoded' \
-  --header 'Authorization: Basic $auth_header' \
   --data-urlencode 'grant_type=authorization_code' \
   --data-urlencode 'code=$code' \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
@@ -55,4 +51,4 @@ curl_options=" \
 eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
 
 assert-response-code-equal 400
-assert-equal 'Parameter code_verifier is required.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-equal 'Authorization header is required.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"

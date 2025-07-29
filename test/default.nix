@@ -79,30 +79,28 @@ let
       builtins.listToAttrs
     ];
 
-  normalTests = mapTests {
-    prefix = "test-google-normal-";
-    dir = ./normal;
-    buildInputs = [
-      pkgs.jq
-      pkgs.netero-test
-      pkgs.jwt-cli
-      pkgs.tinyxxd
-      pkgs.sqlite
-      (mkServer "normal-server" ./normal_server.ts)
-    ];
-  };
-
-  granularTests = mapTests {
-    prefix = "test-google-granular-";
-    dir = ./granular;
-    buildInputs = [
-      pkgs.jq
-      pkgs.netero-test
-      pkgs.curl
-      pkgs.sqlite
-      (mkServer "granular-server" ./granular_server.ts)
-    ];
-  };
-
 in
-normalTests // granularTests
+
+(mapTests {
+  prefix = "test-google-auth-";
+  dir = ./google-auth;
+  buildInputs = [
+    pkgs.jq
+    pkgs.netero-test
+    pkgs.jwt-cli
+    pkgs.tinyxxd
+    pkgs.sqlite
+    (mkServer "google-auth-client" ./google-auth-client.ts)
+  ];
+})
+// (mapTests {
+  prefix = "test-google-token-";
+  dir = ./google-token;
+  buildInputs = [
+    pkgs.jq
+    pkgs.netero-test
+    pkgs.curl
+    pkgs.sqlite
+    (mkServer "google-token-client" ./google-token-client.ts)
+  ];
+})

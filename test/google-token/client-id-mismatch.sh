@@ -14,7 +14,7 @@ EOF
 
 netero-init
 mkfifo "./server-ready.fifo"
-granular-server 2>&1 &
+google-token-client 2>&1 &
 timeout 5 cat ./server-ready.fifo
 
 goto --url "http://localhost:3000\
@@ -31,7 +31,7 @@ submit "//form" --submit-button "//form/button[@value='kita-sub']"
 
 assert-response-code-equal 200
 
-auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
+auth_header=$(printf "invalid_client_id:mock_client_secret" | base64)
 code=$(cat ./code.txt)
 
 curl_options=" \
@@ -45,7 +45,7 @@ curl_options=" \
   --location \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --header 'Authorization: Basic $auth_header' \
-  --data-urlencode 'grant_type=foo' \
+  --data-urlencode 'grant_type=authorization_code' \
   --data-urlencode 'code=$code' \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
 "
@@ -53,4 +53,4 @@ curl_options=" \
 eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
 
 assert-response-code-equal 400
-assert-equal 'Invalid grant_type: "foo". Expected "authorization_code".' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-equal 'Invalid client_id' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"

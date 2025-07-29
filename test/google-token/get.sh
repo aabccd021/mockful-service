@@ -14,7 +14,7 @@ EOF
 
 netero-init
 mkfifo "./server-ready.fifo"
-granular-server 2>&1 &
+google-token-client 2>&1 &
 timeout 5 cat ./server-ready.fifo
 
 goto --url "http://localhost:3000\
@@ -43,6 +43,7 @@ curl_options=" \
   --show-error \
   --silent \
   --location \
+  --request GET \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --header 'Authorization: Basic $auth_header' \
   --data-urlencode 'grant_type=authorization_code' \
@@ -52,4 +53,4 @@ curl_options=" \
 
 eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
 
-assert-response-code-equal 200
+assert-response-code-equal 405

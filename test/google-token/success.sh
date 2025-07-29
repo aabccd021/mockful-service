@@ -14,14 +14,12 @@ EOF
 
 netero-init
 mkfifo "./server-ready.fifo"
-granular-server 2>&1 &
+google-token-client 2>&1 &
 timeout 5 cat ./server-ready.fifo
 
 goto --url "http://localhost:3000\
 ?response_type=code\
 &state=sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4\
-&code_challenge=G5k-xbS5eqMAekQELZ07AhN64LQxBuB4wVG7wryu5b8\
-&code_challenge_method=S256\
 &scope=openid\
 &client_id=mock_client_id\
 &redirect_uri=http://localhost:3000/login-callback\
@@ -50,7 +48,6 @@ curl_options=" \
   --data-urlencode 'grant_type=authorization_code' \
   --data-urlencode 'code=$code' \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
-  --data-urlencode 'code_verifier=AWnuB2qLobencpDhxdlDb_yeTixrfG9SiKYOjwYrz4I' \
 "
 
 eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"

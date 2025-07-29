@@ -14,7 +14,7 @@ EOF
 
 netero-init
 mkfifo "./server-ready.fifo"
-normal-server 2>&1 &
+google-auth-client 2>&1 &
 timeout 5 cat ./server-ready.fifo
 
 goto --url "http://localhost:3000\
