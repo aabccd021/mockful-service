@@ -23,7 +23,6 @@ curl http://localhost:3001/https://sandbox-api.paddle.com/customers \
 customer_id=$(jq --raw-output '.data.id' ./body)
 
 curl \
-  --show-error \
   --silent \
   --fail \
   --fail-early \

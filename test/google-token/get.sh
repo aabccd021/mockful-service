@@ -37,7 +37,6 @@ code=$(jq --raw-output ".params.code" "$NETERO_STATE/browser/1/tab/1/body")
 curl \
   --output "$NETERO_STATE/browser/1/tab/1/page.html" \
   --write-out "%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
-  --show-error \
   --silent \
   --location \
   --request GET \

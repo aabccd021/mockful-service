@@ -36,7 +36,6 @@ auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
 curl \
   --output "$NETERO_STATE/browser/1/tab/1/page.html" \
   --write-out "%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
-  --show-error \
   --silent \
   --location \
   --header 'Content-Type: application/x-www-form-urlencoded' \
