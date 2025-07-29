@@ -147,7 +147,16 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const code = formData.get("code");
   if (code === undefined) {
-    return errorMessage("Parameter code is required.");
+    return new Response(
+      JSON.stringify({
+        error: "invalid_request",
+        error_description: "Missing required parameter: code",
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   const authSession = ctx.db
@@ -198,7 +207,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     return new Response(
       JSON.stringify({
         error: "invalid_request",
-        error_description: "Invalid redirect_uri.",
+        error_description: "Missing parameter: redirect_uri",
       }),
       {
         status: 400,

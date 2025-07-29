@@ -51,7 +51,7 @@ jq --exit-status '.response_code == 400' ./response.json
 cat <<EOF >./expected.json
 {
   "error": "invalid_request",
-  "error_description": "Invalid redirect_uri."
+  "error_description": "Missing parameter: redirect_uri"
 }
 EOF
 

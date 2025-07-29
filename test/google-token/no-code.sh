@@ -34,7 +34,7 @@ assert-response-code-equal 200
 auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
 
 curl \
-  --output "$NETERO_STATE/browser/1/tab/1/page.html" \
+  --output ./body.json \
   --write-out "%output{./response.json}%{json}" \
   --silent \
   --location \
@@ -45,4 +45,12 @@ curl \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
 jq --exit-status '.response_code == 400' ./response.json
-assert-query-returns-equal "//text()" 'Parameter code is required.'
+
+cat <<EOF >./expected.json
+{
+  "error": "invalid_request",
+  "error_description": "Missing required parameter: code"
+}
+EOF
+
+json-diff ./body.json ./expected.json

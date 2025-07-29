@@ -35,7 +35,6 @@ auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
 code=$(jq --raw-output ".params.code" "$NETERO_STATE/browser/1/tab/1/body")
 
 curl \
-  --output "$NETERO_STATE/browser/1/tab/1/page.html" \
   --write-out "%output{./response.json}%{json}" \
   --silent \
   --location \
