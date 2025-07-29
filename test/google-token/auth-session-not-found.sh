@@ -33,23 +33,21 @@ assert-response-code-equal 200
 
 auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
 
-curl_options=" \
-  --cookie '$NETERO_STATE/browser/1/cookie.txt' \
-  --cookie-jar '$NETERO_STATE/browser/1/cookie.txt' \
-  --output '$NETERO_STATE/browser/1/tab/1/body' \
-  --write-out \"%output{$NETERO_STATE/browser/1/tab/1/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}\" \
+curl \
+  --cookie "$NETERO_STATE/browser/1/cookie.txt" \
+  --cookie-jar "$NETERO_STATE/browser/1/cookie.txt" \
+  --output "$NETERO_STATE/browser/1/tab/1/body" \
+  --write-out "%output{$NETERO_STATE/browser/1/tab/1/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
   --compressed \
   --show-error \
   --silent \
   --location \
   --header 'Content-Type: application/x-www-form-urlencoded' \
-  --header 'Authorization: Basic $auth_header' \
+  --header "Authorization: Basic $auth_header" \
   --data-urlencode 'grant_type=authorization_code' \
   --data-urlencode 'code=aab' \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
-"
-
-eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
+  'http://localhost:3001/https://oauth2.googleapis.com/token'
 
 assert-response-code-equal 400
 assert-equal 'Auth session not found for code: "aab".' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"

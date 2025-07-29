@@ -33,11 +33,11 @@ assert-response-code-equal 200
 
 code=$(cat ./code.txt)
 
-curl_options=" \
-  --cookie '$NETERO_STATE/browser/1/cookie.txt' \
-  --cookie-jar '$NETERO_STATE/browser/1/cookie.txt' \
-  --output '$NETERO_STATE/browser/1/tab/1/body' \
-  --write-out \"%output{$NETERO_STATE/browser/1/tab/1/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}\" \
+curl \
+  --cookie "$NETERO_STATE/browser/1/cookie.txt" \
+  --cookie-jar "$NETERO_STATE/browser/1/cookie.txt" \
+  --output "$NETERO_STATE/browser/1/tab/1/body" \
+  --write-out "%output{$NETERO_STATE/browser/1/tab/1/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
   --compressed \
   --show-error \
   --silent \
@@ -45,11 +45,9 @@ curl_options=" \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --header 'Authorization: Basic ' \
   --data-urlencode 'grant_type=authorization_code' \
-  --data-urlencode 'code=$code' \
+  --data-urlencode "code=$code" \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
-"
-
-eval "curl $curl_options 'http://localhost:3001/https://oauth2.googleapis.com/token'"
+  'http://localhost:3001/https://oauth2.googleapis.com/token'
 
 assert-response-code-equal 400
 assert-equal 'Credentials not found in Authorization header.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
