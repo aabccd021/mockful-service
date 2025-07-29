@@ -34,8 +34,6 @@ assert-response-code-equal 200
 code=$(cat ./code.txt)
 
 curl \
-  --cookie "$NETERO_STATE/browser/1/cookie.txt" \
-  --cookie-jar "$NETERO_STATE/browser/1/cookie.txt" \
   --output "$NETERO_STATE/browser/1/tab/1/body" \
   --write-out "%output{$NETERO_STATE/browser/1/tab/1/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
   --compressed \
