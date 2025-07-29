@@ -1,7 +1,5 @@
 import { expect } from "bun:test";
 
-const _neteroState = process.env["NETERO_STATE"];
-
 const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
   method: "POST",
   headers: {
