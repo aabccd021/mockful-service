@@ -38,7 +38,7 @@ code=$(cat ./code.txt)
 
 curl \
   --output "$NETERO_STATE/browser/1/tab/1/page.html" \
-  --write-out "%output{$NETERO_STATE/browser/1/tab/1/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
+  --write-out "%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
   --show-error \
   --silent \
   --location \
