@@ -1,6 +1,5 @@
 # TODO
 
-- remove unnecessary seed from each test
 - google auth entity tied to tenant id
 - Mock all authentication endpoint from OIDC discovery URL
 - Test with https://github.com/panva/openid-client
