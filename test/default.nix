@@ -85,25 +85,29 @@ let
     ];
 
 in
+lib.attrsets.mergeAttrsList [
 
-(mapTests {
-  dir = ./google-auth;
-  buildInputs = [
-    pkgs.jq
-    pkgs.netero-test
-    pkgs.jwt-cli
-    pkgs.tinyxxd
-    pkgs.sqlite
-    (mkServer "google-auth-client" ./google-auth-client.ts)
-  ];
-})
-// (mapTests {
-  dir = ./google-token;
-  buildInputs = [
-    pkgs.jq
-    pkgs.netero-test
-    pkgs.curl
-    pkgs.sqlite
-    (mkServer "google-token-client" ./google-token-client.ts)
-  ];
-})
+  (mapTests {
+    dir = ./google-auth;
+    buildInputs = [
+      pkgs.jq
+      pkgs.netero-test
+      pkgs.jwt-cli
+      pkgs.tinyxxd
+      pkgs.sqlite
+      (mkServer "google-auth-client" ./google-auth-client.ts)
+    ];
+  })
+
+  (mapTests {
+    dir = ./google-token;
+    buildInputs = [
+      pkgs.jq
+      pkgs.netero-test
+      pkgs.curl
+      pkgs.sqlite
+      (mkServer "google-token-client" ./google-token-client.ts)
+    ];
+  })
+
+]
