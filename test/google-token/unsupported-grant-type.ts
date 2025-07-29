@@ -2,9 +2,6 @@ import { expect } from "bun:test";
 
 const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
   method: "POST",
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded",
-  },
   body: new URLSearchParams({
     grant_type: "foo",
   }),
