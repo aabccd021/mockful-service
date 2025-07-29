@@ -36,7 +36,7 @@ code=$(jq --raw-output ".params.code" "$NETERO_STATE/browser/1/tab/1/body")
 
 curl \
   --output ./body.json \
-  --write-out "%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
+  --write-out "%output{./response.json}%{json}" \
   --silent \
   --location \
   --header 'Content-Type: application/x-www-form-urlencoded' \
@@ -46,7 +46,7 @@ curl \
   --data-urlencode 'redirect_uri=http://localhost:3000/invalid-login-callback' \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
-assert-response-code-equal 400
+jq --exit-status '.response_code == 400' ./response.json
 
 cat <<EOF >./expected.json
 {
