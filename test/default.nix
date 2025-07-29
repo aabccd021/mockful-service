@@ -100,7 +100,6 @@ let
     buildInputs = [
       pkgs.jq
       pkgs.netero-test
-      pkgs.jwt-cli
       pkgs.curl
       pkgs.tinyxxd
       pkgs.sqlite
