@@ -56,21 +56,7 @@ let
     ];
 
   tests = [
-    (mapTests ./google-auth2)
-    # (mapTests shellTest ./google-token [
-    #   pkgs.jq
-    #   pkgs.netero-test
-    #   pkgs.curl
-    #   pkgs.sqlite
-    #   pkgs.nodePackages.json-diff
-    #   (buildTs ./google-token-client.ts)
-    # ])
-    # (mapTests shellTest ./paddle-customer [
-    #   pkgs.curl
-    #   pkgs.sqlite
-    #   pkgs.nodePackages.json-diff
-    #   pkgs.jq
-    # ])
+    (mapTests ./google-auth)
   ];
 
 in
