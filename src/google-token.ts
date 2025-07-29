@@ -9,20 +9,6 @@ import {
 } from "superstruct";
 import { type Context, errorMessage, getStringFormData } from "./util.ts";
 
-function badRequest(body: unknown): Response {
-  return new Response(JSON.stringify(body), {
-    status: 400,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function unauthorizedRequest(body: unknown): Response {
-  return new Response(JSON.stringify(body), {
-    status: 401,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
 const GoogleAuthUser = object({
   email: string(),
   email_verified: nullable(enums(["true", "false"])),
@@ -151,18 +137,24 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const grantType = formData.get("grant_type") ?? "";
   if (grantType !== "authorization_code") {
-    return badRequest({
-      error: "unsupported_grant_type",
-      error_description: `Invalid grant_type: ${grantType}`,
-    });
+    return Response.json(
+      {
+        error: "unsupported_grant_type",
+        error_description: `Invalid grant_type: ${grantType}`,
+      },
+      { status: 400 },
+    );
   }
 
   const code = formData.get("code");
   if (code === undefined) {
-    return badRequest({
-      error: "invalid_request",
-      error_description: "Missing required parameter: code",
-    });
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Missing required parameter: code",
+      },
+      { status: 400 },
+    );
   }
 
   const authSession = ctx.db
@@ -172,10 +164,13 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   assert(authSession, NullableAuthSession);
 
   if (authSession === null) {
-    return badRequest({
-      error: "invalid_grant",
-      error_description: "Malformed auth code.",
-    });
+    return Response.json(
+      {
+        error: "invalid_grant",
+        error_description: "Malformed auth code.",
+      },
+      { status: 400 },
+    );
   }
 
   ctx.db
@@ -185,10 +180,13 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   if (authSession.code_challenge !== null) {
     const codeVerifier = formData.get("code_verifier");
     if (codeVerifier === undefined) {
-      return badRequest({
-        error: "invalid_grant",
-        error_description: "Missing code verifier.",
-      });
+      return Response.json(
+        {
+          error: "invalid_grant",
+          error_description: "Missing code verifier.",
+        },
+        { status: 400 },
+      );
     }
 
     const code_challengeMethod: "S256" | "plain" =
@@ -196,10 +194,13 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
     if (code_challengeMethod === "plain") {
       if (authSession.code_challenge !== codeVerifier) {
-        return badRequest({
-          error: "invalid_grant",
-          error_description: "Invalid code verifier.",
-        });
+        return Response.json(
+          {
+            error: "invalid_grant",
+            error_description: "Invalid code verifier.",
+          },
+          { status: 400 },
+        );
       }
     } else if (code_challengeMethod === "S256") {
       const hashBinary = new Bun.CryptoHasher("sha256")
@@ -210,10 +211,13 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
         omitPadding: true,
       });
       if (authSession.code_challenge !== codeVerifierHash) {
-        return badRequest({
-          error: "invalid_grant",
-          error_description: "Invalid code verifier.",
-        });
+        return Response.json(
+          {
+            error: "invalid_grant",
+            error_description: "Invalid code verifier.",
+          },
+          { status: 400 },
+        );
       }
     } else {
       code_challengeMethod satisfies never;
@@ -222,43 +226,58 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   if (formData.get("redirect_uri") !== authSession.redirect_uri) {
-    return badRequest({
-      error: "invalid_request",
-      error_description: "Missing parameter: redirect_uri",
-    });
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Missing parameter: redirect_uri",
+      },
+      { status: 400 },
+    );
   }
 
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
-    return badRequest({
-      error: "invalid_request",
-      error_description: "Could not determine client ID from request.",
-    });
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Could not determine client ID from request.",
+      },
+      { status: 400 },
+    );
   }
 
   const [prefix, credentials] = authHeader.split(" ");
 
   if (prefix !== "Basic") {
-    return badRequest({
-      error: "invalid_request",
-      error_description: "Could not determine client ID from request.",
-    });
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Could not determine client ID from request.",
+      },
+      { status: 400 },
+    );
   }
 
   if (credentials === undefined) {
-    return badRequest({
-      error: "invalid_request",
-      error_description: "Bad Request",
-    });
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Bad Request",
+      },
+      { status: 400 },
+    );
   }
 
   const [clientId, clientSecret] = atob(credentials).split(":");
 
   if (clientId !== authSession.client_id) {
-    return unauthorizedRequest({
-      error: "invalid_client",
-      error_description: "The OAuth client was not found.",
-    });
+    return Response.json(
+      {
+        error: "invalid_client",
+        error_description: "The OAuth client was not found.",
+      },
+      { status: 401 },
+    );
   }
 
   const client = ctx.db
@@ -267,10 +286,13 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   assert(client, Client);
 
   if (clientSecret !== client.secret) {
-    return unauthorizedRequest({
-      error: "invalid_client",
-      error_description: "Unauthorized",
-    });
+    return Response.json(
+      {
+        error: "invalid_client",
+        error_description: "Unauthorized",
+      },
+      { status: 401 },
+    );
   }
 
   const scopeStr = authSession.scope;
