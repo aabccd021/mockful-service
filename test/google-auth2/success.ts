@@ -91,3 +91,6 @@ expect(tokenBody.expires_in).toEqual(3599);
 
 const idToken = jose.decodeJwt(tokenBody.id_token);
 expect(idToken.sub).toBe("kita-sub");
+expect(idToken.aud).toBe("mock_client_id");
+expect(idToken).not.toContainKey("email");
+expect(idToken).not.toContainKey("email_verified");
