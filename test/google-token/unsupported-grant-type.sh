@@ -20,8 +20,6 @@ timeout 5 cat ./server-ready.fifo
 goto --url "http://localhost:3000\
 ?response_type=code\
 &state=sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4\
-&code_challenge=G5k-xbS5eqMAekQELZ07AhN64LQxBuB4wVG7wryu5b8\
-&code_challenge_method=S256\
 &scope=openid\
 &client_id=mock_client_id\
 &redirect_uri=http://localhost:3000/login-callback\
@@ -43,18 +41,17 @@ curl \
   --location \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --header "Authorization: Basic $auth_header" \
-  --data-urlencode 'grant_type=authorization_code' \
+  --data-urlencode 'grant_type=foo' \
   --data-urlencode "code=$code" \
   --data-urlencode 'redirect_uri=http://localhost:3000/login-callback' \
-  --data-urlencode 'code_verifier=foo' \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
 jq --exit-status '.response_code == 400' ./response.json
 
 cat <<EOF >./expected.json
 {
-  "error": "invalid_grant",
-  "error_description": "Invalid code verifier."
+  "error": "unsupported_grant_type",
+  "error_description": "Invalid grant_type: foo"
 }
 EOF
 
