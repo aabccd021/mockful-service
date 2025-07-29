@@ -47,10 +47,3 @@ const tokenResponse = await fetch(
 );
 
 expect(tokenResponse.status).toEqual(200);
-
-// expect(tokenResponse.status).toEqual(400);
-//
-// expect(tokenResponse.json()).resolves.toEqual({
-//   error: "invalid_request",
-//   error_description: "Bad Request",
-// });
