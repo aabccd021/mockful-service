@@ -24,7 +24,6 @@ const loginResponse = await fetch(
       client_id: "mock_client_id",
       redirect_uri: `https://localhost:3000/login-callback`,
       state: "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
-      prompt: "select_account consent",
       code_challenge: "G5k-xbS5eqMAekQELZ07AhN64LQxBuB4wVG7wryu5b8",
       code_challenge_method: "S256",
     }),

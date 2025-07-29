@@ -1,6 +1,5 @@
 import * as sqlite from "bun:sqlite";
 import { expect } from "bun:test";
-import * as jose from "jose";
 
 const neteroState = process.env["NETERO_STATE"];
 
@@ -24,31 +23,31 @@ const loginResponse = await fetch(
       client_id: "mock_client_id",
       redirect_uri: `https://localhost:3000/login-callback`,
       state: "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
-      code_challenge: "AWnuB2qLobencpDhxdlDb_yeTixrfG9SiKYOjwYrz4I",
-      code_challenge_method: "plain",
     }),
   },
 );
-expect(loginResponse.status).toEqual(303);
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 const code = location.searchParams.get("code") ?? "";
+
 const tokenResponse = await fetch(
   "http://localhost:3001/https://oauth2.googleapis.com/token",
   {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${btoa("mock_client_id:mock_client_secret")}`,
     },
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code,
       redirect_uri: "https://localhost:3000/login-callback",
-      code_verifier: "AWnuB2qLobencpDhxdlDb_yeTixrfG9SiKYOjwYrz4I",
     }),
   },
 );
 
-const tokenBody = await tokenResponse.json();
-expect(jose.decodeJwt(tokenBody.id_token).sub).toEqual("kita-sub");
+expect(tokenResponse.status).toEqual(400);
+
+expect(tokenResponse.json()).resolves.toEqual({
+  error: "invalid_request",
+  error_description: "Could not determine client ID from request.",
+});

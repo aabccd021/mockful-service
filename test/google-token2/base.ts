@@ -23,7 +23,6 @@ const loginResponse = await fetch(
       client_id: "mock_client_id",
       redirect_uri: `https://localhost:3000/login-callback`,
       state: "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
-      prompt: "select_account consent",
     }),
   },
 );
@@ -48,3 +47,10 @@ const tokenResponse = await fetch(
 );
 
 expect(tokenResponse.status).toEqual(200);
+
+// expect(tokenResponse.status).toEqual(400);
+//
+// expect(tokenResponse.json()).resolves.toEqual({
+//   error: "invalid_request",
+//   error_description: "Bad Request",
+// });
