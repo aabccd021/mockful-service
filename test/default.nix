@@ -47,6 +47,7 @@ let
 
   tests = [
     (mapTests ./google-auth)
+    (mapTests ./google-token2)
   ];
 
 in
