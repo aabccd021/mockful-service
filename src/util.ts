@@ -23,7 +23,7 @@ export type Context = {
   db: Database;
 };
 
-export type Handle = (req: Request, ctx: Context) => Promise<Response>;
+export type Handle = (req: Request, ctx: Context, paths: string[]) => Promise<Response>;
 
 export type ResponseOr<T> =
   | {

@@ -1,5 +1,5 @@
+import type { Context, ResponseOr } from "@util.ts";
 import { assert, nullable, object, string } from "superstruct";
-import type { Context, ResponseOr } from "./util";
 
 function forbiddenResponse(): Response {
   return new Response(

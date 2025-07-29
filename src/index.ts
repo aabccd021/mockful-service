@@ -1,29 +1,30 @@
 import * as sqlite from "bun:sqlite";
 import * as fs from "node:fs";
 import * as util from "node:util";
-import { handle as googleAuth } from "./google-auth.ts";
+import type { Context, Handle } from "@util.ts";
+import { handle as accountsGoogleCom } from "./accounts.google.com/_route.ts";
 import { handle as googleToken } from "./google-token.ts";
 import { handle as paddleCustomer } from "./paddle-customer.ts";
-import type { Context, Handle } from "./util.ts";
 
 const urlToServe: Record<string, Handle> = {
-  "accounts.google.com": googleAuth,
+  "accounts.google.com": accountsGoogleCom,
   "oauth2.googleapis.com": googleToken,
   "sandbox-api.paddle.com": paddleCustomer,
 };
 
 async function handle(originalReq: Request, ctx: Context): Promise<Response> {
-  const path = new URL(originalReq.url).pathname;
-  const url = new URL(path.slice(1));
+  const originalUrl = new URL(originalReq.url);
+  const url = new URL(originalUrl.pathname.slice(1) + originalUrl.search + originalUrl.hash);
   const req = new Request(url, originalReq);
 
   const subHandle = urlToServe[url.hostname];
   if (subHandle === undefined) {
-    console.error(`Path not found: ${path}`);
+    console.error(`Path not found: ${originalUrl}`);
     return new Response(null, { status: 404 });
   }
 
-  return await subHandle(req, ctx);
+  const paths = url.pathname.split("/").filter((p) => p !== "");
+  return await subHandle(req, ctx, paths);
 }
 
 const args = util.parseArgs({

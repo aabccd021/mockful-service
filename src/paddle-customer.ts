@@ -1,6 +1,6 @@
+import type { Context } from "@util.ts";
 import { assert, is, nullable, object, string } from "superstruct";
 import { generateId, getTenantId } from "./paddle-util";
-import type { Context } from "./util";
 
 const Customer = nullable(
   object({
