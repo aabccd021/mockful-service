@@ -13,16 +13,6 @@ let
         root = dir;
         fileset = dir + "/${filename}";
       };
-      exe = pkgs.runCommand "build-${name}" { } ''
-        ${pkgs.bun}/bin/bun build ${src}/${filename} \
-          --compile \
-          --minify \
-          --bytecode \
-          --sourcemap \
-          --outfile ./bin
-        mkdir -p "$out/bin"
-        mv ./bin "$out/bin/test"
-      '';
     in
     pkgs.runCommand name { } ''
       green=$(printf "\033[32m")
@@ -36,7 +26,7 @@ let
         sed "s/^/''${green}[mock]''${reset} /" &
       ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-wait
 
-      ${exe}/bin/test
+      ${pkgs.bun}/bin/bun test ${src}/${filename}
 
       mkdir "$out"
     '';
