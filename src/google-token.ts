@@ -9,6 +9,13 @@ import {
 } from "superstruct";
 import { type Context, errorMessage, getStringFormData } from "./util.ts";
 
+function badRequest(body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status: 400,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 const GoogleAuthUser = object({
   email: string(),
   email_verified: nullable(enums(["true", "false"])),
@@ -137,30 +144,18 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const grantType = formData.get("grant_type") ?? "";
   if (grantType !== "authorization_code") {
-    return new Response(
-      JSON.stringify({
-        error: "unsupported_grant_type",
-        error_description: `Invalid grant_type: ${grantType}`,
-      }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return badRequest({
+      error: "unsupported_grant_type",
+      error_description: `Invalid grant_type: ${grantType}`,
+    });
   }
 
   const code = formData.get("code");
   if (code === undefined) {
-    return new Response(
-      JSON.stringify({
-        error: "invalid_request",
-        error_description: "Missing required parameter: code",
-      }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return badRequest({
+      error: "invalid_request",
+      error_description: "Missing required parameter: code",
+    });
   }
 
   const authSession = ctx.db
@@ -208,16 +203,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   if (formData.get("redirect_uri") !== authSession.redirect_uri) {
-    return new Response(
-      JSON.stringify({
-        error: "invalid_request",
-        error_description: "Missing parameter: redirect_uri",
-      }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    return badRequest({
+      error: "invalid_request",
+      error_description: "Missing parameter: redirect_uri",
+    });
   }
 
   const authHeader = req.headers.get("Authorization");
