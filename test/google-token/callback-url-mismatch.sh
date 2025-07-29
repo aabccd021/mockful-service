@@ -35,7 +35,7 @@ auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
 code=$(jq --raw-output ".params.code" "$NETERO_STATE/browser/1/tab/1/body")
 
 curl \
-  --output "$NETERO_STATE/browser/1/tab/1/page.html" \
+  --output ./body.json \
   --write-out "%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
   --silent \
   --location \
@@ -47,4 +47,12 @@ curl \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
 assert-response-code-equal 400
-assert-query-returns-equal "//text()" 'Invalid redirect_uri.'
+
+cat <<EOF >./expected.json
+{
+  "error": "invalid_request",
+  "error_description": "Invalid redirect_uri."
+}
+EOF
+
+json-diff ./body.json ./expected.json

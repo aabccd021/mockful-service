@@ -92,6 +92,7 @@ let
       pkgs.netero-test
       pkgs.curl
       pkgs.sqlite
+      pkgs.nodePackages.json-diff
       (buildTs ./google-token-client.ts)
     ])
     (mapTests ./paddle-customer [
