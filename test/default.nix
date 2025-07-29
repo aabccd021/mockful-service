@@ -3,7 +3,7 @@ let
   lib = pkgs.lib;
 
   mkServer =
-    src:
+    name: src:
     pkgs.runCommandLocal "server" { } ''
       ${pkgs.bun}/bin/bun build ${src} \
         --compile \
@@ -12,11 +12,8 @@ let
         --sourcemap \
         --outfile server
       mkdir -p "$out/bin"
-      mv server "$out/bin/server"
+      mv server "$out/bin/"${name}
     '';
-
-  normalServer = mkServer ./normal_server.ts;
-  granularServer = mkServer ./granular_server.ts;
 
   filtered =
     dir: filename:
@@ -46,18 +43,13 @@ let
         reset=$(printf "\033[0m")
 
         export NETERO_STATE="./var/lib/netero"
-        netero-init
         netero-oauth-mock-init
 
-        mkfifo "./server-ready.fifo"
         mkfifo "./oauth-ready.fifo"
-
-        server 2>&1 | sed "s/^/''${yellow}[server]''${reset} /" &
 
         netero-oauth-mock --port 3001 --on-ready-pipe "./oauth-ready.fifo" 2>&1 |
           sed "s/^/''${green}[oauth]''${reset} /" &
 
-        timeout 5 cat ./server-ready.fifo
         timeout 5 cat ./oauth-ready.fifo
 
         bash -euo pipefail "$TEST_FILE"
@@ -97,7 +89,7 @@ let
       pkgs.curl
       pkgs.tinyxxd
       pkgs.sqlite
-      normalServer
+      (mkServer "normal-server" ./normal_server.ts)
     ];
   };
 
@@ -112,14 +104,9 @@ let
       pkgs.curl
       pkgs.tinyxxd
       pkgs.sqlite
-      granularServer
+      (mkServer "granular-server" ./granular_server.ts)
     ];
   };
 
 in
-normalTests
-// granularTests
-// {
-  normalServer = normalServer;
-  granularServer = granularServer;
-}
+normalTests // granularTests

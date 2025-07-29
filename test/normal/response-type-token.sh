@@ -12,6 +12,11 @@ INSERT INTO google_auth_client (id, secret)
   VALUES ('mock_client_id', 'mock_client_secret');
 EOF
 
+netero-init
+mkfifo "./server-ready.fifo"
+normal-server 2>&1 &
+timeout 5 cat ./server-ready.fifo
+
 goto --url "http://localhost:3000\
 ?response_type=token\
 &state=sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4\
