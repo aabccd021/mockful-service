@@ -175,7 +175,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   if (authSession.code_challenge !== null) {
     const codeVerifier = formData.get("code_verifier");
     if (codeVerifier === undefined) {
-      return errorMessage("Parameter code_verifier is required.");
+      return badRequest({
+        error: "invalid_grant",
+        error_description: "Missing code verifier.",
+      });
     }
 
     const code_challengeMethod: "S256" | "plain" =
