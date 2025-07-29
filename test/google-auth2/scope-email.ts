@@ -51,5 +51,5 @@ const tokenResponse = await fetch(
 const tokenBody = await tokenResponse.json();
 const idToken = jose.decodeJwt(tokenBody.id_token);
 expect(idToken.sub).toBe("nijika-sub");
-expect(idToken.email).toBe("nijika@example.com");
-expect(idToken.email_verified).toBe(true);
+expect(idToken["email"]).toBe("nijika@example.com");
+expect(idToken["email_verified"]).toBe(true);
