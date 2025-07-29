@@ -41,7 +41,6 @@ let
       }
       ''
         green=$(printf "\033[32m")
-        yellow=$(printf "\033[33m")
         reset=$(printf "\033[0m")
 
         export NETERO_STATE="./var/lib/netero"
