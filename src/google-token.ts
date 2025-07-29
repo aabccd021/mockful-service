@@ -132,6 +132,7 @@ function generateGoogleIdToken(
 }
 
 export async function handle(req: Request, ctx: Context): Promise<Response> {
+  // TODO
   if (req.method !== "POST") {
     return new Response(null, { status: 405 });
   }
@@ -139,6 +140,18 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   const formData = await getStringFormData(req);
 
   const grantType = formData.get("grant_type") ?? "";
+
+  // TODO
+  if (grantType === undefined) {
+    return Response.json(
+      {
+        error: "unsupported_grant_type",
+        error_description: `Invalid grant_type: ${grantType}`,
+      },
+      { status: 400 },
+    );
+  }
+
   if (grantType !== "authorization_code") {
     return Response.json(
       {
@@ -252,6 +265,16 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const [prefix, credentials] = authHeader.split(" ");
 
+  if (prefix === undefined) {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Could not determine client ID from request.",
+      },
+      { status: 400 },
+    );
+  }
+
   if (prefix !== "Basic") {
     return Response.json(
       {
@@ -273,6 +296,17 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   const [clientId, clientSecret] = atob(credentials).split(":");
+
+  // TODO
+  if (clientId === undefined) {
+    return Response.json(
+      {
+        error: "invalid_client",
+        error_description: "The OAuth client was not found.",
+      },
+      { status: 401 },
+    );
+  }
 
   if (clientId !== authSession.client_id) {
     return Response.json(
@@ -311,6 +345,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
+  // TODO
   const scopeStr = authSession.scope;
   if (scopeStr === null) {
     return errorMessage("scope is required.");
