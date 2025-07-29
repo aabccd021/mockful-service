@@ -3,7 +3,10 @@ let
   lib = pkgs.lib;
 
   buildTs =
-    name: src:
+    src:
+    let
+      name = lib.strings.removeSuffix ".ts" (builtins.baseNameOf src);
+    in
     pkgs.runCommandLocal name { } ''
       ${pkgs.bun}/bin/bun build ${src} \
         --compile \
@@ -93,7 +96,7 @@ let
         pkgs.jwt-cli
         pkgs.tinyxxd
         pkgs.sqlite
-        (buildTs "google-auth-client" ./google-auth-client.ts)
+        (buildTs ./google-auth-client.ts)
       ];
     }
     {
@@ -103,7 +106,7 @@ let
         pkgs.netero-test
         pkgs.curl
         pkgs.sqlite
-        (buildTs "google-token-client" ./google-token-client.ts)
+        (buildTs ./google-token-client.ts)
       ];
     }
   ];
