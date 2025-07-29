@@ -135,13 +135,17 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
 
   const formData = await getStringFormData(req);
 
-  const grantType = formData.get("grant_type");
-  if (grantType === undefined) {
-    return errorMessage("Parameter grant_type is required.");
-  }
+  const grantType = formData.get("grant_type") ?? "";
   if (grantType !== "authorization_code") {
-    return errorMessage(
-      `Invalid grant_type: "${grantType}". Expected "authorization_code".`,
+    return new Response(
+      JSON.stringify({
+        error: "unsupported_grant_type",
+        error_description: `Invalid grant_type: ${grantType}`,
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      },
     );
   }
 
