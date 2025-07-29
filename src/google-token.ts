@@ -239,13 +239,19 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   if (credentials === undefined) {
-    return errorMessage("Credentials not found in Authorization header.");
+    return badRequest({
+      error: "invalid_request",
+      error_description: "Bad Request",
+    });
   }
 
   const [clientId, clientSecret] = atob(credentials).split(":");
 
   if (clientId !== authSession.client_id) {
-    return errorMessage("Invalid client_id");
+    return badRequest({
+      error: "invalid_client",
+      error_description: "The OAuth client was not found.",
+    });
   }
 
   const client = ctx.db

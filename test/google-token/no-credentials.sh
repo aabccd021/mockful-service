@@ -34,7 +34,7 @@ assert-response-code-equal 200
 code=$(jq --raw-output ".params.code" "$NETERO_STATE/browser/1/tab/1/body")
 
 curl \
-  --output "$NETERO_STATE/browser/1/tab/1/page.html" \
+  --output ./body.json \
   --write-out "%output{./response.json}%{json}" \
   --silent \
   --location \
@@ -46,4 +46,12 @@ curl \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
 jq --exit-status '.response_code == 400' ./response.json
-assert-query-returns-equal "//text()" 'Credentials not found in Authorization header.'
+
+cat <<EOF >./expected.json
+{
+  "error": "invalid_request",
+  "error_description": "Bad Request"
+}
+EOF
+
+json-diff ./body.json ./expected.json
