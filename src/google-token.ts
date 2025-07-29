@@ -318,12 +318,12 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  // TODO
+  // TODO: test
   if (clientSecret === undefined) {
     return Response.json(
       {
-        error: "invalid_client",
-        error_description: "Unauthorized",
+        error: "invalid_request",
+        error_description: "client_secret is missing.",
       },
       { status: 401 },
     );
