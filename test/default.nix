@@ -35,7 +35,9 @@ let
     pkgs.runCommandLocal "${prefix}${filename}"
       {
         env.TEST_FILE = filtered dir filename;
-        buildInputs = buildInputs;
+        buildInputs = buildInputs ++ [
+          pkgs.netero-oauth-mock
+        ];
       }
       ''
         green=$(printf "\033[32m")
@@ -84,7 +86,6 @@ let
     buildInputs = [
       pkgs.jq
       pkgs.netero-test
-      pkgs.netero-oauth-mock
       pkgs.jwt-cli
       pkgs.curl
       pkgs.tinyxxd
@@ -99,7 +100,6 @@ let
     buildInputs = [
       pkgs.jq
       pkgs.netero-test
-      pkgs.netero-oauth-mock
       pkgs.jwt-cli
       pkgs.curl
       pkgs.tinyxxd
