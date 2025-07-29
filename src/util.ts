@@ -4,7 +4,7 @@ export function errorMessage(...message: string[]): Response {
   console.error(message.join(" "));
   return new Response(message.join(" "), {
     status: 400,
-    headers: { "Content-Type": "text/plain" },
+    headers: { "Content-Type": "text/html" },
   });
 }
 

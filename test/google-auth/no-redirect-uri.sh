@@ -26,4 +26,4 @@ goto --url "http://localhost:3000\
 "
 
 assert-response-code-equal 400
-assert-equal 'Parameter redirect_uri is required.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-query-returns-equal "//text()" 'Parameter redirect_uri is required.'

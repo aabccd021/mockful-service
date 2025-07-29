@@ -35,7 +35,7 @@ auth_header=$(printf "mock_client_id:mock_client_secret" | base64)
 code=$(cat ./code.txt)
 
 curl \
-  --output "$NETERO_STATE/browser/1/tab/1/body" \
+  --output "$NETERO_STATE/browser/1/tab/1/page.html" \
   --write-out "%output{$NETERO_STATE/browser/1/tab/1/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
   --compressed \
   --show-error \

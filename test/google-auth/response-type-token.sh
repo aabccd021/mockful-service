@@ -28,4 +28,4 @@ goto --url "http://localhost:3000\
 
 assert-response-code-equal 400
 
-assert-equal 'Invalid response_type: "token". Expected "code".' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-query-returns-equal "//text()" 'Invalid response_type: "token". Expected "code".'

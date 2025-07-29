@@ -34,7 +34,7 @@ assert-response-code-equal 200
 code=$(cat ./code.txt)
 
 curl \
-  --output "$NETERO_STATE/browser/1/tab/1/body" \
+  --output "$NETERO_STATE/browser/1/tab/1/page.html" \
   --write-out "%output{$NETERO_STATE/browser/1/tab/1/url.txt}%{url_effective}%output{./header.json}%{header_json}%output{$NETERO_STATE/browser/1/tab/1/response.json}%{json}" \
   --compressed \
   --show-error \
@@ -48,4 +48,4 @@ curl \
   'http://localhost:3001/https://oauth2.googleapis.com/token'
 
 assert-response-code-equal 400
-assert-equal 'Credentials not found in Authorization header.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-query-returns-equal "//text()" 'Credentials not found in Authorization header.'

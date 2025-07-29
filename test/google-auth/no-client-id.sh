@@ -30,4 +30,4 @@ assert-response-code-equal 200
 submit "//form" --submit-button "//form/button[@value='kita-sub']"
 
 assert-response-code-equal 400
-assert-equal 'Failed to store login session.' "$(cat "$NETERO_STATE/browser/1/tab/1/body")"
+assert-query-returns-equal "//text()" 'Failed to store login session.'
