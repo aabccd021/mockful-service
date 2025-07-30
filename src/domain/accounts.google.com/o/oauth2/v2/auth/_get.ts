@@ -1,4 +1,4 @@
-import type { Context } from "@util/index.ts";
+import { db } from "@util/index.ts";
 import { array, assert, object, string } from "superstruct";
 
 const Users = array(
@@ -35,8 +35,8 @@ function page(body: string): Response {
 
 // TODO: errors should be redirected to https://accounts.google.com/signin/oauth/error/v2 and pass
 // each errors id with authError=xxx_error_id
-export function handle(ctx: Context): Response {
-  const searchParams = new URL(ctx.req.url).searchParams;
+export function handle(req: Request): Response {
+  const searchParams = new URL(req.url).searchParams;
 
   const paramScopes = searchParams.get("scope");
   if (paramScopes === null) {
@@ -87,9 +87,7 @@ export function handle(ctx: Context): Response {
     `);
   }
 
-  const client = ctx.db
-    .query("SELECT id FROM google_auth_client WHERE id = $id")
-    .get({ id: clientId });
+  const client = db.query("SELECT id FROM google_auth_client WHERE id = $id").get({ id: clientId });
   if (client === null) {
     return page(`
       <h1>Access blocked: Authorization Error</h1>
@@ -120,7 +118,7 @@ export function handle(ctx: Context): Response {
 
   const redirectHost = new URL(redirectUri).host;
 
-  const users = ctx.db.query(`SELECT sub,email FROM google_auth_user`).all();
+  const users = db.query(`SELECT sub,email FROM google_auth_user`).all();
   assert(users, Users);
 
   const userSubmitButton = users

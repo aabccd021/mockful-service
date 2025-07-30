@@ -1,14 +1,14 @@
-import type { Context } from "@util/index.ts";
+import { db } from "@util/index";
 import * as paddle from "@util/paddle.ts";
 import { assert, object, string } from "superstruct";
 
-export async function handle(ctx: Context): Promise<Response> {
-  const projectId = paddle.getprojectId(ctx);
+export async function handle(req: Request): Promise<Response> {
+  const projectId = paddle.getprojectId(req);
   if (projectId.type === "response") {
     return projectId.response;
   }
 
-  const reqCustomer = await ctx.req.json();
+  const reqCustomer = await req.json();
   assert(
     reqCustomer,
     object({
@@ -18,9 +18,8 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const id = `ctm_${paddle.generateId()}`;
 
-  ctx.db
-    .query(
-      `
+  db.query(
+    `
         INSERT INTO paddle_customer (
           project_id, 
           id, 
@@ -32,12 +31,11 @@ export async function handle(ctx: Context): Promise<Response> {
           $email
         )
       `,
-    )
-    .run({
-      id,
-      projectId: projectId.value,
-      email: reqCustomer.email,
-    });
+  ).run({
+    id,
+    projectId: projectId.value,
+    email: reqCustomer.email,
+  });
 
   // if already exists
   // 409

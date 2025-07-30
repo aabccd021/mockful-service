@@ -1,4 +1,6 @@
-import type { Context, ResponseOr } from "@util/index.ts";
+import type { ResponseOr } from "@util/index.ts";
+import { db } from "@util/index.ts";
+
 import { assert, nullable, object, string } from "superstruct";
 
 function forbiddenResponse(): Response {
@@ -35,8 +37,8 @@ function authenticationMalformedResponse(): Response {
   );
 }
 
-export function getprojectId(ctx: Context): ResponseOr<string> {
-  const authHeader = ctx.req.headers.get("Authorization");
+export function getprojectId(req: Request): ResponseOr<string> {
+  const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
     return {
       type: "response",
@@ -59,7 +61,7 @@ export function getprojectId(ctx: Context): ResponseOr<string> {
     };
   }
 
-  const apiKeyRow = ctx.db
+  const apiKeyRow = db
     .query("SELECT project_id FROM paddle_api_key WHERE key = $key")
     .get({ key: apiKey });
 

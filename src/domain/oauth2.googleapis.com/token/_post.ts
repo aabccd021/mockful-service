@@ -1,4 +1,4 @@
-import { type Context, getStringFormData } from "@util/index.ts";
+import { db, getStringFormData } from "@util/index.ts";
 import { array, assert, enums, type Infer, nullable, object, string, type } from "superstruct";
 
 const GoogleAuthUser = object({
@@ -60,7 +60,7 @@ function getEmailScopeData(
 }
 
 function generateGoogleIdToken(
-  ctx: Context,
+  _req: Request,
   authSession: AuthSession,
   accessToken: string,
   scopeStr: string,
@@ -72,7 +72,7 @@ function generateGoogleIdToken(
 
   const sub = authSession.user;
 
-  const user = ctx.db
+  const user = db
     .query("SELECT email,email_verified FROM google_auth_user WHERE sub = $sub")
     .get({ sub });
   assert(user, GoogleAuthUser);
@@ -118,8 +118,8 @@ function generateGoogleIdToken(
   return `${headerStr}.${payloadStr}.${signatureStr}`;
 }
 
-export async function handle(ctx: Context): Promise<Response> {
-  const formData = await getStringFormData(ctx.req);
+export async function handle(req: Request): Promise<Response> {
+  const formData = await getStringFormData(req);
 
   const grantType = formData.get("grant_type") ?? "";
   if (grantType !== "authorization_code") {
@@ -142,7 +142,7 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const authHeader = ctx.req.headers.get("Authorization");
+  const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
     return Response.json(
       {
@@ -218,10 +218,10 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const authSession = ctx.db
+  const authSession = db
     .query("SELECT * FROM google_auth_session WHERE code = $code")
     .get({ code });
-  ctx.db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
+  db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
   assert(authSession, NullableAuthSession);
   if (authSession === null) {
@@ -299,7 +299,7 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const clients = ctx.db
+  const clients = db
     .query("SELECT secret FROM google_auth_client WHERE id = $id")
     .all({ id: clientId });
   assert(clients, Client);
@@ -319,7 +319,7 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const accessToken = crypto.randomUUID();
 
-  const idToken = generateGoogleIdToken(ctx, authSession, accessToken, scopeStr);
+  const idToken = generateGoogleIdToken(req, authSession, accessToken, scopeStr);
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,

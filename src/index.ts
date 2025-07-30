@@ -1,7 +1,6 @@
-import * as sqlite from "bun:sqlite";
 import * as fs from "node:fs";
 import * as util from "node:util";
-import type { Context, Handle } from "util/index.ts";
+import type { Handle } from "util/index.ts";
 import { handle as accountsGoogleCom } from "./domain/accounts.google.com/_route.ts";
 import { handle as apiPaddleCom } from "./domain/api.paddle.com/_route.ts";
 import { handle as oauth2GoogleapisCom } from "./domain/oauth2.googleapis.com/_route.ts";
@@ -45,7 +44,7 @@ function translateReqUrl(req: Request): URL | undefined {
   return url;
 }
 
-async function handle(originalReq: Request, db: sqlite.Database): Promise<Response> {
+async function handle(originalReq: Request): Promise<Response> {
   const url = translateReqUrl(originalReq);
   if (url === undefined) {
     return new Response(null, { status: 404 });
@@ -60,13 +59,7 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
 
   const paths = url.pathname.split("/").filter((p) => p !== "");
 
-  const ctx: Context = {
-    db,
-    req,
-    neteroOrigin: new URL(originalReq.url).origin,
-  };
-
-  return await subHandle(ctx, paths);
+  return await subHandle(req, paths);
 }
 
 const args = util.parseArgs({
@@ -80,23 +73,10 @@ const args = util.parseArgs({
   },
 });
 
-const neteroState = process.env["NETERO_STATE"];
-if (neteroState === undefined) {
-  throw new Error("Environment variable NETERO_STATE is required.");
-}
-
-const db = new sqlite.Database(`${neteroState}/mock.sqlite`, {
-  strict: true,
-  safeIntegers: true,
-});
-
-db.exec("PRAGMA journal_mode = WAL;");
-db.exec("PRAGMA foreign_keys = ON;");
-
 Bun.serve({
   port: parseInt(args.values.port, 10),
   development: false,
-  fetch: (req) => handle(req, db),
+  fetch: handle,
 });
 
 if (fs.existsSync(`/tmp/${process.ppid}-netero-oauth-mock.fifo`)) {

@@ -1,15 +1,14 @@
-import type { Context } from "util/index.ts";
 import * as _get from "./_get.ts";
 import * as _post from "./_post.ts";
 
-export async function handle(ctx: Context, paths: string[]): Promise<Response> {
+export async function handle(req: Request, paths: string[]): Promise<Response> {
   const [path] = paths;
   if (path === undefined) {
-    if (ctx.req.method === "GET") {
-      return _get.handle(ctx);
+    if (req.method === "GET") {
+      return _get.handle(req);
     }
-    if (ctx.req.method === "POST") {
-      return _post.handle(ctx);
+    if (req.method === "POST") {
+      return _post.handle(req);
     }
     return new Response("Method Not Allowed", { status: 405 });
   }

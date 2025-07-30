@@ -1,6 +1,4 @@
-import type { Context } from "@util/index.ts";
-
-export function handle(_ctx: Context): Response {
+export function handle(_req: Request): Response {
   return new Response("Not Implemented", {
     status: 501,
     headers: {

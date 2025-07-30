@@ -1,4 +1,5 @@
 import type { Database } from "bun:sqlite";
+import * as sqlite from "bun:sqlite";
 
 export function errorMessage(...message: string[]): Response {
   console.error(message.join(" "));
@@ -25,7 +26,7 @@ export type Context = {
   neteroOrigin: string;
 };
 
-export type Handle = (ctx: Context, paths: string[]) => Promise<Response>;
+export type Handle = (req: Request, paths: string[]) => Promise<Response>;
 
 export type ResponseOr<T> =
   | {
@@ -36,3 +37,18 @@ export type ResponseOr<T> =
       type: "value";
       value: T;
     };
+
+const neteroState = process.env["NETERO_STATE"];
+if (neteroState === undefined) {
+  throw new Error("Environment variable NETERO_STATE is required.");
+}
+
+const _db = new sqlite.Database(`${neteroState}/mock.sqlite`, {
+  strict: true,
+  safeIntegers: true,
+});
+
+_db.exec("PRAGMA journal_mode = WAL;");
+_db.exec("PRAGMA foreign_keys = ON;");
+
+export const db = _db;

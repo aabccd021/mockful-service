@@ -1,7 +1,7 @@
-import { type Context, errorMessage, getStringFormData } from "@util/index.ts";
+import { db, errorMessage, getStringFormData } from "@util/index.ts";
 
-export async function handle(ctx: Context): Promise<Response> {
-  const formData = await getStringFormData(ctx.req);
+export async function handle(req: Request): Promise<Response> {
+  const formData = await getStringFormData(req);
 
   const formRedirectUrl = formData.get("redirect_uri") ?? null;
   if (formRedirectUrl === null) {
@@ -10,9 +10,8 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const code = crypto.randomUUID();
 
-  ctx.db
-    .query(
-      `
+  db.query(
+    `
         INSERT INTO google_auth_session (
           code,
           user,
@@ -31,16 +30,15 @@ export async function handle(ctx: Context): Promise<Response> {
           $codeChallengeMethod,
           $codeChallengeValue
         )`,
-    )
-    .run({
-      code,
-      redirectUri: formRedirectUrl,
-      user: formData.get("user") ?? null,
-      clientId: formData.get("client_id") ?? null,
-      scope: formData.get("scope") ?? null,
-      codeChallengeMethod: formData.get("code_challenge_method") ?? null,
-      codeChallengeValue: formData.get("code_challenge") ?? null,
-    });
+  ).run({
+    code,
+    redirectUri: formRedirectUrl,
+    user: formData.get("user") ?? null,
+    clientId: formData.get("client_id") ?? null,
+    scope: formData.get("scope") ?? null,
+    codeChallengeMethod: formData.get("code_challenge_method") ?? null,
+    codeChallengeValue: formData.get("code_challenge") ?? null,
+  });
 
   const redirectUrl = new URL(formRedirectUrl);
   redirectUrl.searchParams.set("code", code);
