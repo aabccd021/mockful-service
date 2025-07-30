@@ -20,7 +20,7 @@ const loginResponse = await fetch(authUrl);
 
 // TODO
 expect(loginResponse.text()).resolves.toInclude("");
-// expect(loginResponse.status).toBe(400);
+// expect(loginResponse.status).toEqual(400);
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
 //Access blocked: Authorization Error
 //

@@ -22,4 +22,4 @@ authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback"
 const loginResponse = await fetch(authUrl);
 
 expect(loginResponse.text()).resolves.toInclude("</form>");
-expect(loginResponse.status).toBe(200);
+expect(loginResponse.status).toEqual(200);

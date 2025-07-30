@@ -19,4 +19,4 @@ authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4")
 const loginResponse = await fetch(authUrl);
 
 expect(loginResponse.text()).resolves.toInclude("</form>");
-expect(loginResponse.status).toBe(200);
+expect(loginResponse.status).toEqual(200);

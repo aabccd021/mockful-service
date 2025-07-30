@@ -5,12 +5,14 @@ import { handle as accountsGoogleCom } from "./domain/accounts.google.com/_route
 import { handle as apiPaddleCom } from "./domain/api.paddle.com/_route.ts";
 import { handle as oauth2GoogleapisCom } from "./domain/oauth2.googleapis.com/_route.ts";
 
-const urlToServe: Record<string, Handle> = {
+const domainHandlers: Record<string, Handle> = {
   "accounts.google.com": accountsGoogleCom,
   "oauth2.googleapis.com": oauth2GoogleapisCom,
   "sandbox-api.paddle.com": apiPaddleCom,
   "api.paddle.com": apiPaddleCom,
 };
+
+const domains = Object.keys(domainHandlers);
 
 function translateUrl(originalUrlStr: string): URL | undefined {
   const originalUrl = new URL(originalUrlStr);
@@ -52,14 +54,22 @@ async function handle(originalReq: Request): Promise<Response> {
 
   const req = new Request(url, originalReq);
 
-  const subHandle = urlToServe[url.hostname];
+  const subHandle = domainHandlers[url.hostname];
   if (subHandle === undefined) {
     return new Response(null, { status: 404 });
   }
 
   const paths = url.pathname.split("/").filter((p) => p !== "");
 
-  return await subHandle(req, paths);
+  const response = await subHandle(req, paths);
+
+  const redirectUrl = response.headers.get("Location");
+  if (redirectUrl !== null && domains.includes(new URL(redirectUrl).hostname)) {
+    const originalOrigin = new URL(originalReq.url).origin;
+    response.headers.set("Location", `${originalOrigin}/${redirectUrl}`);
+  }
+
+  return response;
 }
 
 const args = util.parseArgs({
