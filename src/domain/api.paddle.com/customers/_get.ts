@@ -1,6 +1,6 @@
 import type { Context } from "@util/index.ts";
 import { is, nullable, object, string } from "superstruct";
-import { getTenantId } from "../../util/paddle";
+import { getTenantId } from "../../../util/paddle";
 
 const Customer = nullable(
   object({
