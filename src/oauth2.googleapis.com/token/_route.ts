@@ -2,7 +2,8 @@ import type { Context } from "@util.ts";
 import * as _post from "./_post.ts";
 
 export async function handle(req: Request, ctx: Context, paths: string[]): Promise<Response> {
-  if (paths.length === 0) {
+  const [path] = paths;
+  if (path === undefined) {
     if (req.method === "POST") {
       return _post.handle(req, ctx);
     }
