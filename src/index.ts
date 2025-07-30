@@ -13,7 +13,7 @@ const urlToServe: Record<string, Handle> = {
   "api.paddle.com": apiPaddleCom,
 };
 
-function tl(originalUrlStr: string | null): URL | undefined {
+function translateUrl(originalUrlStr: string | null): URL | undefined {
   if (originalUrlStr === null) {
     return undefined;
   }
@@ -25,13 +25,13 @@ function tl(originalUrlStr: string | null): URL | undefined {
   }
 }
 
-function translateUrl(req: Request): URL | undefined {
-  const originalTl = tl(req.url);
+function translateReqUrl(req: Request): URL | undefined {
+  const originalTl = translateUrl(req.url);
   if (originalTl !== undefined) {
     return originalTl;
   }
 
-  const referrerTl = tl(req.headers.get("Referer"));
+  const referrerTl = translateUrl(req.headers.get("Referer"));
   if (referrerTl !== undefined) {
     const url = new URL(req.url);
     url.protocol = referrerTl.protocol;
@@ -44,7 +44,7 @@ function translateUrl(req: Request): URL | undefined {
 }
 
 async function handle(originalReq: Request, ctx: Context): Promise<Response> {
-  const url = translateUrl(originalReq);
+  const url = translateReqUrl(originalReq);
   if (url === undefined) {
     return new Response(null, { status: 404 });
   }
