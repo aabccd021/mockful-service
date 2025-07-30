@@ -36,7 +36,15 @@ function page(body: string): Response {
 export function handle(ctx: Context): Response {
   const searchParams = new URL(ctx.req.url).searchParams;
 
-  const scopes = searchParams.get("scope")?.split(" ") ?? [];
+  const paramScopes = searchParams.get("scope");
+  if (paramScopes === null) {
+    return page(`
+      <h1>Access blocked: Authorization Error</h1>
+      <p>Error 400: invalid_request </p>
+    `);
+  }
+
+  const scopes = paramScopes.split(" ");
   for (const scope of scopes) {
     if (!knownScopes.includes(scope)) {
       return page(`

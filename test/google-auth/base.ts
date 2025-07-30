@@ -14,10 +14,7 @@ authUrl.searchParams.set("user", "kita-sub");
 authUrl.searchParams.set("response_type", "code");
 authUrl.searchParams.set("client_id", "mock_client_id");
 authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
-// authUrl.searchParams.set(
-//   "state",
-//   "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
-// );
+authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
 
 const loginResponse = await fetch(authUrl);
 
