@@ -25,5 +25,5 @@ expect(loginResponse.text()).resolves.toInclude("");
 //
 // foo@example.com
 // Invalid parameter value for code_challenge_method: 'foo' is not a valid CodeChallengeMethod Learn more about this error
-// If you are a developer of lawkwk, see error details.
+// If you are a developer of project_id, see error details.
 // Error 400: invalid_request

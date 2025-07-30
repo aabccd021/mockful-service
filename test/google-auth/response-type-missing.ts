@@ -28,5 +28,5 @@ expect(loginResponse.text()).resolves.toInclude("");
 //
 // foo@example.com
 // Required parameter is missing: response_type Learn more about this error
-// If you are a developer of lawkwk, see error details.
+// If you are a developer of project_id, see error details.
 // Error 400: invalid_request

@@ -25,5 +25,5 @@ expect(loginResponse.text()).resolves.toInclude("");
 
 // foo@example.com
 // Missing required parameter: scope Learn more about this error
-// If you are a developer of lawkwk, see error details.
+// If you are a developer of project_id, see error details.
 // Error 400: invalid_request

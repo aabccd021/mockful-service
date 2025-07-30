@@ -18,12 +18,7 @@ authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4")
 
 const loginResponse = await fetch(authUrl);
 
-expect(loginResponse.text()).resolves.toInclude("");
-// expect(loginResponse.status).toBe(400);
-// https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-// Access blocked: Authorization Error
-//
-// foo@example.com
-// Some requested scopes were invalid. {invalid=[foo]} Learn more about this error
-// If you are a developer of lawkwk, see error details.
-// Error 400: invalid_scope
+const body = await loginResponse.text();
+expect(body).toInclude("Access blocked: Authorization Error");
+expect(body).toInclude("Error 400: invalid_scope");
+expect(loginResponse.status).toBe(200);
