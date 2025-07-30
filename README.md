@@ -1,6 +1,6 @@
 # TODO
 
-- google auth entity tied to project id
+- google auth entity tied to project id, one project id can have multiple auth client
 - rename tenant to project
 - error when login `https://example.com/login/callback?error=access_denied&state=vCUhsLRYrWpVRCQoZrnz0KqrfO6yWvViX7LGKG52X0s`
 - coverage

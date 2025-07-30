@@ -18,7 +18,10 @@ authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4")
 
 const loginResponse = await fetch(authUrl);
 
-expect(loginResponse.text()).resolves.toInclude("");
+const body = await loginResponse.text();
+expect(body).toInclude("Access blocked: Authorization Error");
+expect(body).toInclude("Error 401: invalid_client");
+expect(loginResponse.status).toBe(200);
 // expect(loginResponse.status).toBe(401);
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=foo&flowName=GeneralOAuthFlow
 //

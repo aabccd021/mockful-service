@@ -1,4 +1,4 @@
-import { type Context, errorMessage } from "@util/index.ts";
+import type { Context } from "@util/index.ts";
 import { array, assert, object, string } from "superstruct";
 
 const Users = array(
@@ -9,6 +9,8 @@ const Users = array(
 );
 
 const knownScopes = ["openid", "email"];
+
+const knownChallengeMethods = ["S256", "plain"];
 
 function page(body: string): Response {
   const pageContent = `
@@ -54,20 +56,67 @@ export function handle(ctx: Context): Response {
     }
   }
 
-  const paramInputs = searchParams
-    .entries()
-    .map(([name, value]) => `<input type="hidden" name="${name}" value="${value}" />`);
-  const paramInputsStr = Array.from(paramInputs).join("");
-
   const responseType = searchParams.get("response_type");
+  if (responseType === null) {
+    return page(`
+      <h1>Access blocked: Authorization Error</h1>
+      <p>Error 400: invalid_request </p>
+    `);
+  }
+
   if (responseType !== "code") {
-    return errorMessage(`Invalid response_type: "${responseType}".`, `Expected "code".`);
+    return page(`
+      <h1>Access blocked: Authorization Error</h1>
+      <p>Error 400: invalid_request </p>
+    `);
+  }
+
+  const challengeMethod = searchParams.get("code_challenge_method");
+  if (challengeMethod !== null && !knownChallengeMethods.includes(challengeMethod)) {
+    return page(`
+      <h1>Access blocked: Authorization Error</h1>
+      <p>Error 400: invalid_request </p>
+    `);
+  }
+
+  const clientId = searchParams.get("client_id");
+  if (clientId === null) {
+    return page(`
+      <h1>Access blocked: Authorization Error</h1>
+      <p>Error 400: invalid_request </p>
+    `);
+  }
+
+  const client = ctx.db
+    .query("SELECT id FROM google_auth_client WHERE id = $id")
+    .get({ id: clientId });
+  if (client === null) {
+    return page(`
+      <h1>Access blocked: Authorization Error</h1>
+      <p>Error 401: invalid_client </p>
+    `);
   }
 
   const redirectUri = searchParams.get("redirect_uri");
   if (redirectUri === null) {
-    return errorMessage("Parameter redirect_uri is required.");
+    return page(`
+      <h1>Access blocked: Authorization Error</h1>
+      <p>Error 400: invalid_request </p>
+    `);
   }
+
+  // TODO: client have pre-registered redirect_uri
+  // if (redirectUri !== client.redirect_uri) {
+  //   return page(`
+  //     <h1>Access blocked: Authorization Error</h1>
+  //     <p>Error 400: invalid_request </p>
+  //   `);
+  // }
+
+  const paramInputs = searchParams
+    .entries()
+    .map(([name, value]) => `<input type="hidden" name="${name}" value="${value}" />`);
+  const paramInputsStr = Array.from(paramInputs).join("");
 
   const redirectHost = new URL(redirectUri).host;
 
