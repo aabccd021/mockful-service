@@ -1,9 +1,9 @@
 sqlite3 "$NETERO_STATE/mock.sqlite" <<EOF
-INSERT INTO paddle_tenant (id) VALUES ('mock_tenant_id');
+INSERT INTO paddle_project (id) VALUES ('mock_project_id');
 
-INSERT INTO paddle_api_key (tenant_id, key)
+INSERT INTO paddle_api_key (project_id, key)
   VALUES (
-    'mock_tenant_id', 
+    'mock_project_id', 
     'pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO'
   );
 EOF

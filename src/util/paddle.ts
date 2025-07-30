@@ -35,7 +35,7 @@ function authenticationMalformedResponse(): Response {
   );
 }
 
-export function getTenantId(ctx: Context): ResponseOr<string> {
+export function getprojectId(ctx: Context): ResponseOr<string> {
   const authHeader = ctx.req.headers.get("Authorization");
   if (authHeader === null) {
     return {
@@ -60,10 +60,10 @@ export function getTenantId(ctx: Context): ResponseOr<string> {
   }
 
   const apiKeyRow = ctx.db
-    .query("SELECT tenant_id FROM paddle_api_key WHERE key = $key")
+    .query("SELECT project_id FROM paddle_api_key WHERE key = $key")
     .get({ key: apiKey });
 
-  assert(apiKeyRow, nullable(object({ tenant_id: string() })));
+  assert(apiKeyRow, nullable(object({ project_id: string() })));
 
   if (apiKeyRow === null) {
     return {
@@ -74,7 +74,7 @@ export function getTenantId(ctx: Context): ResponseOr<string> {
 
   return {
     type: "value",
-    value: apiKeyRow.tenant_id,
+    value: apiKeyRow.project_id,
   };
 }
 

@@ -3,9 +3,9 @@ import * as paddle from "@util/paddle.ts";
 import { assert, object, string } from "superstruct";
 
 export async function handle(ctx: Context): Promise<Response> {
-  const tenantId = paddle.getTenantId(ctx);
-  if (tenantId.type === "response") {
-    return tenantId.response;
+  const projectId = paddle.getprojectId(ctx);
+  if (projectId.type === "response") {
+    return projectId.response;
   }
 
   const reqCustomer = await ctx.req.json();
@@ -22,12 +22,12 @@ export async function handle(ctx: Context): Promise<Response> {
     .query(
       `
         INSERT INTO paddle_customer (
-          tenant_id, 
+          project_id, 
           id, 
           email
         )
         VALUES (
-          $tenantId, 
+          $projectId, 
           $id, 
           $email
         )
@@ -35,7 +35,7 @@ export async function handle(ctx: Context): Promise<Response> {
     )
     .run({
       id,
-      tenantId: tenantId.value,
+      projectId: projectId.value,
       email: reqCustomer.email,
     });
 
