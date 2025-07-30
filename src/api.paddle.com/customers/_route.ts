@@ -1,4 +1,4 @@
-import type { Context } from "@util.ts";
+import type { Context } from "@util/index.ts";
 import * as _get from "./_get.ts";
 import * as _post from "./_post.ts";
 

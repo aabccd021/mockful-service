@@ -20,7 +20,7 @@
     "verbatimModuleSyntax": true,
     "baseUrl": "./src",
     "paths": {
-      "@util.ts": ["./util.ts"]
+      "@util/*": ["./util/*"]
     }
   }
 }

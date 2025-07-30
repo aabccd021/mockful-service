@@ -1,4 +1,4 @@
-import { type Context, getStringFormData } from "@util.ts";
+import { type Context, getStringFormData } from "@util/index.ts";
 import { array, assert, enums, type Infer, nullable, object, string, type } from "superstruct";
 
 const GoogleAuthUser = object({

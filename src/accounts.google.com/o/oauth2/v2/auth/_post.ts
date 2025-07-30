@@ -1,4 +1,4 @@
-import { type Context, errorMessage, getStringFormData } from "@util.ts";
+import { type Context, errorMessage, getStringFormData } from "@util/index.ts";
 
 export async function handle(req: Request, ctx: Context): Promise<Response> {
   const formData = await getStringFormData(req);

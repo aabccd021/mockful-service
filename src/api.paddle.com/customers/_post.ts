@@ -1,9 +1,9 @@
-import type { Context } from "@util.ts";
+import type { Context } from "@util/index.ts";
+import * as paddle from "@util/paddle.ts";
 import { assert, object, string } from "superstruct";
-import { generateId, getTenantId } from "../../paddle-util";
 
 export async function handle(req: Request, ctx: Context): Promise<Response> {
-  const tenantId = getTenantId(req, ctx);
+  const tenantId = paddle.getTenantId(req, ctx);
   if (tenantId.type === "response") {
     return tenantId.response;
   }
@@ -16,7 +16,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     }),
   );
 
-  const id = `ctm_${generateId()}`;
+  const id = `ctm_${paddle.generateId()}`;
 
   ctx.db
     .query(

@@ -1,7 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import * as fs from "node:fs";
 import * as util from "node:util";
-import type { Context, Handle } from "@util.ts";
+import type { Context, Handle } from "util/index.ts";
 import { handle as accountsGoogleCom } from "./accounts.google.com/_route.ts";
 import { handle as apiPaddleCom } from "./api.paddle.com/_route.ts";
 import { handle as oauth2GoogleapisCom } from "./oauth2.googleapis.com/_route.ts";

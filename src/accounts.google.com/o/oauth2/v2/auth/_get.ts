@@ -1,4 +1,4 @@
-import { type Context, errorMessage } from "@util.ts";
+import { type Context, errorMessage } from "@util/index.ts";
 import { array, assert, object, string } from "superstruct";
 
 const Users = array(
