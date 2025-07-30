@@ -103,7 +103,6 @@ export function handle(req: Request): Response {
     `);
   }
 
-  // TODO: client have pre-registered redirect_uri
   // if (redirectUri !== client.redirect_uri) {
   //   return page(`
   //     <h1>Access blocked: Authorization Error</h1>

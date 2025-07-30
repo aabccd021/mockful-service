@@ -35,8 +35,10 @@ CREATE TABLE google_auth_client (
   id TEXT,
   secret TEXT,
   project_id TEXT,
+  redirect_uri TEXT,
   CONSTRAINT google_auth_client_id_pk PRIMARY KEY (id),
   CONSTRAINT google_auth_client_secret_not_null CHECK (secret IS NOT NULL)
+  CONSTRAINT google_auth_client_project_id_not_null CHECK (project_id IS NOT NULL)
 ) STRICT;
 
 CREATE TABLE paddle_project (

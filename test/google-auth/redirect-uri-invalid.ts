@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 
 const neteroState = process.env["NETERO_STATE"];
 
@@ -17,13 +16,15 @@ authUrl.searchParams.set("client_id", "mock_client_id");
 authUrl.searchParams.set("redirect_uri", "foo"); // changed
 authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
 
-const loginResponse = await fetch(authUrl);
+const _loginResponse = await fetch(authUrl);
 
-// TODO
-expect(loginResponse.text()).resolves.toInclude("");
-// expect(loginResponse.status).toEqual(400);
+// const body = await loginResponse.text();
+// expect(body).toInclude("Access blocked: Authorization Error");
+// expect(body).toInclude("Error 400: invalid_request");
+// expect(loginResponse.status).toEqual(200);
+
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-//Access blocked: Authorization Error
+// Access blocked: Authorization Error
 //
 // foo@example.com
 //
