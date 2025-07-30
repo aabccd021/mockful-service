@@ -21,6 +21,8 @@ export async function getStringFormData(req: Request): Promise<ReadonlyMap<strin
 
 export type Context = {
   db: Database;
+  req: Request;
+  neteroOrigin: string;
 };
 
 export type Handle = (req: Request, ctx: Context, paths: string[]) => Promise<Response>;

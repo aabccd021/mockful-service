@@ -45,7 +45,7 @@ function translateReqUrl(req: Request): URL | undefined {
   return url;
 }
 
-async function handle(originalReq: Request, ctx: Context): Promise<Response> {
+async function handle(originalReq: Request, db: sqlite.Database): Promise<Response> {
   const url = translateReqUrl(originalReq);
   if (url === undefined) {
     return new Response(null, { status: 404 });
@@ -59,6 +59,13 @@ async function handle(originalReq: Request, ctx: Context): Promise<Response> {
   }
 
   const paths = url.pathname.split("/").filter((p) => p !== "");
+
+  const ctx: Context = {
+    db,
+    req,
+    neteroOrigin: new URL(originalReq.url).origin,
+  };
+
   return await subHandle(req, ctx, paths);
 }
 
@@ -89,7 +96,7 @@ db.exec("PRAGMA foreign_keys = ON;");
 Bun.serve({
   port: parseInt(args.values.port, 10),
   development: false,
-  fetch: (req) => handle(req, { db }),
+  fetch: (req) => handle(req, db),
 });
 
 if (fs.existsSync(`/tmp/${process.ppid}-netero-oauth-mock.fifo`)) {
