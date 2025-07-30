@@ -13,9 +13,42 @@ const urlToServe: Record<string, Handle> = {
   "api.paddle.com": apiPaddleCom,
 };
 
+function tl(originalUrlStr: string | null): URL | undefined {
+  if (originalUrlStr === null) {
+    return undefined;
+  }
+  const originalUrl = new URL(originalUrlStr);
+  try {
+    return new URL(originalUrl.pathname.slice(1) + originalUrl.search + originalUrl.hash);
+  } catch (_) {
+    return undefined;
+  }
+}
+
+function translateUrl(req: Request, originalUrl: string): URL | undefined {
+  const originalTl = tl(originalUrl);
+  if (originalTl !== undefined) {
+    return originalTl;
+  }
+
+  const referrerTl = tl(req.headers.get("Referer"));
+  if (referrerTl !== undefined) {
+    const url = new URL(originalUrl);
+    url.protocol = referrerTl.protocol;
+    url.hostname = referrerTl.hostname;
+    url.port = referrerTl.port;
+    return url;
+  }
+
+  return undefined;
+}
+
 async function handle(originalReq: Request, ctx: Context): Promise<Response> {
-  const originalUrl = new URL(originalReq.url);
-  const url = new URL(originalUrl.pathname.slice(1) + originalUrl.search + originalUrl.hash);
+  const url = translateUrl(originalReq, originalReq.url);
+  if (url === undefined) {
+    return new Response(null, { status: 404 });
+  }
+
   const req = new Request(url, originalReq);
 
   const subHandle = urlToServe[url.hostname];

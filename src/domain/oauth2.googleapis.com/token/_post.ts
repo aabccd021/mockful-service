@@ -208,7 +208,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   }
 
   const code = formData.get("code");
-  if (code === undefined) {
+  if (code === undefined || code === "") {
     return Response.json(
       {
         error: "invalid_request",

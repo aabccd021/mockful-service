@@ -3,8 +3,8 @@ import { type Context, errorMessage, getStringFormData } from "@util/index.ts";
 export async function handle(req: Request, ctx: Context): Promise<Response> {
   const formData = await getStringFormData(req);
 
-  const redirectUri = formData.get("redirect_uri") ?? null;
-  if (redirectUri === null) {
+  const formRedirectUrl = formData.get("redirect_uri") ?? null;
+  if (formRedirectUrl === null) {
     return errorMessage("Parameter redirect_uri is required.");
   }
 
@@ -34,7 +34,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     )
     .run({
       code,
-      redirectUri,
+      redirectUri: formRedirectUrl,
       user: formData.get("user") ?? null,
       clientId: formData.get("client_id") ?? null,
       scope: formData.get("scope") ?? null,
@@ -42,7 +42,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
       codeChallengeValue: formData.get("code_challenge") ?? null,
     });
 
-  const redirectUrl = new URL(redirectUri);
+  const redirectUrl = new URL(formRedirectUrl);
   redirectUrl.searchParams.set("code", code);
 
   for (const key of ["state", "scope", "prompt"]) {
@@ -52,8 +52,5 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     }
   }
 
-  return new Response(null, {
-    status: 303,
-    headers: { Location: redirectUrl.toString() },
-  });
+  return Response.redirect(redirectUrl, 303);
 }
