@@ -1,7 +1,7 @@
 # TODO
 
 - google auth entity tied to project id, one project id can have multiple auth client
-- auto inject host on redirect location
+- auto inject host on redirect locatiojn
 - error when login `https://example.com/login/callback?error=access_denied&state=vCUhsLRYrWpVRCQoZrnz0KqrfO6yWvViX7LGKG52X0s`
 - coverage
 - Test with https://github.com/panva/openid-client
