@@ -2,15 +2,15 @@ import type { Context, ResponseOr } from "@util/index.ts";
 import { assert, nullable, object, string } from "superstruct";
 
 function forbiddenResponse(): Response {
-  return new Response(
-    JSON.stringify({
+  return Response.json(
+    {
       error: {
         type: "request_error",
         code: "forbidden",
         detail: "You aren't permitted to perform this request.",
         documentation_url: "https://developer.paddle.com/v1/errors/shared/forbidden",
       },
-    }),
+    },
     {
       status: 403,
       headers: { "Content-Type": "application/json" },
@@ -19,15 +19,15 @@ function forbiddenResponse(): Response {
 }
 
 function authenticationMalformedResponse(): Response {
-  return new Response(
-    JSON.stringify({
+  return Response.json(
+    {
       error: {
         type: "request_error",
         code: "authentication_malformed",
         detail: "Authentication header included, but incorrectly formatted.",
         documentation_url: "https://developer.paddle.com/v1/errors/shared/authentication_malformed",
       },
-    }),
+    },
     {
       status: 400,
       headers: { "Content-Type": "application/json" },

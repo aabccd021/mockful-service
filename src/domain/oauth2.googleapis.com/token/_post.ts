@@ -329,7 +329,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     expires_in: 3599,
   };
 
-  return new Response(JSON.stringify(responseBody), {
+  return Response.json(responseBody, {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });

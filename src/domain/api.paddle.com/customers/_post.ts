@@ -53,8 +53,8 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
   //   }
   // }
 
-  return new Response(
-    JSON.stringify({
+  return Response.json(
+    {
       data: {
         id,
         // status: "active",
@@ -67,7 +67,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
         // updated_at: "2025-07-28T13:45:15.62Z",
         // import_meta: null,
       },
-    }),
+    },
     {
       status: 201,
       headers: { "Content-Type": "application/json" },

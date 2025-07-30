@@ -37,7 +37,10 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     .filter((val) => val !== null)
     .map(({ tenant_id: _, ...data }) => data);
 
-  return new Response(JSON.stringify({ data: customers }), {
-    status: 200,
-  });
+  return Response.json(
+    { data: customers },
+    {
+      status: 200,
+    },
+  );
 }
