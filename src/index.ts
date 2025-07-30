@@ -47,18 +47,6 @@ const db = new sqlite.Database(`${neteroState}/mock.sqlite`, {
   safeIntegers: true,
 });
 
-process.on("SIGTERM", () => {
-  db.close();
-});
-
-process.on("SIGINT", () => {
-  db.close();
-});
-
-process.on("exit", () => {
-  db.close();
-});
-
 db.exec("PRAGMA journal_mode = WAL;");
 db.exec("PRAGMA foreign_keys = ON;");
 
