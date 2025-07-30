@@ -1,4 +1,3 @@
-import { pageTemplate } from "@util/accounts.google.com";
 import { type Context, errorMessage } from "@util/index.ts";
 import { array, assert, object, string } from "superstruct";
 
@@ -11,23 +10,39 @@ const Users = array(
 
 const knownScopes = ["openid", "email"];
 
+function page(body: string): Response {
+  const pageContent = `
+    <html lang="en">
+      <head>
+        <title>Sign In - Google Accounts</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="light dark">
+      </head>
+      <body style="max-width: 30rem">
+        ${body}
+      </body>
+    </html>
+  `;
+  return new Response(pageContent, {
+    headers: {
+      "content-type": "text/html",
+    },
+  });
+}
+
+// TODO: errors should be redirected to https://accounts.google.com/signin/oauth/error/v2 and pass
+// each errors id with authError=xxx_error_id
 export function handle(ctx: Context): Response {
   const searchParams = new URL(ctx.req.url).searchParams;
-
-  const clientId = searchParams.get("client_id");
 
   const scopes = searchParams.get("scope")?.split(" ") ?? [];
   for (const scope of scopes) {
     if (!knownScopes.includes(scope)) {
-      const errorUrl = new URL(
-        `${ctx.neteroOrigin}/https://accounts.google.com/signin/oauth/error/v2`,
-      );
-      errorUrl.searchParams.set("flowName", "GeneralOAuthFlow");
-      errorUrl.searchParams.set("authError", "xxx");
-      if (clientId !== null) {
-        errorUrl.searchParams.set("client_id", clientId);
-      }
-      return Response.redirect(errorUrl, 302);
+      return page(`
+        <h1>Access blocked: Authorization Error</h1>
+        <p>Error 400: invalid_scope </p>
+      `);
     }
   }
 
@@ -58,17 +73,12 @@ export function handle(ctx: Context): Response {
     )
     .join("");
 
-  const body = `
+  return page(`
     <h1>Choose an account</h1>
     <p>to continue to ${redirectHost}</p>
     <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
       ${paramInputsStr} 
       ${userSubmitButton} 
     </form>
-  `;
-  return new Response(pageTemplate(body), {
-    headers: {
-      "content-type": "text/html",
-    },
-  });
+  `);
 }
