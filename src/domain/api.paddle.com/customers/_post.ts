@@ -2,13 +2,13 @@ import type { Context } from "@util/index.ts";
 import * as paddle from "@util/paddle.ts";
 import { assert, object, string } from "superstruct";
 
-export async function handle(req: Request, ctx: Context): Promise<Response> {
-  const tenantId = paddle.getTenantId(req, ctx);
+export async function handle(ctx: Context): Promise<Response> {
+  const tenantId = paddle.getTenantId(ctx);
   if (tenantId.type === "response") {
     return tenantId.response;
   }
 
-  const reqCustomer = await req.json();
+  const reqCustomer = await ctx.req.json();
   assert(
     reqCustomer,
     object({

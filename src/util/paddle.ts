@@ -35,8 +35,8 @@ function authenticationMalformedResponse(): Response {
   );
 }
 
-export function getTenantId(req: Request, ctx: Context): ResponseOr<string> {
-  const authHeader = req.headers.get("Authorization");
+export function getTenantId(ctx: Context): ResponseOr<string> {
+  const authHeader = ctx.req.headers.get("Authorization");
   if (authHeader === null) {
     return {
       type: "response",

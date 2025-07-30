@@ -1,7 +1,7 @@
 import { type Context, errorMessage, getStringFormData } from "@util/index.ts";
 
-export async function handle(req: Request, ctx: Context): Promise<Response> {
-  const formData = await getStringFormData(req);
+export async function handle(ctx: Context): Promise<Response> {
+  const formData = await getStringFormData(ctx.req);
 
   const formRedirectUrl = formData.get("redirect_uri") ?? null;
   if (formRedirectUrl === null) {

@@ -66,7 +66,7 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
     neteroOrigin: new URL(originalReq.url).origin,
   };
 
-  return await subHandle(req, ctx, paths);
+  return await subHandle(ctx, paths);
 }
 
 const args = util.parseArgs({

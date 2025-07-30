@@ -8,8 +8,8 @@ const Users = array(
   }),
 );
 
-export function handle(req: Request, ctx: Context): Response {
-  const searchParams = new URL(req.url).searchParams;
+export function handle(ctx: Context): Response {
+  const searchParams = new URL(ctx.req.url).searchParams;
 
   const paramInputs = searchParams
     .entries()

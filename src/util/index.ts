@@ -25,7 +25,7 @@ export type Context = {
   neteroOrigin: string;
 };
 
-export type Handle = (req: Request, ctx: Context, paths: string[]) => Promise<Response>;
+export type Handle = (ctx: Context, paths: string[]) => Promise<Response>;
 
 export type ResponseOr<T> =
   | {

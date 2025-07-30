@@ -118,8 +118,8 @@ function generateGoogleIdToken(
   return `${headerStr}.${payloadStr}.${signatureStr}`;
 }
 
-export async function handle(req: Request, ctx: Context): Promise<Response> {
-  const formData = await getStringFormData(req);
+export async function handle(ctx: Context): Promise<Response> {
+  const formData = await getStringFormData(ctx.req);
 
   const grantType = formData.get("grant_type") ?? "";
   if (grantType !== "authorization_code") {
@@ -142,7 +142,7 @@ export async function handle(req: Request, ctx: Context): Promise<Response> {
     );
   }
 
-  const authHeader = req.headers.get("Authorization");
+  const authHeader = ctx.req.headers.get("Authorization");
   if (authHeader === null) {
     return Response.json(
       {

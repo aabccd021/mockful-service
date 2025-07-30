@@ -10,8 +10,8 @@ const Customer = nullable(
   }),
 );
 
-function getCustomers(ctx: Context, req: Request, tenantId: string): unknown[] {
-  const url = new URL(req.url);
+function getCustomers(ctx: Context, tenantId: string): unknown[] {
+  const url = new URL(ctx.req.url);
 
   const emails = url.searchParams.get("email")?.split(",");
   if (emails !== undefined) {
@@ -27,12 +27,12 @@ function getCustomers(ctx: Context, req: Request, tenantId: string): unknown[] {
     .all({ tenantId });
 }
 
-export async function handle(req: Request, ctx: Context): Promise<Response> {
-  const tenantId = getTenantId(req, ctx);
+export async function handle(ctx: Context): Promise<Response> {
+  const tenantId = getTenantId(ctx);
   if (tenantId.type === "response") {
     return tenantId.response;
   }
-  const customers = getCustomers(ctx, req, tenantId.value)
+  const customers = getCustomers(ctx, tenantId.value)
     .filter((val) => is(val, Customer))
     .filter((val) => val !== null)
     .map(({ tenant_id: _, ...data }) => data);
