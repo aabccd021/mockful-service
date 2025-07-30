@@ -1,3 +1,8 @@
+CREATE TABLE google_project (
+  id TEXT,
+  CONSTRAINT google_project_pk PRIMARY KEY (id)
+) STRICT;
+
 CREATE TABLE google_auth_session (
   code TEXT,
   user TEXT,
@@ -17,15 +22,19 @@ CREATE TABLE google_auth_user (
   sub TEXT,
   email TEXT,
   email_verified TEXT,
+  project_id TEXT NOT NULL,
   CONSTRAINT google_auth_user_sub_pk PRIMARY KEY (sub),
   CONSTRAINT google_auth_user_email_not_null CHECK (email IS NOT NULL),
   CONSTRAINT google_auth_user_email_unique UNIQUE (email),
-  CONSTRAINT google_auth_user_email_verified_boolean CHECK (email_verified IN ('true', 'false'))
+  CONSTRAINT google_auth_user_email_verified_boolean CHECK (email_verified IN ('true', 'false')),
+  CONSTRAINT google_auth_user_project_id_not_null CHECK (project_id IS NOT NULL),
+  CONSTRAINT google_auth_user_project_id_fk FOREIGN KEY (project_id) REFERENCES google_project(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_auth_client (
   id TEXT,
   secret TEXT,
+  project_id TEXT,
   CONSTRAINT google_auth_client_id_pk PRIMARY KEY (id),
   CONSTRAINT google_auth_client_secret_not_null CHECK (secret IS NOT NULL)
 ) STRICT;

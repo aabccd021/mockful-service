@@ -5,8 +5,9 @@ import * as jose from "jose";
 const neteroState = process.env["NETERO_STATE"];
 
 new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
-  INSERT INTO google_auth_user (sub, email, email_verified) VALUES ('yamada-sub', 'yamada@example.com', 'false');
-  INSERT INTO google_auth_client (id, secret) VALUES ('mock_client_id', 'mock_client_secret');
+  INSERT INTO google_project (id) VALUES ('mock_project_id');
+  INSERT INTO google_auth_user (project_id, sub, email, email_verified) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com', 'false');
+  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
 `);
 
 const loginResponse = await fetch(
@@ -23,7 +24,7 @@ const loginResponse = await fetch(
       scope: "openid email",
       client_id: "mock_client_id",
       redirect_uri: `https://localhost:3000/login-callback`,
-      user: "yamada-sub",
+      user: "kita-sub",
     }),
   },
 );
@@ -45,6 +46,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 
 const tokenBody = await tokenResponse.json();
 const idToken = jose.decodeJwt(tokenBody.id_token);
-expect(idToken.sub).toEqual("yamada-sub");
-expect(idToken["email"]).toEqual("yamada@example.com");
+expect(idToken.sub).toEqual("kita-sub");
+expect(idToken["email"]).toEqual("kita@example.com");
 expect(idToken["email_verified"]).toEqual(false);
