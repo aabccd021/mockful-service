@@ -41,6 +41,14 @@ CREATE TABLE google_auth_client (
   CONSTRAINT google_auth_client_project_id_not_null CHECK (project_id IS NOT NULL)
 ) STRICT;
 
+CREATE TABLE google_auth_redirect_uri (
+  value TEXT,
+  client_id TEXT,
+  CONSTRAINT google_auth_redirect_uri_value_not_null CHECK (value IS NOT NULL),
+  CONSTRAINT google_auth_redirect_uri_client_id_not_null CHECK (client_id IS NOT NULL),
+  CONSTRAINT google_auth_redirect_uri_client_id_fk FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
+) STRICT;
+
 CREATE TABLE paddle_project (
   id TEXT,
   CONSTRAINT paddle_project_pk PRIMARY KEY (id)

@@ -38,15 +38,15 @@ function page(body: string): Response {
 export function handle(req: Request): Response {
   const searchParams = new URL(req.url).searchParams;
 
-  const paramScopes = searchParams.get("scope");
-  if (paramScopes === null) {
+  const reqScope = searchParams.get("scope");
+  if (reqScope === null) {
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
     `);
   }
 
-  const scopes = paramScopes.split(" ");
+  const scopes = reqScope.split(" ");
   for (const scope of scopes) {
     if (!knownScopes.includes(scope)) {
       return page(`
@@ -56,38 +56,40 @@ export function handle(req: Request): Response {
     }
   }
 
-  const responseType = searchParams.get("response_type");
-  if (responseType === null) {
+  const reqResponseType = searchParams.get("response_type");
+  if (reqResponseType === null) {
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
     `);
   }
 
-  if (responseType !== "code") {
+  if (reqResponseType !== "code") {
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
     `);
   }
 
-  const challengeMethod = searchParams.get("code_challenge_method");
-  if (challengeMethod !== null && !knownChallengeMethods.includes(challengeMethod)) {
+  const reqSearchParam = searchParams.get("code_challenge_method");
+  if (reqSearchParam !== null && !knownChallengeMethods.includes(reqSearchParam)) {
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
     `);
   }
 
-  const clientId = searchParams.get("client_id");
-  if (clientId === null) {
+  const reqClientId = searchParams.get("client_id");
+  if (reqClientId === null) {
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
     `);
   }
 
-  const client = db.query("SELECT id FROM google_auth_client WHERE id = $id").get({ id: clientId });
+  const client = db
+    .query("SELECT id FROM google_auth_client WHERE id = $id")
+    .get({ id: reqClientId });
   if (client === null) {
     return page(`
       <h1>Access blocked: Authorization Error</h1>
@@ -95,27 +97,32 @@ export function handle(req: Request): Response {
     `);
   }
 
-  const redirectUri = searchParams.get("redirect_uri");
-  if (redirectUri === null) {
+  const reqRedirectUri = searchParams.get("redirect_uri");
+  if (reqRedirectUri === null) {
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
     `);
   }
 
-  // if (redirectUri !== client.redirect_uri) {
-  //   return page(`
-  //     <h1>Access blocked: Authorization Error</h1>
-  //     <p>Error 400: invalid_request </p>
-  //   `);
-  // }
+  const redirectUri = db
+    .query("SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId")
+    .get({ clientId: reqClientId });
+  assert(redirectUri, object({ value: string() }));
+
+  if (redirectUri.value !== reqRedirectUri) {
+    return page(`
+      <h1>Access blocked: Authorization Error</h1>
+      <p>Error 400: invalid_request </p>
+    `);
+  }
 
   const paramInputs = searchParams
     .entries()
     .map(([name, value]) => `<input type="hidden" name="${name}" value="${value}" />`);
   const paramInputsStr = Array.from(paramInputs).join("");
 
-  const redirectHost = new URL(redirectUri).host;
+  const redirectHost = new URL(reqRedirectUri).host;
 
   const users = db.query(`SELECT sub,email FROM google_auth_user`).all();
   assert(users, Users);
