@@ -134,9 +134,18 @@ export function handle(req: Request): Response {
     )
     .join("");
 
+  const state = searchParams.get("state");
+
+  const cancelUrl = new URL(redirectUri.value);
+  cancelUrl.searchParams.set("error", "access_denied");
+  if (state !== null) {
+    cancelUrl.searchParams.set("state", state);
+  }
+
   return page(`
     <h1>Choose an account</h1>
     <p>to continue to ${redirectHost}</p>
+    <a href="${cancelUrl.toString()}">Cancel</a>
     <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
       ${paramInputsStr} 
       ${userSubmitButton} 
