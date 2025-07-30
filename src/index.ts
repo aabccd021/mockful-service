@@ -3,13 +3,14 @@ import * as fs from "node:fs";
 import * as util from "node:util";
 import type { Context, Handle } from "@util.ts";
 import { handle as accountsGoogleCom } from "./accounts.google.com/_route.ts";
+import { handle as apiPaddleCom } from "./api.paddle.com/_route.ts";
 import { handle as oauth2GoogleapisCom } from "./oauth2.googleapis.com/_route.ts";
-import { handle as paddleCustomer } from "./paddle-customer.ts";
 
 const urlToServe: Record<string, Handle> = {
   "accounts.google.com": accountsGoogleCom,
   "oauth2.googleapis.com": oauth2GoogleapisCom,
-  "sandbox-api.paddle.com": paddleCustomer,
+  "sandbox-api.paddle.com": apiPaddleCom,
+  "api.paddle.com": apiPaddleCom,
 };
 
 async function handle(originalReq: Request, ctx: Context): Promise<Response> {
