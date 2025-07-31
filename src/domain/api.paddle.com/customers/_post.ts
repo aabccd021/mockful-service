@@ -4,9 +4,9 @@ import * as paddle from "@util/paddle.ts";
 import * as s from "superstruct";
 
 export async function handle(req: Request): Promise<Response> {
-  const accountId = paddle.getAccountId(req);
-  if (accountId.type === "response") {
-    return accountId.response;
+  const [errorRes, accountId] = paddle.getAccountId(req);
+  if (errorRes !== undefined) {
+    return errorRes;
   }
 
   const reqCustomer = await req.json();
@@ -30,7 +30,7 @@ export async function handle(req: Request): Promise<Response> {
       `,
     ).run({
       id,
-      projectId: accountId.value,
+      projectId: accountId,
       email: reqCustomer.email,
     });
   } catch (error) {

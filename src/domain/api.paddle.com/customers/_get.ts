@@ -26,12 +26,12 @@ function getCustomers(req: Request, accountId: string): unknown[] {
 }
 
 export async function handle(req: Request): Promise<Response> {
-  const accountId = getAccountId(req);
-  if (accountId.type === "response") {
-    return accountId.response;
+  const [errorRes, accountId] = getAccountId(req);
+  if (errorRes !== undefined) {
+    return errorRes;
   }
 
-  const customers = getCustomers(req, accountId.value)
+  const customers = getCustomers(req, accountId)
     .filter((val) => s.is(val, Customer))
     .map(({ account_id: _, ...data }) => data);
 

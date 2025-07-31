@@ -40,44 +40,29 @@ function authenticationMalformedResponse(): Response {
 export function getAccountId(req: Request): ResponseOr<string> {
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
-    return {
-      type: "response",
-      response: forbiddenResponse(),
-    };
+    return [forbiddenResponse()];
   }
 
-  const [prefix, apiKey] = authHeader.split(" ");
+  const [prefix, reqApiKey] = authHeader.split(" ");
   if (prefix !== "Bearer") {
-    return {
-      type: "response",
-      response: forbiddenResponse(),
-    };
+    return [forbiddenResponse()];
   }
 
-  if (apiKey === undefined) {
-    return {
-      type: "response",
-      response: authenticationMalformedResponse(),
-    };
+  if (reqApiKey === undefined) {
+    return [authenticationMalformedResponse()];
   }
 
-  const apiKeyRow = db
+  const apiKey = db
     .query("SELECT account_id FROM paddle_api_key WHERE key = $key")
-    .get({ key: apiKey });
+    .get({ key: reqApiKey });
 
-  s.assert(apiKeyRow, s.nullable(s.object({ account_id: s.string() })));
+  s.assert(apiKey, s.nullable(s.object({ account_id: s.string() })));
 
-  if (apiKeyRow === null) {
-    return {
-      type: "response",
-      response: forbiddenResponse(),
-    };
+  if (apiKey === null) {
+    return [forbiddenResponse()];
   }
 
-  return {
-    type: "value",
-    value: apiKeyRow.account_id,
-  };
+  return [undefined, apiKey.account_id];
 }
 
 export function generateId(): string {

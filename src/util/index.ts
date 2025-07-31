@@ -28,15 +28,7 @@ export type Context = {
 
 export type Handle = (req: Request, paths: string[]) => Promise<Response>;
 
-export type ResponseOr<T> =
-  | {
-      type: "response";
-      response: Response;
-    }
-  | {
-      type: "value";
-      value: T;
-    };
+export type ResponseOr<T> = [undefined, T] | [Response];
 
 const neteroState = process.env["NETERO_STATE"];
 if (neteroState === undefined) {
