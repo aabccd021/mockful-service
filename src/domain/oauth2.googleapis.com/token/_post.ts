@@ -6,6 +6,12 @@ const GoogleAuthUser = v.object({
   email_verified: v.nullable(v.union([v.literal("true"), v.literal("false")])),
 });
 
+const Client = v.array(
+  v.object({
+    secret: v.string(),
+  }),
+);
+
 export type GoogleAuthUser = v.InferInput<typeof GoogleAuthUser>;
 
 const AuthSession = v.object({
@@ -302,14 +308,7 @@ export async function handle(req: Request): Promise<Response> {
   const clients = db
     .query("SELECT secret FROM google_auth_client WHERE id = $id")
     .all({ id: clientId });
-  v.assert(
-    v.array(
-      v.object({
-        secret: v.string(),
-      }),
-    ),
-    clients,
-  );
+  v.assert(Client, clients);
 
   const isSecretValid = clients.map((c) => c.secret).includes(clientSecret);
   if (!isSecretValid) {
