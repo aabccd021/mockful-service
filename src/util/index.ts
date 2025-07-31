@@ -54,3 +54,9 @@ export type ResponseBodyOf<
   T extends { responses: Record<string, unknown> },
   K extends keyof T["responses"],
 > = _ApplicationJsonOf<_ContentOf<T["responses"][K]>>;
+
+type _ParametersOf<T> = T extends { parameters: infer P } ? P : never;
+
+type _QueryOf<T> = T extends { query?: infer Q } ? Q : never;
+
+export type QueryOf<T> = _QueryOf<_ParametersOf<T>>;
