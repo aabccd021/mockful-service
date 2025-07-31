@@ -1,7 +1,7 @@
 import type { ResponseOr } from "@util/index.ts";
 import { db } from "@util/index.ts";
 
-import { assert, nullable, object, string } from "valibot";
+import * as v from "valibot";
 
 function forbiddenResponse(): Response {
   return Response.json(
@@ -65,7 +65,7 @@ export function getAccountId(req: Request): ResponseOr<string> {
     .query("SELECT account_id FROM paddle_api_key WHERE key = $key")
     .get({ key: reqApiKey });
 
-  assert(nullable(object({ account_id: string() })), apiKey);
+  v.assert(v.nullable(v.object({ account_id: v.string() })), apiKey);
 
   if (apiKey === null) {
     return {
