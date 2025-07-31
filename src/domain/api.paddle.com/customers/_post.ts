@@ -2,21 +2,100 @@ import * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
 import * as paddle from "@util/paddle.ts";
-import * as s from "superstruct";
 
 type Path = openapi.paths["/customers"]["post"];
 
+type DefaultResponse = ResponseBodyOf<Path, "default">;
+
+type FieldError = {
+  field: string;
+  message: string;
+};
+
+type FieldValidation = [FieldError] | [undefined, string];
+
 export async function handle(req: Request): Promise<Response> {
-  const rawBody = await req.json();
-  s.assert(rawBody, s.object({ email: s.string() }));
-  const reqBody: RequestBodyOf<Path> = rawBody;
+  const requestId = crypto.randomUUID();
+
+  let rawBody = null;
+  try {
+    rawBody = await req.json();
+  } catch (_) {
+    const resBody: DefaultResponse = {
+      error: {
+        type: "request_error",
+        code: "bad_request",
+        detail: "invalid JSON",
+        documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
+      },
+      meta: {
+        request_id: requestId,
+      },
+    };
+    return Response.json(resBody, { status: 400 });
+  }
+
+  if (rawBody === null || typeof rawBody !== "object") {
+    const resBody: DefaultResponse = {
+      error: {
+        type: "request_error",
+        code: "bad_request",
+        detail: "Invalid request.",
+        documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
+        errors: [
+          {
+            field: "(root)",
+            message: `Invalid type. Expected object, received '${typeof rawBody}'`,
+          },
+        ],
+      },
+      meta: {
+        request_id: requestId,
+      },
+    };
+    return Response.json(resBody, { status: 400 });
+  }
+
+  const [emailError, reqEmail]: FieldValidation = !("email" in rawBody)
+    ? [
+        {
+          field: "(root)",
+          message: "email is required",
+        },
+      ]
+    : typeof rawBody.email !== "string"
+      ? [
+          {
+            field: "email",
+            message: `Invalid type. Expected string, received '${typeof rawBody.email}'`,
+          },
+        ]
+      : [undefined, rawBody.email];
+
+  if (emailError !== undefined) {
+    const resBody: DefaultResponse = {
+      error: {
+        type: "request_error",
+        code: "bad_request",
+        detail: "Invalid request.",
+        documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
+        errors: [emailError],
+      },
+      meta: {
+        request_id: requestId,
+      },
+    };
+    return Response.json(resBody, { status: 400 });
+  }
+
+  const reqBody: RequestBodyOf<Path> = {
+    email: reqEmail,
+  };
 
   const [errorRes, accountId] = paddle.getAccountId(req);
   if (errorRes !== undefined) {
     return errorRes;
   }
-
-  const requestId = crypto.randomUUID();
 
   const id = `ctm_${paddle.generateId()}`;
 
@@ -51,7 +130,7 @@ export async function handle(req: Request): Promise<Response> {
         error.message ===
         "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
       ) {
-        const resBody: ResponseBodyOf<Path, "default"> = {
+        const resBody: DefaultResponse = {
           error: {
             type: "request_error",
             code: "customer_already_exists",
@@ -72,28 +151,37 @@ export async function handle(req: Request): Promise<Response> {
     throw error;
   }
 
-  const customer = db.query("SELECT * FROM paddle_customer WHERE id = $id").get({ id });
-  s.assert(
-    customer,
-    s.object({
-      id: s.string(),
-      account_id: s.string(),
-      email: s.string(),
-      status: s.enums(["active", "archived"]),
-      name: s.nullable(s.string()),
-      marketing_consent: s.enums(["true", "false"]),
-      locale: s.string(),
-      created_at: s.number(),
-      updated_at: s.number(),
-    }),
-  );
+  const customer = db
+    .query<
+      {
+        id: string;
+        account_id: string;
+        email: string;
+        status: "active" | "archived";
+        name: string | null;
+        marketing_consent: "true" | "false";
+        locale: string;
+        created_at: number;
+        updated_at: number;
+      },
+      { id: string }
+    >("SELECT * FROM paddle_customer WHERE id = $id")
+    .get({ id });
+
+  if (customer === null) {
+    throw new Error("Unreachable");
+  }
 
   const resBody: ResponseBodyOf<Path, 201> = {
     data: {
-      ...customer,
+      id: customer.id,
+      email: customer.email,
+      status: customer.status,
+      name: customer.name,
       marketing_consent: customer.marketing_consent === "true",
       created_at: new Date(customer.created_at).toISOString(),
       updated_at: new Date(customer.updated_at).toISOString(),
+      locale: customer.locale,
       custom_data: null,
       import_meta: null,
     },
