@@ -282,9 +282,10 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const redirectUris = db
-    .query("SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId")
+    .query<{ value: string }, { clientId: string }>(
+      "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
+    )
     .all({ clientId: clientId });
-  s.assert(redirectUris, s.array(s.object({ value: s.string() })));
 
   const validRedirectUris = redirectUris.map((r) => r.value);
   if (!validRedirectUris.includes(redirectUri)) {
