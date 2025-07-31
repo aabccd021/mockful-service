@@ -55,6 +55,9 @@ let
 
     # https://developer.paddle.com/api-reference/customers/list-customers
     (mapTests ./paddle-customers-list)
+
+    # https://developer.paddle.com/api-reference/products/create-product
+    (mapTests ./paddle-products-create)
   ];
 
 in
