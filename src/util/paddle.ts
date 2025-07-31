@@ -76,7 +76,26 @@ export function generateId(): string {
 
 type DefaultError = openapi.components["schemas"]["error"];
 
-export async function getRawBody(req: Request, requestId: string): Promise<ResponseOr<object>> {
+export function invalidRequest(
+  requestId: string,
+  errors: DefaultError["error"]["errors"],
+): Response {
+  const resBody: DefaultError = {
+    error: {
+      type: "request_error",
+      code: "bad_request",
+      detail: "Invalid request.",
+      documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
+      errors: errors,
+    },
+    meta: {
+      request_id: requestId,
+    },
+  };
+  return Response.json(resBody, { status: 400 });
+}
+
+export async function getRawBody(requestId: string, req: Request): Promise<ResponseOr<object>> {
   let rawBody = null;
   try {
     rawBody = await req.json();
@@ -96,24 +115,14 @@ export async function getRawBody(req: Request, requestId: string): Promise<Respo
   }
 
   if (rawBody === null || typeof rawBody !== "object") {
-    const resBody: DefaultError = {
-      error: {
-        type: "request_error",
-        code: "bad_request",
-        detail: "Invalid request.",
-        documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-        errors: [
-          {
-            field: "(root)",
-            message: `Invalid type. Expected object, received '${typeof rawBody}'`,
-          },
-        ],
-      },
-      meta: {
-        request_id: requestId,
-      },
-    };
-    return [Response.json(resBody, { status: 400 })];
+    return [
+      invalidRequest(requestId, [
+        {
+          field: "(root)",
+          message: `Invalid type. Expected object, received '${typeof rawBody}'`,
+        },
+      ]),
+    ];
   }
 
   return [undefined, rawBody];

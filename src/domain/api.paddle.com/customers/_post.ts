@@ -17,7 +17,7 @@ type FieldValidation = [FieldError] | [undefined, string];
 export async function handle(req: Request): Promise<Response> {
   const requestId = crypto.randomUUID();
 
-  const [errorRes, rawBody] = await helper.getRawBody(req, requestId);
+  const [errorRes, rawBody] = await helper.getRawBody(requestId, req);
   if (errorRes !== undefined) {
     return errorRes;
   }
