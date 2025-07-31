@@ -11,7 +11,7 @@ export type GoogleAuthUser = s.Infer<typeof GoogleAuthUser>;
 const AuthSession = s.type({
   client_id: s.string(),
   scope: s.nullable(s.string()),
-  user: s.string(),
+  user_sub: s.string(),
   code_challenge: s.nullable(s.string()),
   code_challenge_method: s.nullable(s.enums(["S256", "plain"])),
 });
@@ -61,7 +61,7 @@ function generateGoogleIdToken(
     return undefined;
   }
 
-  const sub = authSession.user;
+  const sub = authSession.user_sub;
 
   const user = db
     .query("SELECT email,email_verified FROM google_auth_user WHERE sub = $sub")

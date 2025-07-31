@@ -12,25 +12,26 @@ export async function handle(req: Request): Promise<Response> {
 
   db.query(
     `
-        INSERT INTO google_auth_session (
-          code,
-          user,
-          client_id,
-          scope,
-          code_challenge_method,
-          code_challenge
-        )
-        VALUES (
-          $code,
-          $user,
-          $clientId,
-          $scope,
-          $codeChallengeMethod,
-          $codeChallengeValue
-        )`,
+      INSERT INTO google_auth_session (
+        code,
+        user_sub,
+        client_id,
+        scope,
+        code_challenge_method,
+        code_challenge
+      )
+      VALUES (
+        $code,
+        $userSub,
+        $clientId,
+        $scope,
+        $codeChallengeMethod,
+        $codeChallengeValue
+      )
+    `,
   ).run({
     code,
-    user: formData.get("user") ?? null,
+    userSub: formData.get("user_sub") ?? null,
     clientId: formData.get("client_id") ?? null,
     scope: formData.get("scope") ?? null,
     codeChallengeMethod: formData.get("code_challenge_method") ?? null,

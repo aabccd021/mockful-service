@@ -5,15 +5,17 @@ CREATE TABLE google_project (
 
 CREATE TABLE google_auth_session (
   code TEXT,
-  user TEXT,
-  client_id TEXT,
   scope TEXT,
   code_challenge TEXT,
   code_challenge_method TEXT,
+  user_sub TEXT,
+  client_id TEXT,
   CONSTRAINT google_auth_session_code_pk PRIMARY KEY (code),
-  CONSTRAINT google_auth_session_user_not_null CHECK (user IS NOT NULL),
+  CONSTRAINT google_auth_session_challenge_method_enum CHECK (code_challenge_method IN ('S256', 'plain')),
+  CONSTRAINT google_auth_session_user_sub_not_null CHECK (user_sub IS NOT NULL),
+  CONSTRAINT google_auth_session_user_sub_fk FOREIGN KEY (user_sub) REFERENCES google_auth_user(sub) ON DELETE CASCADE,
   CONSTRAINT google_auth_session_client_id_not_null CHECK (client_id IS NOT NULL),
-  CONSTRAINT google_auth_session_challenge_method_enum CHECK (code_challenge_method IN ('S256', 'plain'))
+  CONSTRAINT google_auth_session_client_id_fk FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_auth_user (

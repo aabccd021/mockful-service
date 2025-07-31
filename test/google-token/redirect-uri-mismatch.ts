@@ -19,7 +19,7 @@ const loginResponse = await fetch(
     },
     body: new URLSearchParams({
       scope: "openid",
-      user: "kita-sub",
+      user_sub: "kita-sub",
       response_type: "code",
       client_id: "mock_client_id",
       redirect_uri: `https://localhost:3000/login-callback`,

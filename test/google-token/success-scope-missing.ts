@@ -24,7 +24,7 @@ const loginResponse = await fetch(
       scope: "",
       client_id: "mock_client_id",
       redirect_uri: `https://localhost:3000/login-callback`,
-      user: "kita-sub",
+      user_sub: "kita-sub",
     }),
   },
 );

@@ -131,7 +131,7 @@ export function handle(req: Request): Response {
   const userSubmitButton = users
     .map(
       (user) =>
-        `<button style="height: 2rem" type="submit" name="user" value="${user.sub}">${user.email}</button>`,
+        `<button style="height: 2rem" type="submit" name="user_sub" value="${user.sub}">${user.email}</button>`,
     )
     .join("");
 
