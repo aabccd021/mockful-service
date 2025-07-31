@@ -72,7 +72,6 @@ export async function handle(req: Request): Promise<Response> {
         // status: "active",
         // custom_data: null,
         // name: null,
-        // email: reqCustomer.email,
         // marketing_consent: false,
         // locale: "en",
         // created_at: "2025-07-28T13:45:15.62Z",
