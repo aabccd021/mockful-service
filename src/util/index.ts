@@ -35,10 +35,7 @@ if (neteroState === undefined) {
   throw new Error("Environment variable NETERO_STATE is required.");
 }
 
-const _db = new sqlite.Database(`${neteroState}/mock.sqlite`, {
-  strict: true,
-  safeIntegers: true,
-});
+const _db = new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true });
 
 _db.exec("PRAGMA journal_mode = WAL;");
 _db.exec("PRAGMA foreign_keys = ON;");

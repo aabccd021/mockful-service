@@ -30,18 +30,24 @@ export async function handle(req: Request): Promise<Response> {
         INSERT INTO paddle_customer (
           account_id, 
           id, 
-          email
+          email,
+          created_at,
+          updated_at
         )
         VALUES (
           $projectId, 
           $id, 
-          $email
+          $email,
+          $createdAt,
+          $updatedAt
         )
       `,
     ).run({
       id,
       projectId: accountId,
       email: reqCustomer.email,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     });
   } catch (error) {
     if (error instanceof sqlite.SQLiteError) {
@@ -70,17 +76,29 @@ export async function handle(req: Request): Promise<Response> {
     throw error;
   }
 
+  const customer = db.query("SELECT * FROM paddle_customer WHERE id = $id").get({ id });
+  s.assert(
+    customer,
+    s.object({
+      id: s.string(),
+      account_id: s.string(),
+      email: s.string(),
+      status: s.enums(["active", "archived"]),
+      name: s.nullable(s.string()),
+      marketing_consent: s.enums(["true", "false"]),
+      locale: s.string(),
+      created_at: s.number(),
+      updated_at: s.number(),
+    }),
+  );
+
   const resBody: ResponseBodyOf<Path, 201> = {
     data: {
-      email: reqCustomer.email,
-      id,
-      status: "active",
+      ...customer,
+      marketing_consent: customer.marketing_consent === "true",
+      created_at: new Date(customer.created_at).toISOString(),
+      updated_at: new Date(customer.updated_at).toISOString(),
       custom_data: null,
-      name: null,
-      marketing_consent: false,
-      locale: "en",
-      created_at: "2025-07-28T13:45:15.62Z",
-      updated_at: "2025-07-28T13:45:15.62Z",
       import_meta: null,
     },
     meta: {

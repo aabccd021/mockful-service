@@ -69,15 +69,28 @@ CREATE TABLE paddle_api_key (
 ) STRICT;
 
 CREATE TABLE paddle_customer (
-  account_id TEXT,
   id TEXT,
   email TEXT,
-  CONSTRAINT paddle_customer_email_unique UNIQUE (account_id, email),
-  CONSTRAINT paddle_customer_email_not_null CHECK (email IS NOT NULL),
-  CONSTRAINT paddle_customer_price_pk PRIMARY KEY (id),
+  status TEXT DEFAULT 'active',
+  name TEXT,
+  marketing_consent TEXT DEFAULT 'false',
+  locale TEXT DEFAULT 'en',
+  created_at INTEGER,
+  updated_at INTEGER,
+  account_id TEXT,
+  CONSTRAINT paddle_customer_id_pk PRIMARY KEY (id),
   CONSTRAINT paddle_customer_id_prefix CHECK (id LIKE 'ctm_%'),
   CONSTRAINT paddle_customer_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_customer_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CONSTRAINT paddle_customer_email_unique UNIQUE (account_id, email),
+  CONSTRAINT paddle_customer_email_not_null CHECK (email IS NOT NULL),
+  CONSTRAINT paddle_customer_status_enum CHECK (status IN ('active', 'archived')),
+  CONSTRAINT paddle_customer_status_not_null CHECK (status IS NOT NULL),
+  CONSTRAINT paddle_customer_marketing_consent_boolean CHECK (marketing_consent IN ('true', 'false')),
+  CONSTRAINT paddle_customer_marketing_consent_not_null CHECK (marketing_consent IS NOT NULL),
+  CONSTRAINT paddle_customer_locale_not_null CHECK (locale IS NOT NULL),
+  CONSTRAINT paddle_customer_created_at_not_null CHECK (created_at IS NOT NULL),
+  CONSTRAINT paddle_customer_updated_at_not_null CHECK (updated_at IS NOT NULL),
   CONSTRAINT paddle_customer_account_id_not_null CHECK (account_id IS NOT NULL),
   CONSTRAINT paddle_customer_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;

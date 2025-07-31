@@ -2,12 +2,6 @@ import { db } from "@util/index.ts";
 import { getAccountId } from "@util/paddle.ts";
 import * as s from "superstruct";
 
-const Customer = s.object({
-  account_id: s.string(),
-  id: s.string(),
-  email: s.string(),
-});
-
 function getCustomers(req: Request, accountId: string): unknown[] {
   const url = new URL(req.url);
 
@@ -31,9 +25,33 @@ export async function handle(req: Request): Promise<Response> {
     return errorRes;
   }
 
-  const customers = getCustomers(req, accountId)
-    .filter((val) => s.is(val, Customer))
-    .map(({ account_id: _, ...data }) => data);
+  const customers_ = getCustomers(req, accountId);
+
+  const customers = customers_
+    .filter((val) =>
+      s.is(
+        val,
+        s.object({
+          id: s.string(),
+          account_id: s.string(),
+          email: s.string(),
+          status: s.enums(["active", "archived"]),
+          name: s.nullable(s.string()),
+          marketing_consent: s.enums(["true", "false"]),
+          locale: s.string(),
+          created_at: s.number(),
+          updated_at: s.number(),
+        }),
+      ),
+    )
+    .map(({ account_id: _, ...customer }) => ({
+      ...customer,
+      marketing_consent: customer.marketing_consent === "true",
+      created_at: new Date(customer.created_at).toISOString(),
+      updated_at: new Date(customer.updated_at).toISOString(),
+      custom_data: null,
+      import_meta: null,
+    }));
 
   return Response.json(
     { data: customers },
