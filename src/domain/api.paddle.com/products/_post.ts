@@ -106,7 +106,7 @@
 // import * as sqlite from "bun:sqlite";
 // import { db } from "@util/index";
 // import * as paddle from "@util/paddle.ts";
-// import { assert, enums, object, string } from "superstruct";
+// import { assert, union, object, string } from "valibot";
 
 export async function handle(_req: Request): Promise<Response> {
   // not implemented
@@ -123,7 +123,7 @@ export async function handle(_req: Request): Promise<Response> {
   //   reqCustomer,
   //   object({
   //     name: string(),
-  //     tax_category: enums([
+  //     tax_category: union([
   //       "digital-goods",
   //       "ebooks",
   //       "implementation-services",

@@ -1,7 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import { db } from "@util/index";
 import * as paddle from "@util/paddle.ts";
-import { assert, object, string } from "superstruct";
+import * as v from "valibot";
 
 export async function handle(req: Request): Promise<Response> {
   const accountId = paddle.getAccountId(req);
@@ -10,11 +10,11 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const reqCustomer = await req.json();
-  assert(
-    reqCustomer,
-    object({
-      email: string(),
+  v.assert(
+    v.object({
+      email: v.string(),
     }),
+    reqCustomer,
   );
 
   const id = `ctm_${paddle.generateId()}`;
