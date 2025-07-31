@@ -106,7 +106,7 @@
 // import * as sqlite from "bun:sqlite";
 // import { db } from "@util/index";
 // import * as paddle from "@util/paddle.ts";
-// import { assert, enums, object, string } from "superstruct";
+// import * as s from "superstruct";
 
 export async function handle(_req: Request): Promise<Response> {
   // not implemented
@@ -119,10 +119,10 @@ export async function handle(_req: Request): Promise<Response> {
   //
   // const reqCustomer = await req.json();
   //
-  // assert(
+  // s.assert(
   //   reqCustomer,
-  //   object({
-  //     name: string(),
+  //   s.object({
+  //     name: s.string(),
   //     tax_category: enums([
   //       "digital-goods",
   //       "ebooks",

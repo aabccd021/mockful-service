@@ -1,12 +1,12 @@
 // import { db } from "@util/index.ts";
 // import { getAccountId } from "@util/paddle.ts";
-// import { is, nullable, object, string } from "superstruct";
+// import * as s from "superstruct";
 //
-// const Customer = nullable(
-//   object({
-//     account_id: string(),
-//     id: string(),
-//     email: string(),
+// const Customer = s.nullable(
+//   s.object({
+//     account_id: s.string(),
+//     id: s.string(),
+//     email: s.string(),
 //   }),
 // );
 //

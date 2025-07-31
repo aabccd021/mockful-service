@@ -1,7 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import { db } from "@util/index";
 import * as paddle from "@util/paddle.ts";
-import { assert, object, string } from "superstruct";
+import * as s from "superstruct";
 
 export async function handle(req: Request): Promise<Response> {
   const accountId = paddle.getAccountId(req);
@@ -10,12 +10,7 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const reqCustomer = await req.json();
-  assert(
-    reqCustomer,
-    object({
-      email: string(),
-    }),
-  );
+  s.assert(reqCustomer, s.object({ email: s.string() }));
 
   const id = `ctm_${paddle.generateId()}`;
 

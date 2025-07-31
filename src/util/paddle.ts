@@ -1,7 +1,7 @@
 import type { ResponseOr } from "@util/index.ts";
 import { db } from "@util/index.ts";
 
-import { assert, nullable, object, string } from "superstruct";
+import * as s from "superstruct";
 
 function forbiddenResponse(): Response {
   return Response.json(
@@ -65,7 +65,7 @@ export function getAccountId(req: Request): ResponseOr<string> {
     .query("SELECT account_id FROM paddle_api_key WHERE key = $key")
     .get({ key: apiKey });
 
-  assert(apiKeyRow, nullable(object({ account_id: string() })));
+  s.assert(apiKeyRow, s.nullable(s.object({ account_id: s.string() })));
 
   if (apiKeyRow === null) {
     return {

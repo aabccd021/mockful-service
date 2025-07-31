@@ -1,10 +1,10 @@
 import { db } from "@util/index.ts";
-import { array, assert, object, string } from "superstruct";
+import * as s from "superstruct";
 
-const Users = array(
-  object({
-    sub: string(),
-    email: string(),
+const Users = s.array(
+  s.object({
+    sub: s.string(),
+    email: s.string(),
   }),
 );
 
@@ -108,7 +108,7 @@ export function handle(req: Request): Response {
   const redirectUris = db
     .query("SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId")
     .all({ clientId: reqClientId });
-  assert(redirectUris, array(object({ value: string() })));
+  s.assert(redirectUris, s.array(s.object({ value: s.string() })));
 
   const validRedirectUris = redirectUris.map((r) => r.value);
   if (!validRedirectUris.includes(reqRedirectUri)) {
@@ -126,7 +126,7 @@ export function handle(req: Request): Response {
   const redirectHost = new URL(reqRedirectUri).host;
 
   const users = db.query(`SELECT sub,email FROM google_auth_user`).all();
-  assert(users, Users);
+  s.assert(users, Users);
 
   const userSubmitButton = users
     .map(
