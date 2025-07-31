@@ -50,10 +50,10 @@ let
     (mapTests ./google-token)
 
     # https://developer.paddle.com/api-reference/customers/create-customer
-    (mapTests ./paddle/customers/create)
+    (mapTests ./paddle.com/customers/create)
 
     # https://developer.paddle.com/api-reference/customers/list-customers
-    (mapTests ./paddle/customers/list)
+    (mapTests ./paddle.com/customers/list)
   ];
 
 in
