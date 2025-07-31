@@ -18,27 +18,9 @@ type Customer = {
   updated_at: number;
 };
 
-function getCustomers(query: Query, accountId: string): Customer[] {
-  if (query.email !== undefined) {
-    return query.email
-      .map((email) =>
-        db
-          .query<Customer, { email: string; accountId: string }>(
-            "SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId",
-          )
-          .get({ email, accountId }),
-      )
-      .filter((val) => val !== null);
-  }
-
-  return db
-    .query<Customer, { accountId: string }>(
-      "SELECT * FROM paddle_customer WHERE account_id = $accountId",
-    )
-    .all({ accountId });
-}
-
 export async function handle(req: Request): Promise<Response> {
+  const requestId = crypto.randomUUID();
+
   const rawQuery = new URL(req.url).searchParams;
 
   const query: Query = {
@@ -50,9 +32,26 @@ export async function handle(req: Request): Promise<Response> {
     return errorRes;
   }
 
-  const requestId = crypto.randomUUID();
+  let queriedCustomers = null;
+  if (query.email !== undefined) {
+    queriedCustomers = query.email
+      .map((email) =>
+        db
+          .query<Customer, { email: string; accountId: string }>(
+            "SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId",
+          )
+          .get({ email, accountId }),
+      )
+      .filter((val) => val !== null);
+  } else {
+    queriedCustomers = db
+      .query<Customer, { accountId: string }>(
+        "SELECT * FROM paddle_customer WHERE account_id = $accountId",
+      )
+      .all({ accountId });
+  }
 
-  const customers = getCustomers(query, accountId).map((customer) => ({
+  const customers = queriedCustomers.map((customer) => ({
     id: customer.id,
     account_id: customer.account_id,
     email: customer.email,
