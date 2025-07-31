@@ -5,8 +5,6 @@ import * as helper from "@util/paddle.ts";
 
 type Path = openapi.paths["/customers"]["post"];
 
-type DefaultResponse = ResponseBodyOf<Path, "default">;
-
 type FieldError = {
   field: string;
   message: string;
@@ -39,19 +37,7 @@ export async function handle(req: Request): Promise<Response> {
       : [undefined, rawBody.email];
 
   if (emailError !== undefined) {
-    const resBody: DefaultResponse = {
-      error: {
-        type: "request_error",
-        code: "bad_request",
-        detail: "Invalid request.",
-        documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-        errors: [emailError],
-      },
-      meta: {
-        request_id: requestId,
-      },
-    };
-    return Response.json(resBody, { status: 400 });
+    return helper.invalidRequest(requestId, [emailError]);
   }
 
   const reqBody: RequestBodyOf<Path> = {
@@ -96,7 +82,7 @@ export async function handle(req: Request): Promise<Response> {
         error.message ===
         "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
       ) {
-        const resBody: DefaultResponse = {
+        const resBody: helper.DefaultError = {
           error: {
             type: "request_error",
             code: "customer_already_exists",

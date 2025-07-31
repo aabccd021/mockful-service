@@ -74,7 +74,7 @@ export function generateId(): string {
     .join("");
 }
 
-type DefaultError = openapi.components["schemas"]["error"];
+export type DefaultError = openapi.components["schemas"]["error"];
 
 export function invalidRequest(
   requestId: string,
