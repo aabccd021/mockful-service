@@ -1,7 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
-import * as paddle from "@util/paddle.ts";
+import * as helper from "@util/paddle.ts";
 
 type Path = openapi.paths["/customers"]["post"];
 
@@ -17,43 +17,9 @@ type FieldValidation = [FieldError] | [undefined, string];
 export async function handle(req: Request): Promise<Response> {
   const requestId = crypto.randomUUID();
 
-  let rawBody = null;
-  try {
-    rawBody = await req.json();
-  } catch (_) {
-    const resBody: DefaultResponse = {
-      error: {
-        type: "request_error",
-        code: "bad_request",
-        detail: "invalid JSON",
-        documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-      },
-      meta: {
-        request_id: requestId,
-      },
-    };
-    return Response.json(resBody, { status: 400 });
-  }
-
-  if (rawBody === null || typeof rawBody !== "object") {
-    const resBody: DefaultResponse = {
-      error: {
-        type: "request_error",
-        code: "bad_request",
-        detail: "Invalid request.",
-        documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-        errors: [
-          {
-            field: "(root)",
-            message: `Invalid type. Expected object, received '${typeof rawBody}'`,
-          },
-        ],
-      },
-      meta: {
-        request_id: requestId,
-      },
-    };
-    return Response.json(resBody, { status: 400 });
+  const [errorRes, rawBody] = await helper.getRawBody(req, requestId);
+  if (errorRes !== undefined) {
+    return errorRes;
   }
 
   const [emailError, reqEmail]: FieldValidation = !("email" in rawBody)
@@ -92,12 +58,12 @@ export async function handle(req: Request): Promise<Response> {
     email: reqEmail,
   };
 
-  const [errorRes, accountId] = paddle.getAccountId(req);
-  if (errorRes !== undefined) {
-    return errorRes;
+  const [errorRes2, accountId] = helper.getAccountId(req);
+  if (errorRes2 !== undefined) {
+    return errorRes2;
   }
 
-  const id = `ctm_${paddle.generateId()}`;
+  const id = `ctm_${helper.generateId()}`;
 
   try {
     db.query(
@@ -148,7 +114,7 @@ export async function handle(req: Request): Promise<Response> {
         });
       }
     }
-    throw error;
+    throw new Error("Unreachable", { cause: error });
   }
 
   const customer = db
