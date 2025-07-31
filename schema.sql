@@ -49,7 +49,9 @@ CREATE TABLE google_auth_redirect_uri (
 
 CREATE TABLE paddle_account (
   id TEXT,
-  CONSTRAINT paddle_account_pk PRIMARY KEY (id)
+  tax_mode TEXT DEFAULT 'internal',
+  CONSTRAINT paddle_account_pk PRIMARY KEY (id),
+  CONSTRAINT paddle_account_tax_mode_enum CHECK (tax_mode IN ('internal', 'external'))
 ) STRICT;
 
 -- https://developer.paddle.com/api-reference/about/paddle-ids#common-examples
