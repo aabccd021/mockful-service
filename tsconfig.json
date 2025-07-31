@@ -20,7 +20,8 @@
     "verbatimModuleSyntax": true,
     "baseUrl": "./src",
     "paths": {
-      "@util/*": ["./util/*"]
+      "@util/*": ["./util/*"],
+      "@openapi/*": ["./openapi/*"]
     }
   }
 }

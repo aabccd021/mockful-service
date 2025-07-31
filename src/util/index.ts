@@ -44,3 +44,16 @@ _db.exec("PRAGMA journal_mode = WAL;");
 _db.exec("PRAGMA foreign_keys = ON;");
 
 export const db = _db;
+
+type _RequestBodyOf<T> = T extends { requestBody?: infer R } ? R : never;
+
+type _ContentOf<T> = T extends { content: infer C } ? C : never;
+
+type _ApplicationJsonOf<T> = T extends { "application/json": infer R } ? R : never;
+
+export type RequestBodyOf<T> = _ApplicationJsonOf<_ContentOf<_RequestBodyOf<T>>>;
+
+export type ResponseBodyOf<
+  T extends { responses: Record<string, unknown> },
+  K extends keyof T["responses"],
+> = _ApplicationJsonOf<_ContentOf<T["responses"][K]>>;
