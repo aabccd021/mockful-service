@@ -50,8 +50,10 @@ CREATE TABLE google_auth_redirect_uri (
 CREATE TABLE paddle_account (
   id TEXT,
   tax_mode TEXT DEFAULT 'internal',
+  tax_category_saas_enabled TEXT DEFAULT 'false',
   CONSTRAINT paddle_account_pk PRIMARY KEY (id),
-  CONSTRAINT paddle_account_tax_mode_enum CHECK (tax_mode IN ('internal', 'external'))
+  CONSTRAINT paddle_account_tax_mode_enum CHECK (tax_mode IN ('internal', 'external')),
+  CONSTRAINT paddle_account_tax_category_saas_enabled_boolean CHECK (tax_category_saas_enabled IN ('true', 'false'))
 ) STRICT;
 
 -- https://developer.paddle.com/api-reference/about/paddle-ids#common-examples
@@ -81,12 +83,15 @@ CREATE TABLE paddle_customer (
 ) STRICT;
 
 CREATE TABLE paddle_product (
-  account_id TEXT,
   id TEXT,
+  tax_category TEXT,
+  account_id TEXT,
   CONSTRAINT paddle_product_pk PRIMARY KEY (id),
   CONSTRAINT paddle_product_id_prefix CHECK (id LIKE 'pro_%'),
   CONSTRAINT paddle_product_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_product_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CONSTRAINT paddle_product_tax_category_enum CHECK (tax_category IN ('digital-goods', 'ebooks', 'implementation-services', 'professional-services', 'saas', 'software-programming-services', 'standard', 'training-services', 'website-hosting')),
+  CONSTRAINT paddle_product_tax_category_not_null CHECK (tax_category IS NOT NULL),
   CONSTRAINT paddle_product_account_id_not_null CHECK (account_id IS NOT NULL),
   CONSTRAINT paddle_product_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;
