@@ -6,6 +6,6 @@
   "dependencies": {
     "@types/bun": "latest",
     "jose": "latest",
-    "valibot": "^1.1.0"
+    "superstruct": "latest"
   }
 }

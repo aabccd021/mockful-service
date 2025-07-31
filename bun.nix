@@ -36,16 +36,16 @@
     url = "https://registry.npmjs.org/jose/-/jose-6.0.12.tgz";
     hash = "sha512-T8xypXs8CpmiIi78k0E+Lk7T2zlK4zDyg+o1CZ4AkOHgDg98ogdP2BeZ61lTFKFyoEwJ9RgAgN+SdM3iPgNonQ==";
   };
+  "superstruct" = {
+    out_path = "superstruct";
+    name = "superstruct@2.0.2";
+    url = "https://registry.npmjs.org/superstruct/-/superstruct-2.0.2.tgz";
+    hash = "sha512-uV+TFRZdXsqXTL2pRvujROjdZQ4RAlBUS5BTh9IGm+jTqQntYThciG/qu57Gs69yjnVUSqdxF9YLmSnpupBW9A==";
+  };
   "undici-types" = {
     out_path = "undici-types";
     name = "undici-types@6.21.0";
     url = "https://registry.npmjs.org/undici-types/-/undici-types-6.21.0.tgz";
     hash = "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==";
-  };
-  "valibot" = {
-    out_path = "valibot";
-    name = "valibot@1.1.0";
-    url = "https://registry.npmjs.org/valibot/-/valibot-1.1.0.tgz";
-    hash = "sha512-Nk8lX30Qhu+9txPYTwM0cFlWLdPFsFr6LblzqIySfbZph9+BFsAHsNvHOymEviUepeIW6KFHzpX8TKhbptBXXw==";
   };
 }

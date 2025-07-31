@@ -1,30 +1,30 @@
 import { db, getStringFormData } from "@util/index.ts";
-import * as v from "valibot";
+import { array, assert, enums, type Infer, nullable, object, string, type } from "superstruct";
 
-const GoogleAuthUser = v.object({
-  email: v.string(),
-  email_verified: v.nullable(v.union([v.literal("true"), v.literal("false")])),
+const GoogleAuthUser = object({
+  email: string(),
+  email_verified: nullable(enums(["true", "false"])),
 });
 
-const Client = v.array(
-  v.object({
-    secret: v.string(),
+const Client = array(
+  object({
+    secret: string(),
   }),
 );
 
-export type GoogleAuthUser = v.InferInput<typeof GoogleAuthUser>;
+export type GoogleAuthUser = Infer<typeof GoogleAuthUser>;
 
-const AuthSession = v.object({
-  client_id: v.string(),
-  scope: v.nullable(v.string()),
-  user: v.string(),
-  code_challenge: v.nullable(v.string()),
-  code_challenge_method: v.nullable(v.union([v.literal("S256"), v.literal("plain")])),
+const AuthSession = type({
+  client_id: string(),
+  scope: nullable(string()),
+  user: string(),
+  code_challenge: nullable(string()),
+  code_challenge_method: nullable(enums(["S256", "plain"])),
 });
 
-const NullableAuthSession = v.nullable(AuthSession);
+const NullableAuthSession = nullable(AuthSession);
 
-type AuthSession = v.InferInput<typeof AuthSession>;
+type AuthSession = Infer<typeof AuthSession>;
 
 function serializeBoolean(value: "true" | "false" | null): boolean {
   if (value === "true") {
@@ -74,7 +74,7 @@ function generateGoogleIdToken(
   const user = db
     .query("SELECT email,email_verified FROM google_auth_user WHERE sub = $sub")
     .get({ sub });
-  v.assert(GoogleAuthUser, user);
+  assert(user, GoogleAuthUser);
 
   const atHashRaw = new Bun.CryptoHasher("sha256").update(accessToken).digest();
   const atHash = new Uint8Array(atHashRaw)
@@ -223,7 +223,7 @@ export async function handle(req: Request): Promise<Response> {
     .get({ code });
   db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
-  v.assert(NullableAuthSession, authSession);
+  assert(authSession, NullableAuthSession);
   if (authSession === null) {
     return Response.json(
       {
@@ -292,7 +292,7 @@ export async function handle(req: Request): Promise<Response> {
   const redirectUris = db
     .query("SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId")
     .all({ clientId: clientId });
-  v.assert(v.array(v.object({ value: v.string() })), redirectUris);
+  assert(redirectUris, array(object({ value: string() })));
 
   const validRedirectUris = redirectUris.map((r) => r.value);
   if (!validRedirectUris.includes(redirectUri)) {
@@ -308,7 +308,7 @@ export async function handle(req: Request): Promise<Response> {
   const clients = db
     .query("SELECT secret FROM google_auth_client WHERE id = $id")
     .all({ id: clientId });
-  v.assert(Client, clients);
+  assert(clients, Client);
 
   const isSecretValid = clients.map((c) => c.secret).includes(clientSecret);
   if (!isSecretValid) {

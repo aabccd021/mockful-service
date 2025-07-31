@@ -1,7 +1,7 @@
 import type { ResponseOr } from "@util/index.ts";
 import { db } from "@util/index.ts";
 
-import { assert, nullable, object, string } from "valibot";
+import { assert, nullable, object, string } from "superstruct";
 
 function forbiddenResponse(): Response {
   return Response.json(
@@ -46,7 +46,7 @@ export function getAccountId(req: Request): ResponseOr<string> {
     };
   }
 
-  const [prefix, reqApiKey] = authHeader.split(" ");
+  const [prefix, apiKey] = authHeader.split(" ");
   if (prefix !== "Bearer") {
     return {
       type: "response",
@@ -54,20 +54,20 @@ export function getAccountId(req: Request): ResponseOr<string> {
     };
   }
 
-  if (reqApiKey === undefined) {
+  if (apiKey === undefined) {
     return {
       type: "response",
       response: authenticationMalformedResponse(),
     };
   }
 
-  const apiKey = db
+  const apiKeyRow = db
     .query("SELECT account_id FROM paddle_api_key WHERE key = $key")
-    .get({ key: reqApiKey });
+    .get({ key: apiKey });
 
-  assert(nullable(object({ account_id: string() })), apiKey);
+  assert(apiKeyRow, nullable(object({ account_id: string() })));
 
-  if (apiKey === null) {
+  if (apiKeyRow === null) {
     return {
       type: "response",
       response: forbiddenResponse(),
@@ -76,7 +76,7 @@ export function getAccountId(req: Request): ResponseOr<string> {
 
   return {
     type: "value",
-    value: apiKey.account_id,
+    value: apiKeyRow.account_id,
   };
 }
 
