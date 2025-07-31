@@ -25,9 +25,7 @@ export async function handle(req: Request): Promise<Response> {
     return errorRes;
   }
 
-  const customers_ = getCustomers(req, accountId);
-
-  const customers = customers_
+  const customers = getCustomers(req, accountId)
     .filter((val) =>
       s.is(
         val,
