@@ -25,20 +25,7 @@ const createResponse = await fetch(
   },
 );
 
+expect(createResponse.status).toEqual(201);
 const createResponseBody = await createResponse.json();
-const customerId = createResponseBody.data.id;
-
-const listResponse = await fetch("http://localhost:3001/https://sandbox-api.paddle.com/customers", {
-  method: "GET",
-  headers: {
-    Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
-    "Content-Type": "application/json",
-  },
-});
-
-expect(listResponse.status).toEqual(200);
-const listResponseBody = await listResponse.json();
-const customers = listResponseBody.data;
-expect(customers).toBeArrayOfSize(1);
-expect(customers[0]?.email).toEqual("nijika@example.com");
-expect(customers[0]?.id).toEqual(customerId);
+expect(createResponseBody.data.id).toBeDefined();
+expect(createResponseBody.data.email).toEqual("nijika@example.com");

@@ -22,7 +22,7 @@ CREATE TABLE google_auth_user (
   sub TEXT,
   email TEXT,
   email_verified TEXT,
-  project_id TEXT NOT NULL,
+  project_id TEXT,
   CONSTRAINT google_auth_user_sub_pk PRIMARY KEY (sub),
   CONSTRAINT google_auth_user_email_not_null CHECK (email IS NOT NULL),
   CONSTRAINT google_auth_user_email_unique UNIQUE (email),
@@ -67,49 +67,50 @@ CREATE TABLE paddle_api_key (
 ) STRICT;
 
 CREATE TABLE paddle_customer (
-  project_id TEXT NOT NULL,
+  project_id TEXT,
   id TEXT,
-  email TEXT NOT NULL,
+  email TEXT,
   CONSTRAINT paddle_customer_email_unique UNIQUE (project_id, email),
+  CONSTRAINT paddle_customer_email_not_null CHECK (email IS NOT NULL),
   CONSTRAINT paddle_customer_price_pk PRIMARY KEY (id),
   CONSTRAINT paddle_customer_id_prefix CHECK (id LIKE 'ctm_%'),
   CONSTRAINT paddle_customer_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_customer_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CONSTRAINT paddle_customer_project_id_not_null CHECK (project_id IS NOT NULL),
   CONSTRAINT paddle_customer_project_id_fk FOREIGN KEY (project_id) REFERENCES paddle_project(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_product (
-  project_id TEXT NOT NULL,
+  project_id TEXT,
   id TEXT,
   CONSTRAINT paddle_product_pk PRIMARY KEY (id),
   CONSTRAINT paddle_product_id_prefix CHECK (id LIKE 'pro_%'),
   CONSTRAINT paddle_product_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_product_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CONSTRAINT paddle_product_project_id_not_null CHECK (project_id IS NOT NULL),
   CONSTRAINT paddle_product_project_id_fk FOREIGN KEY (project_id) REFERENCES paddle_project(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_price (
-  project_id TEXT NOT NULL,
-  product_id TEXT NOT NULL,
+  product_id TEXT,
   id TEXT,
   CONSTRAINT paddle_price_pk PRIMARY KEY (id),
   CONSTRAINT paddle_price_id_prefix CHECK (id LIKE 'pri_%'),
   CONSTRAINT paddle_price_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_price_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
-  CONSTRAINT paddle_price_product_id_fk FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON DELETE CASCADE,
-  CONSTRAINT paddle_price_project_id_fk FOREIGN KEY (project_id) REFERENCES paddle_project(id) ON DELETE CASCADE
+  CONSTRAINT paddle_price_product_id_not_null CHECK (product_id IS NOT NULL),
+  CONSTRAINT paddle_price_product_id_fk FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_transaction (
-  project_id TEXT NOT NULL,
-  customer_id TEXT NOT NULL,
+  customer_id TEXT,
   id TEXT,
   CONSTRAINT paddle_transaction_pk PRIMARY KEY (id),
   CONSTRAINT paddle_transaction_id_prefix CHECK (id LIKE 'txn_%'),
   CONSTRAINT paddle_transaction_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_transaction_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
-  CONSTRAINT paddle_transaction_customer_id_fk FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON DELETE CASCADE,
-  CONSTRAINT paddle_transaction_project_id_fk FOREIGN KEY (project_id) REFERENCES paddle_project(id) ON DELETE CASCADE
+  CONSTRAINT paddle_transaction_customer_id_not_null CHECK (customer_id IS NOT NULL),
+  CONSTRAINT paddle_transaction_customer_id_fk FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_transaction_item (
