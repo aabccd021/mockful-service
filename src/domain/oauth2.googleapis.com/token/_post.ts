@@ -298,16 +298,10 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const clients = db
-    .query("SELECT secret FROM google_auth_client WHERE id = $id")
+    .query<{ secret: string }, { id: string }>(
+      "SELECT secret FROM google_auth_client WHERE id = $id",
+    )
     .all({ id: clientId });
-  s.assert(
-    clients,
-    s.array(
-      s.object({
-        secret: s.string(),
-      }),
-    ),
-  );
 
   const isSecretValid = clients.map((c) => c.secret).includes(clientSecret);
   if (!isSecretValid) {
