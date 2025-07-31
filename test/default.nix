@@ -48,6 +48,7 @@ let
   tests = [
     (mapTests ./google-auth)
     (mapTests ./google-token)
+    (mapTests ./paddle-customer)
   ];
 
 in
