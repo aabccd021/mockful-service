@@ -164,3 +164,8 @@
 //     "request_id": "ce707dc4-83e4-438d-84cd-6793c2bc8b0e"
 //   }
 // }
+//
+
+export async function handle(_req: Request): Promise<Response> {
+  return new Response("Not Implemented", { status: 501 });
+}
