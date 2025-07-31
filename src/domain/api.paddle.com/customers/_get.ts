@@ -1,13 +1,15 @@
-import { db } from "@util/index.ts";
+import type * as openapi from "@openapi/paddle.ts";
+import { db, type ResponseBodyOf } from "@util/index";
 import { getAccountId } from "@util/paddle.ts";
 import * as s from "superstruct";
 
-function getCustomers(req: Request, accountId: string): unknown[] {
-  const url = new URL(req.url);
+type Path = openapi.paths["/customers"]["get"];
 
-  const emails = url.searchParams.get("email")?.split(",");
-  if (emails !== undefined) {
-    return emails
+type Params = NonNullable<Path["parameters"]["query"]>;
+
+function getCustomers(params: Params, accountId: string): unknown[] {
+  if (params.email !== undefined) {
+    return params.email
       .map((email) =>
         db
           .query("SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId")
@@ -20,12 +22,26 @@ function getCustomers(req: Request, accountId: string): unknown[] {
 }
 
 export async function handle(req: Request): Promise<Response> {
+  const rawParams = Object.fromEntries(new URL(req.url).searchParams.entries());
+  s.assert(
+    rawParams,
+    s.object({
+      email: s.optional(s.string()),
+    }),
+  );
+
+  const params: Params = {
+    email: rawParams.email?.split(","),
+  };
+
   const [errorRes, accountId] = getAccountId(req);
   if (errorRes !== undefined) {
     return errorRes;
   }
 
-  const customers = getCustomers(req, accountId)
+  const requestId = crypto.randomUUID();
+
+  const customers = getCustomers(params, accountId)
     .filter((val) =>
       s.is(
         val,
@@ -51,10 +67,19 @@ export async function handle(req: Request): Promise<Response> {
       import_meta: null,
     }));
 
-  return Response.json(
-    { data: customers },
-    {
-      status: 200,
+  const resBody: ResponseBodyOf<Path, 200> = {
+    data: customers,
+    meta: {
+      request_id: requestId,
+      pagination: {
+        has_more: false,
+        per_page: customers.length,
+        next: "",
+      },
     },
-  );
+  };
+
+  return Response.json(resBody, {
+    status: 200,
+  });
 }

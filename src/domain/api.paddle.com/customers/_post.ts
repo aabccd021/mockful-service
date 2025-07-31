@@ -6,14 +6,10 @@ import * as s from "superstruct";
 
 type Path = openapi.paths["/customers"]["post"];
 
-async function validateRequest(req: Request): Promise<RequestBodyOf<Path>> {
-  const body = await req.json();
-  s.assert(body, s.object({ email: s.string() }));
-  return body;
-}
-
 export async function handle(req: Request): Promise<Response> {
-  const reqCustomer = await validateRequest(req);
+  const rawBody = await req.json();
+  s.assert(rawBody, s.object({ email: s.string() }));
+  const reqBody: RequestBodyOf<Path> = rawBody;
 
   const [errorRes, accountId] = paddle.getAccountId(req);
   if (errorRes !== undefined) {
@@ -45,7 +41,7 @@ export async function handle(req: Request): Promise<Response> {
     ).run({
       id,
       projectId: accountId,
-      email: reqCustomer.email,
+      email: reqBody.email,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });

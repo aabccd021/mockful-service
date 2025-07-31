@@ -28,7 +28,10 @@ const createResponse = await fetch(
 const createResponseBody = await createResponse.json();
 const customerId = createResponseBody.data.id;
 
-const listResponse = await fetch("http://localhost:3001/https://sandbox-api.paddle.com/customers", {
+const listUrl = new URL("http://localhost:3001/https://sandbox-api.paddle.com/customers");
+listUrl.searchParams.set("email", "nijika@example.com");
+
+const listResponse = await fetch(listUrl, {
   method: "GET",
   headers: {
     Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
