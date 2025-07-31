@@ -1,21 +1,21 @@
 import * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
-import * as helper from "@util/paddle.ts";
+import {
+  type DefaultError,
+  type FieldValidation,
+  generateId,
+  getAccountId,
+  getRawBody,
+  invalidRequest,
+} from "@util/paddle";
 
 type Path = openapi.paths["/customers"]["post"];
-
-type FieldError = {
-  field: string;
-  message: string;
-};
-
-type FieldValidation = [FieldError] | [undefined, string];
 
 export async function handle(req: Request): Promise<Response> {
   const requestId = crypto.randomUUID();
 
-  const [errorRes, rawBody] = await helper.getRawBody(requestId, req);
+  const [errorRes, rawBody] = await getRawBody(requestId, req);
   if (errorRes !== undefined) {
     return errorRes;
   }
@@ -37,19 +37,19 @@ export async function handle(req: Request): Promise<Response> {
       : [undefined, rawBody.email];
 
   if (emailError !== undefined) {
-    return helper.invalidRequest(requestId, [emailError]);
+    return invalidRequest(requestId, [emailError]);
   }
 
   const reqBody: RequestBodyOf<Path> = {
     email: reqEmail,
   };
 
-  const [errorRes2, accountId] = helper.getAccountId(req);
+  const [errorRes2, accountId] = getAccountId(req);
   if (errorRes2 !== undefined) {
     return errorRes2;
   }
 
-  const id = `ctm_${helper.generateId()}`;
+  const id = `ctm_${generateId()}`;
 
   try {
     db.query(
@@ -82,7 +82,7 @@ export async function handle(req: Request): Promise<Response> {
         error.message ===
         "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
       ) {
-        const resBody: helper.DefaultError = {
+        const resBody: DefaultError = {
           error: {
             type: "request_error",
             code: "customer_already_exists",

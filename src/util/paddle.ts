@@ -76,6 +76,13 @@ export function generateId(): string {
 
 export type DefaultError = openapi.components["schemas"]["error"];
 
+export type FieldError = {
+  field: string;
+  message: string;
+};
+
+export type FieldValidation = [FieldError] | [undefined, string];
+
 export function invalidRequest(
   requestId: string,
   errors: DefaultError["error"]["errors"],
