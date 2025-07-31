@@ -22,16 +22,10 @@ function getCustomers(query: Query, accountId: string): unknown[] {
 }
 
 export async function handle(req: Request): Promise<Response> {
-  const rawQuery = Object.fromEntries(new URL(req.url).searchParams.entries());
-  s.assert(
-    rawQuery,
-    s.object({
-      email: s.optional(s.string()),
-    }),
-  );
+  const rawQuery = new URL(req.url).searchParams;
 
   const query: Query = {
-    email: rawQuery.email?.split(","),
+    email: rawQuery.get("email")?.split(","),
   };
 
   const [errorRes, accountId] = getAccountId(req);
