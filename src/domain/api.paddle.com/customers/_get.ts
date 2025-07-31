@@ -32,9 +32,9 @@ export async function handle(req: Request): Promise<Response> {
     return errorRes;
   }
 
-  let queriedCustomers = null;
+  let customers = null;
   if (query.email !== undefined) {
-    queriedCustomers = query.email
+    customers = query.email
       .map((email) =>
         db
           .query<Customer, { email: string; accountId: string }>(
@@ -44,14 +44,14 @@ export async function handle(req: Request): Promise<Response> {
       )
       .filter((val) => val !== null);
   } else {
-    queriedCustomers = db
+    customers = db
       .query<Customer, { accountId: string }>(
         "SELECT * FROM paddle_customer WHERE account_id = $accountId",
       )
       .all({ accountId });
   }
 
-  const customers = queriedCustomers.map((customer) => ({
+  const data = customers.map((customer) => ({
     id: customer.id,
     account_id: customer.account_id,
     email: customer.email,
@@ -66,12 +66,12 @@ export async function handle(req: Request): Promise<Response> {
   }));
 
   const resBody: ResponseBodyOf<Path, 200> = {
-    data: customers,
+    data,
     meta: {
       request_id: requestId,
       pagination: {
         has_more: false,
-        per_page: customers.length,
+        per_page: data.length,
         next: "",
       },
     },
