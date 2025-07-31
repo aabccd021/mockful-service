@@ -16,7 +16,6 @@ export async function handle(req: Request): Promise<Response> {
           code,
           user,
           client_id,
-          redirect_uri,
           scope,
           code_challenge_method,
           code_challenge
@@ -25,14 +24,12 @@ export async function handle(req: Request): Promise<Response> {
           $code,
           $user,
           $clientId,
-          $redirectUri,
           $scope,
           $codeChallengeMethod,
           $codeChallengeValue
         )`,
   ).run({
     code,
-    redirectUri: formRedirectUrl,
     user: formData.get("user") ?? null,
     clientId: formData.get("client_id") ?? null,
     scope: formData.get("scope") ?? null,

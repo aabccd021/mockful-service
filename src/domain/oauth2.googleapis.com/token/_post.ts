@@ -16,7 +16,6 @@ export type GoogleAuthUser = Infer<typeof GoogleAuthUser>;
 
 const AuthSession = type({
   client_id: string(),
-  redirect_uri: string(),
   scope: nullable(string()),
   user: string(),
   code_challenge: nullable(string()),
@@ -132,7 +131,8 @@ export async function handle(req: Request): Promise<Response> {
     );
   }
 
-  if (formData.get("redirect_uri") === undefined) {
+  const redirectUri = formData.get("redirect_uri");
+  if (redirectUri === undefined) {
     return Response.json(
       {
         error: "invalid_request",
@@ -279,16 +279,6 @@ export async function handle(req: Request): Promise<Response> {
     }
   }
 
-  if (formData.get("redirect_uri") !== authSession.redirect_uri) {
-    return Response.json(
-      {
-        error: "redirect_uri_mismatch",
-        error_description: "Bad Request",
-      },
-      { status: 400 },
-    );
-  }
-
   if (clientId !== authSession.client_id) {
     return Response.json(
       {
@@ -296,6 +286,22 @@ export async function handle(req: Request): Promise<Response> {
         error_description: "The OAuth client was not found.",
       },
       { status: 401 },
+    );
+  }
+
+  const redirectUris = db
+    .query("SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId")
+    .all({ clientId: clientId });
+  assert(redirectUris, array(object({ value: string() })));
+
+  const validRedirectUris = redirectUris.map((r) => r.value);
+  if (!validRedirectUris.includes(redirectUri)) {
+    return Response.json(
+      {
+        error: "redirect_uri_mismatch",
+        error_description: "Bad Request",
+      },
+      { status: 400 },
     );
   }
 

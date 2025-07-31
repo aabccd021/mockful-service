@@ -105,12 +105,13 @@ export function handle(req: Request): Response {
     `);
   }
 
-  const redirectUri = db
+  const redirectUris = db
     .query("SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId")
-    .get({ clientId: reqClientId });
-  assert(redirectUri, object({ value: string() }));
+    .all({ clientId: reqClientId });
+  assert(redirectUris, array(object({ value: string() })));
 
-  if (redirectUri.value !== reqRedirectUri) {
+  const validRedirectUris = redirectUris.map((r) => r.value);
+  if (!validRedirectUris.includes(reqRedirectUri)) {
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
@@ -136,7 +137,7 @@ export function handle(req: Request): Response {
 
   const state = searchParams.get("state");
 
-  const cancelUrl = new URL(redirectUri.value);
+  const cancelUrl = new URL(reqRedirectUri);
   cancelUrl.searchParams.set("error", "access_denied");
   if (state !== null) {
     cancelUrl.searchParams.set("state", state);
