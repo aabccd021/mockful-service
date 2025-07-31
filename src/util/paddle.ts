@@ -2,8 +2,6 @@ import type * as openapi from "@openapi/paddle.ts";
 import type { ResponseOr } from "@util/index.ts";
 import { db } from "@util/index.ts";
 
-import * as s from "superstruct";
-
 function forbiddenResponse(): Response {
   return Response.json(
     {
@@ -54,10 +52,10 @@ export function getAccountId(req: Request): ResponseOr<string> {
   }
 
   const apiKey = db
-    .query("SELECT account_id FROM paddle_api_key WHERE key = $key")
+    .query<{ account_id: string }, { key: string }>(
+      "SELECT account_id FROM paddle_api_key WHERE key = $key",
+    )
     .get({ key: reqApiKey });
-
-  s.assert(apiKey, s.nullable(s.object({ account_id: s.string() })));
 
   if (apiKey === null) {
     return [forbiddenResponse()];
