@@ -4,9 +4,9 @@ import { expect } from "bun:test";
 const neteroState = process.env["NETERO_STATE"];
 
 new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
-INSERT INTO paddle_project (id) VALUES ('mock_project_id');
-INSERT INTO paddle_api_key (project_id, key) VALUES (
-  'mock_project_id', 
+INSERT INTO paddle_account (id) VALUES ('mock_account_id');
+INSERT INTO paddle_api_key (account_id, key) VALUES (
+  'mock_account_id', 
   'pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO'
 );
 `);

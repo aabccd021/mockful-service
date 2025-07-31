@@ -47,46 +47,46 @@ CREATE TABLE google_auth_redirect_uri (
   CONSTRAINT google_auth_redirect_uri_client_id_fk FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
 ) STRICT;
 
-CREATE TABLE paddle_project (
+CREATE TABLE paddle_account (
   id TEXT,
-  CONSTRAINT paddle_project_pk PRIMARY KEY (id)
+  CONSTRAINT paddle_account_pk PRIMARY KEY (id)
 ) STRICT;
 
 -- https://developer.paddle.com/api-reference/about/paddle-ids#common-examples
 
 CREATE TABLE paddle_api_key (
-  project_id TEXT,
+  account_id TEXT,
   key TEXT,
   CONSTRAINT paddle_api_key_pk PRIMARY KEY (key),
   CONSTRAINT paddle_api_key_id_prefix CHECK (key LIKE 'pdl_live_apikey_%' OR key LIKE 'pdl_sdbx_apikey_%'), -- https://developer.paddle.com/api-reference/about/api-keys#format
   CONSTRAINT paddle_api_key_id_length CHECK (LENGTH(key) = 69),
-  CONSTRAINT paddle_api_key_project_id_not_null CHECK (project_id IS NOT NULL),
-  CONSTRAINT paddle_api_key_project_id_fk FOREIGN KEY (project_id) REFERENCES paddle_project(id) ON DELETE CASCADE
+  CONSTRAINT paddle_api_key_account_id_not_null CHECK (account_id IS NOT NULL),
+  CONSTRAINT paddle_api_key_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_customer (
-  project_id TEXT,
+  account_id TEXT,
   id TEXT,
   email TEXT,
-  CONSTRAINT paddle_customer_email_unique UNIQUE (project_id, email),
+  CONSTRAINT paddle_customer_email_unique UNIQUE (account_id, email),
   CONSTRAINT paddle_customer_email_not_null CHECK (email IS NOT NULL),
   CONSTRAINT paddle_customer_price_pk PRIMARY KEY (id),
   CONSTRAINT paddle_customer_id_prefix CHECK (id LIKE 'ctm_%'),
   CONSTRAINT paddle_customer_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_customer_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
-  CONSTRAINT paddle_customer_project_id_not_null CHECK (project_id IS NOT NULL),
-  CONSTRAINT paddle_customer_project_id_fk FOREIGN KEY (project_id) REFERENCES paddle_project(id) ON DELETE CASCADE
+  CONSTRAINT paddle_customer_account_id_not_null CHECK (account_id IS NOT NULL),
+  CONSTRAINT paddle_customer_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_product (
-  project_id TEXT,
+  account_id TEXT,
   id TEXT,
   CONSTRAINT paddle_product_pk PRIMARY KEY (id),
   CONSTRAINT paddle_product_id_prefix CHECK (id LIKE 'pro_%'),
   CONSTRAINT paddle_product_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_product_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
-  CONSTRAINT paddle_product_project_id_not_null CHECK (project_id IS NOT NULL),
-  CONSTRAINT paddle_product_project_id_fk FOREIGN KEY (project_id) REFERENCES paddle_project(id) ON DELETE CASCADE
+  CONSTRAINT paddle_product_account_id_not_null CHECK (account_id IS NOT NULL),
+  CONSTRAINT paddle_product_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_price (

@@ -4,9 +4,9 @@ import * as paddle from "@util/paddle.ts";
 import { assert, object, string } from "superstruct";
 
 export async function handle(req: Request): Promise<Response> {
-  const projectId = paddle.getprojectId(req);
-  if (projectId.type === "response") {
-    return projectId.response;
+  const accountId = paddle.getAccountId(req);
+  if (accountId.type === "response") {
+    return accountId.response;
   }
 
   const reqCustomer = await req.json();
@@ -23,7 +23,7 @@ export async function handle(req: Request): Promise<Response> {
     db.query(
       `
         INSERT INTO paddle_customer (
-          project_id, 
+          account_id, 
           id, 
           email
         )
@@ -35,14 +35,14 @@ export async function handle(req: Request): Promise<Response> {
       `,
     ).run({
       id,
-      projectId: projectId.value,
+      projectId: accountId.value,
       email: reqCustomer.email,
     });
   } catch (error) {
     if (error instanceof sqlite.SQLiteError) {
       if (
         error.message ===
-        "UNIQUE constraint failed: paddle_customer.project_id, paddle_customer.email"
+        "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
       ) {
         return Response.json(
           {

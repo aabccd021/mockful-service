@@ -37,7 +37,7 @@ function authenticationMalformedResponse(): Response {
   );
 }
 
-export function getprojectId(req: Request): ResponseOr<string> {
+export function getAccountId(req: Request): ResponseOr<string> {
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
     return {
@@ -62,10 +62,10 @@ export function getprojectId(req: Request): ResponseOr<string> {
   }
 
   const apiKeyRow = db
-    .query("SELECT project_id FROM paddle_api_key WHERE key = $key")
+    .query("SELECT account_id FROM paddle_api_key WHERE key = $key")
     .get({ key: apiKey });
 
-  assert(apiKeyRow, nullable(object({ project_id: string() })));
+  assert(apiKeyRow, nullable(object({ account_id: string() })));
 
   if (apiKeyRow === null) {
     return {
@@ -76,7 +76,7 @@ export function getprojectId(req: Request): ResponseOr<string> {
 
   return {
     type: "value",
-    value: apiKeyRow.project_id,
+    value: apiKeyRow.account_id,
   };
 }
 
