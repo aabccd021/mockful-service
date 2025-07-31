@@ -1,3 +1,4 @@
+import * as sqlite from "bun:sqlite";
 import { db } from "@util/index";
 import * as paddle from "@util/paddle.ts";
 import { assert, object, string } from "superstruct";
@@ -38,7 +39,7 @@ export async function handle(req: Request): Promise<Response> {
       email: reqCustomer.email,
     });
   } catch (error) {
-    if (Error.isError(error)) {
+    if (error instanceof sqlite.SQLiteError) {
       if (
         error.message ===
         "UNIQUE constraint failed: paddle_customer.project_id, paddle_customer.email"
