@@ -47,14 +47,14 @@ let
 
   tests = [
     # https://developers.google.com/identity/protocols/oauth2/web-server
-    (mapTests ./google.com/auth)
-    (mapTests ./google.com/token)
+    (mapTests ./google-auth)
+    (mapTests ./google-token)
 
     # https://developer.paddle.com/api-reference/customers/create-customer
-    (mapTests ./paddle.com/customers/create)
+    (mapTests ./paddle-customers-create)
 
     # https://developer.paddle.com/api-reference/customers/list-customers
-    (mapTests ./paddle.com/customers/list)
+    (mapTests ./paddle-customers-list)
   ];
 
 in
