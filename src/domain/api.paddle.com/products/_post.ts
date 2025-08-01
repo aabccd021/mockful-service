@@ -10,23 +10,6 @@
 //    "request_id": "ce707dc4-83e4-438d-84cd-6793c2bc8b0e"
 //  }
 //}
-//{
-//  "error": {
-//     "type": "request_error",
-//     "code": "bad_request",
-//     "detail": "Invalid request.",
-//     "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
-//     "errors": [
-//       {
-//         "field": "tax_category",
-//         "message": "must be one of the following: \"digital-goods\", \"ebooks\", \"implementation-services\", \"professional-services\", \"saas\", \"software-programming-services\", \"standard\", \"training-services\", \"website-hosting\""
-//       }
-//     ]
-//   },
-//   "meta": {
-//     "request_id": "db318057-aee4-4898-918e-f908774017c0"
-//   }
-// }
 
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
@@ -128,29 +111,29 @@ export async function handle(req: Request): Promise<Response> {
 
   db.query(
     `
-        INSERT INTO paddle_product (
-          account_id, 
-          id, 
-          name,
-          tax_category,
-          description,
-          type,
-          image_url,
-          created_at,
-          updated_at
-        )
-        VALUES (
-          $accountId, 
-          $id, 
-          $name,
-          $taxCategory,
-          $description,
-          $type,
-          $imageUrl,
-          $createdAt,
-          $updatedAt
-        )
-      `,
+      INSERT INTO paddle_product (
+        account_id, 
+        id, 
+        name,
+        tax_category,
+        description,
+        type,
+        image_url,
+        created_at,
+        updated_at
+      )
+      VALUES (
+        $accountId, 
+        $id, 
+        $name,
+        $taxCategory,
+        $description,
+        $type,
+        $imageUrl,
+        $createdAt,
+        $updatedAt
+      )
+    `,
   ).run({
     accountId: authReq.accountId,
     id,
