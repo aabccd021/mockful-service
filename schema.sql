@@ -53,13 +53,16 @@ CREATE TABLE google_auth_redirect_uri (
 CREATE TABLE paddle_account (
   id TEXT,
   tax_mode TEXT DEFAULT 'internal',
-  tax_category_saas_enabled TEXT DEFAULT 'false',
   CONSTRAINT paddle_account_pk PRIMARY KEY (id),
-  CONSTRAINT paddle_account_tax_mode_enum CHECK (tax_mode IN ('internal', 'external')),
-  CONSTRAINT paddle_account_tax_category_saas_enabled_boolean CHECK (tax_category_saas_enabled IN ('true', 'false'))
+  CONSTRAINT paddle_account_tax_mode_enum CHECK (tax_mode IN ('internal', 'external'))
 ) STRICT;
 
--- https://developer.paddle.com/api-reference/about/paddle-ids#common-examples
+CREATE TABLE paddle_account_tax_category_enabled (
+  tax_category TEXT,
+  account_id TEXT,
+  CONSTRAINT paddle_account_tax_category_enabled_pk PRIMARY KEY (tax_category, account_id),
+  CONSTRAINT paddle_account_tax_category_enabled_tax_category_enum CHECK (tax_category IN ('digital-goods', 'ebooks', 'implementation-services', 'professional-services', 'saas', 'software-programming-services', 'standard', 'training-services', 'website-hosting'))
+) STRICT;
 
 CREATE TABLE paddle_api_key (
   account_id TEXT,

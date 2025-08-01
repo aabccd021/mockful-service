@@ -11,6 +11,7 @@
 //  }
 //}
 
+import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
 import {
@@ -170,7 +171,7 @@ export async function handle(req: Request): Promise<Response> {
         image_url?: string;
         status: "active" | "archived";
       },
-      { id: string }
+      sqlite.SQLQueryBindings
     >("SELECT * FROM paddle_product WHERE id = $id")
     .get({ id });
 
