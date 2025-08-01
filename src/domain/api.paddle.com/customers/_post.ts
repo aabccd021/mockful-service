@@ -3,12 +3,12 @@ import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
 import {
   type DefaultError,
+  fieldInvalidType,
+  fieldRequired,
   generateId,
   getAccountId,
   getBody,
   invalidRequest,
-  invalidType,
-  requiredField,
 } from "@util/paddle";
 
 type Path = openapi.paths["/customers"]["post"];
@@ -22,21 +22,21 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const [emailError, reqEmail] = !("email" in rawBody)
-    ? [requiredField("(root)", "email")]
+    ? [fieldRequired("(root)", "email")]
     : typeof rawBody.email !== "string"
-      ? [invalidType(rawBody, "email", "string")]
+      ? [fieldInvalidType(rawBody, "email", "string")]
       : [undefined, rawBody.email];
 
   const [nameError, reqName] = !("name" in rawBody)
     ? [undefined, undefined]
     : typeof rawBody.name !== "string"
-      ? [invalidType(rawBody, "name", "string")]
+      ? [fieldInvalidType(rawBody, "name", "string")]
       : [undefined, rawBody.name];
 
   const [localeError, reqLocale] = !("locale" in rawBody)
     ? [undefined, undefined]
     : typeof rawBody.locale !== "string"
-      ? [invalidType(rawBody, "locale", "string")]
+      ? [fieldInvalidType(rawBody, "locale", "string")]
       : [undefined, rawBody.locale];
 
   if (emailError !== undefined || nameError !== undefined || localeError !== undefined) {

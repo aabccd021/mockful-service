@@ -120,13 +120,13 @@ export async function getBody(requestId: string, req: Request): Promise<Response
   }
 
   if (rawBody === null || typeof rawBody !== "object") {
-    return [invalidRequest(requestId, [invalidType(rawBody, "(root)", "object")])];
+    return [invalidRequest(requestId, [fieldInvalidType(rawBody, "(root)", "object")])];
   }
 
   return [undefined, rawBody];
 }
 
-export function invalidType<T, K extends keyof T>(
+export function fieldInvalidType<T, K extends keyof T>(
   obj: T,
   field: K & string,
   expectedType: string,
@@ -139,7 +139,7 @@ export function invalidType<T, K extends keyof T>(
   };
 }
 
-export function requiredField(field: string, requiredField: string): FieldError {
+export function fieldRequired(field: string, requiredField: string): FieldError {
   return {
     field,
     message: `${requiredField} is required`,
