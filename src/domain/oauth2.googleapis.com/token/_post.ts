@@ -10,7 +10,7 @@ type AuthSession = {
   user_email_verified: "true" | "false" | null;
 };
 
-function serializeBoolean(value: "true" | "false" | null): boolean {
+function emailVerifiedToBoolean(value: "true" | "false" | null): boolean {
   if (value === "true") {
     return true;
   }
@@ -24,25 +24,7 @@ function serializeBoolean(value: "true" | "false" | null): boolean {
   throw new Error(`Invalid boolean value: ${value}. Expected "true" or "false".`);
 }
 
-function getEmailScopeData(
-  scopes: string[],
-  authSession: AuthSession,
-):
-  | undefined
-  | {
-      email: string;
-      email_verified: boolean;
-    } {
-  if (!scopes.includes("email")) {
-    return undefined;
-  }
-  return {
-    email: authSession.user_email,
-    email_verified: serializeBoolean(authSession.user_email_verified),
-  };
-}
-
-function generateGoogleIdToken(
+function createIdToken(
   authSession: AuthSession,
   accessToken: string,
   scopeStr: string,
@@ -70,13 +52,16 @@ function generateGoogleIdToken(
   const nowEpoch = Math.floor(Date.now() / 1000);
 
   const payload = {
-    ...getEmailScopeData(scopes, authSession),
     iss: "https://accounts.google.com",
     aud: authSession.client_id,
     iat: nowEpoch,
     exp: nowEpoch + 3600,
     at_hash: atHash,
     sub: authSession.user_sub,
+    email: scopes.includes("email") ? authSession.user_email : undefined,
+    email_verified: scopes.includes("email")
+      ? emailVerifiedToBoolean(authSession.user_email_verified)
+      : undefined,
   };
 
   const payloadStr = new TextEncoder()
@@ -317,7 +302,7 @@ export async function handle(req: Request): Promise<Response> {
 
   const accessToken = crypto.randomUUID();
 
-  const idToken = generateGoogleIdToken(authSession, accessToken, scopeStr);
+  const idToken = createIdToken(authSession, accessToken, scopeStr);
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
