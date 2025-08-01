@@ -77,7 +77,7 @@ CREATE TABLE paddle_customer (
   status TEXT DEFAULT 'active',
   name TEXT,
   marketing_consent TEXT DEFAULT 'false',
-  locale TEXT DEFAULT 'en',
+  locale TEXT,
   created_at INTEGER,
   updated_at INTEGER,
   account_id TEXT,

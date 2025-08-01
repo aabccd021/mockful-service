@@ -33,7 +33,13 @@ export async function handle(req: Request): Promise<Response> {
       ? [invalidType(rawBody, "name", "string")]
       : [undefined, rawBody.name];
 
-  if (emailError !== undefined || nameError !== undefined) {
+  const [localeError, reqLocale] = !("locale" in rawBody)
+    ? [undefined, undefined]
+    : typeof rawBody.locale !== "string"
+      ? [invalidType(rawBody, "locale", "string")]
+      : [undefined, rawBody.locale];
+
+  if (emailError !== undefined || nameError !== undefined || localeError !== undefined) {
     const errors = [emailError, nameError].filter((err) => err !== undefined);
     return invalidRequest(requestId, errors);
   }
@@ -41,6 +47,7 @@ export async function handle(req: Request): Promise<Response> {
   const reqBody: RequestBodyOf<Path> = {
     email: reqEmail,
     name: reqName,
+    locale: reqLocale,
   };
 
   const [errorRes2, accountId] = getAccountId(req);
@@ -57,6 +64,7 @@ export async function handle(req: Request): Promise<Response> {
           account_id, 
           id, 
           email,
+          locale,
           created_at,
           updated_at
         )
@@ -64,6 +72,7 @@ export async function handle(req: Request): Promise<Response> {
           $projectId, 
           $id, 
           $email,
+          COALESCE($locale, 'en'),
           $createdAt,
           $updatedAt
         )
@@ -72,6 +81,7 @@ export async function handle(req: Request): Promise<Response> {
       id,
       projectId: accountId,
       email: reqBody.email,
+      locale: reqBody.locale ?? null,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
