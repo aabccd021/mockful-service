@@ -18,7 +18,7 @@ function emailVerifiedToBoolean(value: "true" | "false" | null): boolean {
     return false;
   }
   if (value === null) {
-    throw new Error("Seed error: scope email is used but email_verified is null.");
+    throw new Error("Scope 'email' is used but email_verified is null.");
   }
   value satisfies never;
   throw new Error(`Invalid boolean value: ${value}. Expected "true" or "false".`);
