@@ -101,6 +101,7 @@ export function handle(req: Request): Response {
     console.error("No redirect_uri provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
+      <p>Missing required parameter: redirect_uri</p>
       <p>Error 400: invalid_request </p>
     `);
   }
