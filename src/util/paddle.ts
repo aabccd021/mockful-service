@@ -100,7 +100,7 @@ export function invalidRequest(
   return Response.json(resBody, { status: 400 });
 }
 
-export async function getRawBody(requestId: string, req: Request): Promise<ResponseOr<object>> {
+export async function getBody(requestId: string, req: Request): Promise<ResponseOr<object>> {
   let rawBody = null;
   try {
     rawBody = await req.json();

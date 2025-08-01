@@ -5,7 +5,7 @@ import {
   type DefaultError,
   generateId,
   getAccountId,
-  getRawBody,
+  getBody,
   invalidRequest,
   invalidType,
   requiredField,
@@ -16,7 +16,7 @@ type Path = openapi.paths["/customers"]["post"];
 export async function handle(req: Request): Promise<Response> {
   const requestId = crypto.randomUUID();
 
-  const [errorRes, rawBody] = await getRawBody(requestId, req);
+  const [errorRes, rawBody] = await getBody(requestId, req);
   if (errorRes !== undefined) {
     return errorRes;
   }
