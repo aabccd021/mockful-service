@@ -1,12 +1,4 @@
 import { db } from "@util/index.ts";
-import * as s from "superstruct";
-
-const Users = s.array(
-  s.object({
-    sub: s.string(),
-    email: s.string(),
-  }),
-);
 
 const knownScopes = ["openid", "email"];
 
@@ -106,9 +98,10 @@ export function handle(req: Request): Response {
   }
 
   const redirectUris = db
-    .query("SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId")
+    .query<{ value: string }, { clientId: string }>(
+      "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
+    )
     .all({ clientId: reqClientId });
-  s.assert(redirectUris, s.array(s.object({ value: s.string() })));
 
   const validRedirectUris = redirectUris.map((r) => r.value);
   if (!validRedirectUris.includes(reqRedirectUri)) {
@@ -125,9 +118,9 @@ export function handle(req: Request): Response {
 
   const redirectHost = new URL(reqRedirectUri).host;
 
-  const users = db.query(`SELECT sub,email FROM google_auth_user`).all();
-  s.assert(users, Users);
-
+  const users = db
+    .query<{ sub: string; email: string }, []>(`SELECT sub,email FROM google_auth_user`)
+    .all();
   const userSubmitButton = users
     .map(
       (user) =>
