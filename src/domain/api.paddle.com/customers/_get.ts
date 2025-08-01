@@ -80,6 +80,26 @@ export async function handle(req: Request): Promise<Response> {
   //     "request_id": "398fb4a5-5eef-497e-818f-bc06b692d70d"
   //   }
   // }
+  //
+  // one of the ids is invalid
+  // id=txn_01k0nddb19m718qq4bmfr0scc3,foo
+  // {
+  //   "error": {
+  //     "type": "request_error",
+  //     "code": "bad_request",
+  //     "detail": "Invalid request.",
+  //     "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
+  //     "errors": [
+  //       {
+  //         "field": "id",
+  //         "message": "invalid input"
+  //       }
+  //     ]
+  //   },
+  //   "meta": {
+  //     "request_id": "0295bbce-5090-45ac-b75c-55814cc5aca5"
+  //   }
+  // }
   const reqQuery: QueryOf<Path> = {
     email: rawQuery.get("email")?.split(","),
     after: rawQuery.get("after") ?? undefined,
