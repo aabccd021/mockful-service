@@ -32,6 +32,7 @@ export function handle(req: Request): Response {
 
   const reqScope = searchParams.get("scope");
   if (reqScope === null) {
+    console.error("No scope provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
@@ -41,6 +42,7 @@ export function handle(req: Request): Response {
   const scopes = reqScope.split(" ");
   for (const scope of scopes) {
     if (!knownScopes.includes(scope)) {
+      console.error(`Invalid scope requested: ${scope}`);
       return page(`
         <h1>Access blocked: Authorization Error</h1>
         <p>Error 400: invalid_scope </p>
@@ -50,6 +52,7 @@ export function handle(req: Request): Response {
 
   const reqResponseType = searchParams.get("response_type");
   if (reqResponseType === null) {
+    console.error("No response_type provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
@@ -57,6 +60,7 @@ export function handle(req: Request): Response {
   }
 
   if (reqResponseType !== "code") {
+    console.error(`Invalid response_type requested: ${reqResponseType}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
@@ -65,6 +69,7 @@ export function handle(req: Request): Response {
 
   const reqSearchParam = searchParams.get("code_challenge_method");
   if (reqSearchParam !== null && !knownChallengeMethods.includes(reqSearchParam)) {
+    console.error(`Invalid code_challenge_method requested: ${reqSearchParam}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
@@ -73,6 +78,7 @@ export function handle(req: Request): Response {
 
   const reqClientId = searchParams.get("client_id");
   if (reqClientId === null) {
+    console.error("No client_id provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
@@ -83,6 +89,7 @@ export function handle(req: Request): Response {
     .query("SELECT id FROM google_auth_client WHERE id = $id")
     .get({ id: reqClientId });
   if (client === null) {
+    console.error(`Invalid client_id requested: ${reqClientId}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 401: invalid_client </p>
@@ -91,6 +98,7 @@ export function handle(req: Request): Response {
 
   const reqRedirectUri = searchParams.get("redirect_uri");
   if (reqRedirectUri === null) {
+    console.error("No redirect_uri provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
@@ -105,6 +113,7 @@ export function handle(req: Request): Response {
 
   const validRedirectUris = redirectUris.map((r) => r.value);
   if (!validRedirectUris.includes(reqRedirectUri)) {
+    console.error(`Invalid redirect_uri requested: ${reqRedirectUri}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Error 400: invalid_request </p>
