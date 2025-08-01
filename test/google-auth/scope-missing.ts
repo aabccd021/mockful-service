@@ -15,9 +15,3 @@ expect(body).toInclude("Error 400: invalid_request");
 expect(body).toInclude("Missing required parameter: scope");
 expect(loginResponse.status).toEqual(200);
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-//Access blocked: Authorization Error
-
-// foo@example.com
-// Missing required parameter: scope Learn more about this error
-// If you are a developer of project_id, see error details.
-// Error 400: invalid_request

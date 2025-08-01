@@ -42,9 +42,9 @@ export function handle(req: Request): Response {
   const scopes = reqScope.split(" ");
   for (const scope of scopes) {
     if (!knownScopes.includes(scope)) {
-      console.error(`Invalid scope requested: ${scope}`);
       return page(`
         <h1>Access blocked: Authorization Error</h1>
+        <p>Some requested scopes were invalid. {invalid=[${scope}]}</p>
         <p>Error 400: invalid_scope </p>
       `);
     }
