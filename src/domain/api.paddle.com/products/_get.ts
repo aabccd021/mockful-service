@@ -60,15 +60,15 @@ export async function handle(req: Request): Promise<Response> {
   const data = products.map((product) => ({
     id: product.id,
     name: product.name,
-    description: product.description ?? null,
-    type: product.type ?? "standard",
+    description: product.description,
+    type: product.type,
     tax_category: product.tax_category,
-    image_url: product.image_url ?? null,
-    custom_data: null,
+    image_url: product.image_url,
     status: product.status,
-    import_meta: null,
     created_at: new Date(product.created_at).toISOString(),
     updated_at: new Date(product.updated_at).toISOString(),
+    custom_data: null,
+    import_meta: null,
   }));
 
   const resBody: ResponseBodyOf<Path, 200> = {
