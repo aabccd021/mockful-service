@@ -121,6 +121,14 @@ export async function handle(req: Request): Promise<Response> {
           .get({ email, accountId: authReq.accountId }),
       )
       .filter((val) => val !== null);
+  } else if (reqQuery.id !== undefined) {
+    customers = reqQuery.id
+      .map((id) =>
+        db
+          .query<Customer, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
+          .get({ id, accountId: authReq.accountId }),
+      )
+      .filter((val) => val !== null);
   } else {
     customers = db
       .query<Customer, sqlite.SQLQueryBindings>(
