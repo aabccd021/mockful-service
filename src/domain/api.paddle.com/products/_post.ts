@@ -1,23 +1,3 @@
-// 201
-//{
-//  "data": {
-//    "id": "pro_01k1fhnfyacc0a56gexvtaq6ye",
-//    "name": "foo",
-//    "tax_category": "saas",
-//    "type": "standard",
-//    "description": null,
-//    "image_url": null,
-//    "custom_data": null,
-//    "status": "active",
-//    "import_meta": null,
-//    "created_at": "2025-07-31T06:10:45.322Z",
-//    "updated_at": "2025-07-31T06:10:45.322Z"
-//  },
-//  "meta": {
-//    "request_id": "42a6c5f8-908b-4438-bc76-68926a63fed8"
-//  }
-//}
-//
 // 400
 //{
 // "error": {
