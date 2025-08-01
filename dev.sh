@@ -7,17 +7,14 @@ git add -A
 
 export NETERO_STATE="/tmp/netero-oauth-mock/var/lib/netero"
 rm -rf "$NETERO_STATE"
-set -x
 netero-oauth-mock-init
-echo foo
 
 sqlite3 "$NETERO_STATE/mock.sqlite" <<EOF
-INSERT INTO google_auth_user (sub, email, email_verified) 
-  VALUES ('nijika-sub', 'nijika@example.com', 'true');
-INSERT INTO google_auth_user (sub, email, email_verified) 
-  VALUES ('yamada-sub', 'yamada@example.com', 'false');
-INSERT INTO google_auth_user (sub, email)
-  VALUES ('kita-sub', 'kita@example.com');
+INSERT INTO google_project (id) VALUES ('mock_project_id');
+INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'yamada-sub', 'yamada@example.com');
+INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://example.com');
 EOF
 
 rm -rf ./node_modules
@@ -29,6 +26,7 @@ bun --no-clear-screen --hot src/index.ts &
 
 sleep 1
 
-timeout 1 xdg-open "http://localhost:3000/https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=https%3A%2F%2Fexample.com%2Flogin%2Fcallback" || true
+params="scope=openid&response_type=code&client_id=mock_client_id&redirect_uri=https%3A%2F%2Fexample.com"
+timeout 1 xdg-open "http://localhost:3000/https://accounts.google.com/o/oauth2/v2/auth?$params" || true
 
 wait

@@ -148,7 +148,12 @@ export function handle(req: Request): Response {
   return page(`
     <h1>Choose an account</h1>
     <p>to continue to ${redirectHost}</p>
-    <a href="${cancelUrl.toString()}">Cancel</a>
+    <a 
+      style="display: inline-block; padding: 0.5rem 0; margin-bottom: 1rem; border: 1px solid; text-decoration: none; text-align: center; width: 100%;" 
+      href="${cancelUrl.toString()}"
+    >
+      Cancel
+    </a>
     <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
       ${paramInputsStr} 
       ${userSubmitButton} 
