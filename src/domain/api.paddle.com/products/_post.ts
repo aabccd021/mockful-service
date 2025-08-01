@@ -1,16 +1,3 @@
-// 400
-//{
-// "error": {
-//    "type": "request_error",
-//    "code": "product_tax_category_not_approved",
-//    "detail": "tax category not approved",
-//    "documentation_url": "https://developer.paddle.com/v1/errors/products/product_tax_category_not_approved"
-//  },
-//  "meta": {
-//    "request_id": "ce707dc4-83e4-438d-84cd-6793c2bc8b0e"
-//  }
-//}
-
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
@@ -108,6 +95,38 @@ export async function handle(req: Request): Promise<Response> {
     type: reqType,
     image_url: reqImageUrl,
   };
+
+  const enabledCategory = db
+    .query(
+      `
+        SELECT * 
+        FROM paddle_account_tax_category_enabled 
+        WHERE account_id = $accountId 
+        AND tax_category = $taxCategory
+      `,
+    )
+    .get({
+      accountId: authReq.accountId,
+      taxCategory: reqBody.tax_category,
+    });
+
+  if (enabledCategory === null) {
+    return Response.json(
+      {
+        error: {
+          type: "request_error",
+          code: "product_tax_category_not_approved",
+          detail: "tax category not approved",
+          documentation_url:
+            "https://developer.paddle.com/v1/errors/products/product_tax_category_not_approved",
+        },
+        meta: {
+          request_id: authReq.id,
+        },
+      },
+      { status: 400, headers: { "Content-Type": "application/json" } },
+    );
+  }
 
   const id = `pro_${generateId()}`;
 
