@@ -33,7 +33,7 @@ expect(createResponseBody.error).toEqual({
   errors: [
     {
       field: "(root)",
-      message: "Invalid type. Expected object, received 'object'",
+      message: "Invalid type. Expected: object, given: object",
     },
   ],
 });

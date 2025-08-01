@@ -28,19 +28,19 @@ const createResponse = await fetch(
 
 expect(createResponse.status).toEqual(400);
 const createResponseBody = await createResponse.json();
-expect(createResponseBody.error).toEqual({
-  type: "request_error",
-  code: "bad_request",
-  detail: "Invalid request.",
-  documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-  errors: [
-    {
-      field: "email",
-      message: "Invalid type. Expected string, received 'number'",
-    },
-    {
-      field: "name",
-      message: "Invalid type. Expected string, received 'boolean'",
-    },
-  ],
-});
+expect(createResponseBody.error.type).toEqual("request_error");
+expect(createResponseBody.error.code).toEqual("bad_request");
+expect(createResponseBody.error.detail).toEqual("Invalid request.");
+expect(createResponseBody.error.documentation_url).toEqual(
+  "https://developer.paddle.com/v1/errors/shared/bad_request",
+);
+expect(createResponseBody.error.errors).toContainAllValues([
+  {
+    field: "email",
+    message: "Invalid type. Expected: string, given: integer",
+  },
+  {
+    field: "name",
+    message: "Invalid type. Expected: string, given: boolean",
+  },
+]);

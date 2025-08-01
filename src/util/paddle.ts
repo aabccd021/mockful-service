@@ -132,9 +132,11 @@ export function invalidType<T, K extends keyof T>(
   expectedType: string,
 ): FieldError {
   const target = field === "(root)" ? obj : obj[field];
+  // "integer" if it's an integer, otherwise use `typeof`
+  const targetType = Number.isInteger(target) ? "integer" : typeof target;
   return {
     field,
-    message: `Invalid type. Expected ${expectedType}, received '${typeof target}'`,
+    message: `Invalid type. Expected: ${expectedType}, given: ${targetType}`,
   };
 }
 
