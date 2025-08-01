@@ -120,14 +120,7 @@ export async function getRawBody(requestId: string, req: Request): Promise<Respo
   }
 
   if (rawBody === null || typeof rawBody !== "object") {
-    return [
-      invalidRequest(requestId, [
-        {
-          field: "(root)",
-          message: `Invalid type. Expected object, received '${typeof rawBody}'`,
-        },
-      ]),
-    ];
+    return [invalidRequest(requestId, [invalidType(rawBody, "(root)", "object")])];
   }
 
   return [undefined, rawBody];
@@ -138,9 +131,10 @@ export function invalidType<T, K extends keyof T>(
   field: K & string,
   expectedType: string,
 ): FieldError {
+  const target = field === "(root)" ? obj : obj[field];
   return {
     field,
-    message: `Invalid type. Expected ${expectedType}, received '${typeof obj[field]}'`,
+    message: `Invalid type. Expected ${expectedType}, received '${typeof target}'`,
   };
 }
 
