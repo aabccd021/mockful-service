@@ -125,8 +125,6 @@ export function handle(req: Request): Response {
     .map(([name, value]) => `<input type="hidden" name="${name}" value="${value}" />`);
   const paramInputsStr = Array.from(paramInputs).join("");
 
-  const redirectHost = new URL(reqRedirectUri).host;
-
   const users = db
     .query<{ sub: string; email: string }, []>(`SELECT sub,email FROM google_auth_user`)
     .all();
@@ -147,7 +145,7 @@ export function handle(req: Request): Response {
 
   return page(`
     <h1>Choose an account</h1>
-    <p>to continue to ${redirectHost}</p>
+    <p>to continue to ${new URL(reqRedirectUri).host}</p>
     <a 
       style="display: inline-block; padding: 0.5rem 0; margin-bottom: 1rem; border: 1px solid; text-decoration: none; text-align: center; width: 100%;" 
       href="${cancelUrl.toString()}"
