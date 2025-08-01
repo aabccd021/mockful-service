@@ -1,3 +1,4 @@
+import type * as sqlite from "bun:sqlite";
 import { db } from "@util/index.ts";
 
 const knownScopes = ["openid", "email"];
@@ -106,7 +107,7 @@ export function handle(req: Request): Response {
   }
 
   const redirectUris = db
-    .query<{ value: string }, { clientId: string }>(
+    .query<{ value: string }, sqlite.SQLQueryBindings>(
       "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
     )
     .all({ clientId: reqClientId });

@@ -1,3 +1,4 @@
+import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import type { ResponseOr } from "@util/index.ts";
 import { db } from "@util/index.ts";
@@ -57,7 +58,7 @@ export function authenticate(req: Request): ResponseOr<AuthenticatedRequest> {
   }
 
   const apiKey = db
-    .query<{ account_id: string }, { key: string }>(
+    .query<{ account_id: string }, sqlite.SQLQueryBindings>(
       "SELECT account_id FROM paddle_api_key WHERE key = $key",
     )
     .get({ key: reqApiKey });

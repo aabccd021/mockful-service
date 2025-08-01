@@ -125,7 +125,7 @@ export async function handle(req: Request): Promise<Response> {
         created_at: number;
         updated_at: number;
       },
-      { id: string }
+      sqlite.SQLQueryBindings
     >("SELECT * FROM paddle_customer WHERE id = $id")
     .get({ id });
 

@@ -1,3 +1,4 @@
+import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type QueryOf, type ResponseBodyOf } from "@util/index";
 import { authenticate } from "@util/paddle.ts";
@@ -43,7 +44,7 @@ export async function handle(req: Request): Promise<Response> {
     customers = reqQuery.email
       .map((email) =>
         db
-          .query<Customer, { email: string; accountId: string }>(
+          .query<Customer, sqlite.SQLQueryBindings>(
             "SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId",
           )
           .get({ email, accountId: authReq.accountId }),
@@ -51,7 +52,7 @@ export async function handle(req: Request): Promise<Response> {
       .filter((val) => val !== null);
   } else {
     customers = db
-      .query<Customer, { accountId: string }>(
+      .query<Customer, sqlite.SQLQueryBindings>(
         "SELECT * FROM paddle_customer WHERE account_id = $accountId",
       )
       .all({ accountId: authReq.accountId });

@@ -1,3 +1,4 @@
+import type * as sqlite from "bun:sqlite";
 import { db, getStringFormData } from "@util/index.ts";
 
 type AuthSession = {
@@ -176,7 +177,7 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const authSession = db
-    .query<AuthSession, { code: string }>(
+    .query<AuthSession, sqlite.SQLQueryBindings>(
       `
         SELECT 
           s.client_id,
@@ -261,7 +262,7 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const redirectUris = db
-    .query<{ value: string }, { clientId: string }>(
+    .query<{ value: string }, sqlite.SQLQueryBindings>(
       "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
     )
     .all({ clientId: clientId });
@@ -278,7 +279,7 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const clients = db
-    .query<{ secret: string }, { id: string }>(
+    .query<{ secret: string }, sqlite.SQLQueryBindings>(
       "SELECT secret FROM google_auth_client WHERE id = $id",
     )
     .all({ id: clientId });
