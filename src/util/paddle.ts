@@ -132,3 +132,21 @@ export async function getRawBody(requestId: string, req: Request): Promise<Respo
 
   return [undefined, rawBody];
 }
+
+export function invalidType<T, K extends keyof T>(
+  obj: T,
+  field: K & string,
+  expectedType: string,
+): FieldError {
+  return {
+    field,
+    message: `Invalid type. Expected ${expectedType}, received '${typeof obj[field]}'`,
+  };
+}
+
+export function requiredField(field: string, requiredField: string): FieldError {
+  return {
+    field,
+    message: `${requiredField} is required`,
+  };
+}

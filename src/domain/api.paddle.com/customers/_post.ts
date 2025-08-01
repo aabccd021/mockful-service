@@ -3,11 +3,12 @@ import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
 import {
   type DefaultError,
-  type FieldValidation,
   generateId,
   getAccountId,
   getRawBody,
   invalidRequest,
+  invalidType,
+  requiredField,
 } from "@util/paddle";
 
 type Path = openapi.paths["/customers"]["post"];
@@ -20,31 +21,16 @@ export async function handle(req: Request): Promise<Response> {
     return errorRes;
   }
 
-  const [emailError, reqEmail]: FieldValidation<string> = !("email" in rawBody)
-    ? [
-        {
-          field: "(root)",
-          message: "email is required",
-        },
-      ]
+  const [emailError, reqEmail] = !("email" in rawBody)
+    ? [requiredField("(root)", "email")]
     : typeof rawBody.email !== "string"
-      ? [
-          {
-            field: "email",
-            message: `Invalid type. Expected string, received '${typeof rawBody.email}'`,
-          },
-        ]
+      ? [invalidType(rawBody, "email", "string")]
       : [undefined, rawBody.email];
 
-  const [nameError, reqName]: FieldValidation<string | undefined> = !("name" in rawBody)
+  const [nameError, reqName] = !("name" in rawBody)
     ? [undefined, undefined]
     : typeof rawBody.name !== "string"
-      ? [
-          {
-            field: "name",
-            message: `Invalid type. Expected string, received '${typeof rawBody.name}'`,
-          },
-        ]
+      ? [invalidType(rawBody, "name", "string")]
       : [undefined, rawBody.name];
 
   if (emailError !== undefined || nameError !== undefined) {
