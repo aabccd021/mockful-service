@@ -217,9 +217,9 @@ export async function handle(req: Request): Promise<Response> {
       );
     }
 
-    const code_challengeMethod: "S256" | "plain" = authSession.code_challenge_method ?? "plain";
+    const codeChallengeMethod: "S256" | "plain" = authSession.code_challenge_method ?? "plain";
 
-    if (code_challengeMethod === "plain") {
+    if (codeChallengeMethod === "plain") {
       if (authSession.code_challenge !== codeVerifier) {
         return Response.json(
           {
@@ -229,7 +229,7 @@ export async function handle(req: Request): Promise<Response> {
           { status: 400 },
         );
       }
-    } else if (code_challengeMethod === "S256") {
+    } else if (codeChallengeMethod === "S256") {
       const hashBinary = new Bun.CryptoHasher("sha256").update(codeVerifier).digest();
       const codeVerifierHash = new Uint8Array(hashBinary).toBase64({
         alphabet: "base64url",
@@ -245,8 +245,8 @@ export async function handle(req: Request): Promise<Response> {
         );
       }
     } else {
-      code_challengeMethod satisfies never;
-      throw new Error(`Unreachable code_challenge_method value: ${code_challengeMethod}`);
+      codeChallengeMethod satisfies never;
+      throw new Error(`Unreachable code_challenge_method value: ${codeChallengeMethod}`);
     }
   }
 
