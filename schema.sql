@@ -100,7 +100,12 @@ CREATE TABLE paddle_customer (
 
 CREATE TABLE paddle_product (
   id TEXT,
+  name TEXT,
   tax_category TEXT,
+  description TEXT,
+  type TEXT DEFAULT 'standard',
+  status TEXT DEFAULT 'active',
+  image_url TEXT,
   account_id TEXT,
   CONSTRAINT paddle_product_pk PRIMARY KEY (id),
   CONSTRAINT paddle_product_id_prefix CHECK (id LIKE 'pro_%'),
@@ -108,6 +113,10 @@ CREATE TABLE paddle_product (
   CONSTRAINT paddle_product_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CONSTRAINT paddle_product_tax_category_enum CHECK (tax_category IN ('digital-goods', 'ebooks', 'implementation-services', 'professional-services', 'saas', 'software-programming-services', 'standard', 'training-services', 'website-hosting')),
   CONSTRAINT paddle_product_tax_category_not_null CHECK (tax_category IS NOT NULL),
+  CONSTRAINT paddle_product_type_enum CHECK (type IN ('standard', 'custom')),
+  CONSTRAINT paddle_product_type_not_null CHECK (type IS NOT NULL),
+  CONSTRAINT paddle_product_status_enum CHECK (status IN ('active', 'archived')),
+  CONSTRAINT paddle_product_status_not_null CHECK (status IS NOT NULL),
   CONSTRAINT paddle_product_account_id_not_null CHECK (account_id IS NOT NULL),
   CONSTRAINT paddle_product_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;

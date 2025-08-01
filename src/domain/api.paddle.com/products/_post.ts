@@ -28,38 +28,191 @@
 //   }
 // }
 
-// import * as sqlite from "bun:sqlite";
-// import { db } from "@util/index";
-// import * as paddle from "@util/paddle.ts";
+import type * as openapi from "@openapi/paddle.ts";
+import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
+import {
+  authenticate,
+  fieldEnum,
+  fieldInvalidType,
+  fieldRequired,
+  generateId,
+  getBody,
+  invalidRequest,
+} from "@util/paddle";
 
-export async function handle(_req: Request): Promise<Response> {
-  // not implemented
-  return new Response("Not implemented", { status: 501 });
+type Path = openapi.paths["/products"]["post"];
 
-  // const accountId = paddle.getAccountId(req);
-  // if (accountId.type === "response") {
-  //   return accountId.response;
-  // }
-  //
-  // const reqCustomer = await req.json();
-  //
-  // s.assert(
-  //   reqCustomer,
-  //   s.object({
-  //     name: s.string(),
-  //     tax_category: enums([
-  //       "digital-goods",
-  //       "ebooks",
-  //       "implementation-services",
-  //       "professional-services",
-  //       "saas",
-  //       "software-programming-services",
-  //       "standard",
-  //       "training-services",
-  //       "website-hosting",
-  //     ]),
-  //   }),
-  // );
-  //
-  // const id = `ctm_${paddle.generateId()}`;
+export async function handle(req: Request): Promise<Response> {
+  const [authErrorRes, authReq] = authenticate(req);
+  if (authErrorRes !== undefined) {
+    return authErrorRes;
+  }
+
+  const [errorRes, rawBody] = await getBody(authReq, req);
+  if (errorRes !== undefined) {
+    return errorRes;
+  }
+
+  const [nameError, reqName] = !("name" in rawBody)
+    ? [fieldRequired("(root)", "name")]
+    : typeof rawBody.name !== "string"
+      ? [fieldInvalidType(rawBody, "name", "string")]
+      : [undefined, rawBody.name];
+
+  const [taxCategoryError, reqTaxCategory] = !("tax_category" in rawBody)
+    ? [fieldRequired("(root)", "tax_category")]
+    : rawBody.tax_category !== "digital-goods" &&
+        rawBody.tax_category !== "ebooks" &&
+        rawBody.tax_category !== "implementation-services" &&
+        rawBody.tax_category !== "professional-services" &&
+        rawBody.tax_category !== "saas" &&
+        rawBody.tax_category !== "software-programming-services" &&
+        rawBody.tax_category !== "standard" &&
+        rawBody.tax_category !== "training-services" &&
+        rawBody.tax_category !== "website-hosting"
+      ? [
+          fieldEnum("tax_category", [
+            "digital-goods",
+            "ebooks",
+            "implementation-services",
+            "professional-services",
+            "saas",
+            "software-programming-services",
+            "standard",
+            "training-services",
+            "website-hosting",
+          ]),
+        ]
+      : ([undefined, rawBody.tax_category] as const);
+
+  const [descriptionError, reqDescription] = !("description" in rawBody)
+    ? [undefined, undefined]
+    : typeof rawBody.description !== "string"
+      ? [fieldInvalidType(rawBody, "description", "string")]
+      : [undefined, rawBody.description];
+
+  const [typeError, reqType] = !("type" in rawBody)
+    ? [undefined, undefined]
+    : rawBody.type !== "standard" && rawBody.type !== "custom"
+      ? [fieldEnum("type", ["standard", "custom"])]
+      : ([undefined, rawBody.type] as const);
+
+  const [imageUrlError, reqImageUrl] = !("image_url" in rawBody)
+    ? [undefined, undefined]
+    : typeof rawBody.image_url !== "string"
+      ? [fieldInvalidType(rawBody, "image_url", "string")]
+      : [undefined, rawBody.image_url];
+
+  if (
+    nameError !== undefined ||
+    taxCategoryError !== undefined ||
+    descriptionError !== undefined ||
+    typeError !== undefined ||
+    imageUrlError !== undefined
+  ) {
+    const errors = [nameError].filter((err) => err !== undefined);
+    return invalidRequest(authReq, errors);
+  }
+
+  const reqBody: RequestBodyOf<Path> = {
+    name: reqName,
+    tax_category: reqTaxCategory,
+    description: reqDescription,
+    type: reqType,
+    image_url: reqImageUrl,
+  };
+
+  const id = `pro_${generateId()}`;
+
+  db.query(
+    `
+        INSERT INTO paddle_product (
+          account_id, 
+          id, 
+          name,
+          tax_category,
+          description,
+          type,
+          image_url,
+          created_at,
+          updated_at
+        )
+        VALUES (
+          $accountId, 
+          $id, 
+          $name,
+          $taxCategory,
+          $description,
+          COALESCE($type, NULL),
+          $imageUrl,
+          $createdAt,
+          $updatedAt
+        )
+      `,
+  ).run({
+    accountId: authReq.accountId,
+    id,
+    name: reqBody.name,
+    taxCategory: reqBody.tax_category,
+    description: reqBody.description ?? null,
+    type: reqBody.type ?? null,
+    imageUrl: reqBody.image_url ?? null,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  });
+
+  const product = db
+    .query<
+      {
+        id: string;
+        account_id: string;
+        tax_category:
+          | "digital-goods"
+          | "ebooks"
+          | "implementation-services"
+          | "professional-services"
+          | "saas"
+          | "software-programming-services"
+          | "standard"
+          | "training-services"
+          | "website-hosting";
+        created_at: number;
+        updated_at: number;
+        name: string;
+        description?: string;
+        type: "standard" | "custom";
+        image_url?: string;
+        status: "active" | "archived";
+      },
+      { id: string }
+    >("SELECT * FROM paddle_product WHERE id = $id")
+    .get({ id });
+
+  if (product === null) {
+    throw new Error("Unreachable");
+  }
+
+  const resBody: ResponseBodyOf<Path, 201> = {
+    data: {
+      id: product.id,
+      tax_category: product.tax_category,
+      created_at: new Date(product.created_at).toISOString(),
+      updated_at: new Date(product.updated_at).toISOString(),
+      name: product.name,
+      description: product.description ?? null,
+      type: product.type,
+      image_url: product.image_url ?? null,
+      custom_data: null,
+      status: product.status,
+      import_meta: null,
+    },
+    meta: {
+      request_id: authReq.id,
+    },
+  };
+
+  return Response.json(resBody, {
+    status: 201,
+    headers: { "Content-Type": "application/json" },
+  });
 }

@@ -67,19 +67,19 @@ export async function handle(req: Request): Promise<Response> {
           updated_at
         )
         VALUES (
-          $projectId, 
+          $accountId, 
           $id, 
           $email,
-          COALESCE($locale, 'en'),
+          $locale,
           $createdAt,
           $updatedAt
         )
       `,
     ).run({
       id,
-      projectId: authReq.accountId,
+      accountId: authReq.accountId,
       email: reqBody.email,
-      locale: reqBody.locale ?? null,
+      locale: reqBody.locale ?? "en",
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
