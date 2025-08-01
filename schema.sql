@@ -106,6 +106,8 @@ CREATE TABLE paddle_product (
   type TEXT DEFAULT 'standard',
   status TEXT DEFAULT 'active',
   image_url TEXT,
+  created_at INTEGER,
+  updated_at INTEGER,
   account_id TEXT,
   CONSTRAINT paddle_product_pk PRIMARY KEY (id),
   CONSTRAINT paddle_product_id_prefix CHECK (id LIKE 'pro_%'),
@@ -117,6 +119,8 @@ CREATE TABLE paddle_product (
   CONSTRAINT paddle_product_type_not_null CHECK (type IS NOT NULL),
   CONSTRAINT paddle_product_status_enum CHECK (status IN ('active', 'archived')),
   CONSTRAINT paddle_product_status_not_null CHECK (status IS NOT NULL),
+  CONSTRAINT paddle_product_created_at_not_null CHECK (created_at IS NOT NULL),
+  CONSTRAINT paddle_product_updated_at_not_null CHECK (updated_at IS NOT NULL),
   CONSTRAINT paddle_product_account_id_not_null CHECK (account_id IS NOT NULL),
   CONSTRAINT paddle_product_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;

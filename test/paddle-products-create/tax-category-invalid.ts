@@ -19,19 +19,22 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
   },
   body: JSON.stringify({
     name: "Mock Product",
-    tax_category: "saas",
+    tax_category: "foo",
   }),
 });
 
-expect(response.status).toEqual(201);
+expect(response.status).toEqual(400);
 const responseBody = await response.json();
-expect(responseBody.data.id).toBeDefined();
-expect(responseBody.data.name).toEqual("Mock Product");
-expect(responseBody.data.tax_category).toEqual("saas");
-expect(responseBody.data.status).toEqual("active");
-expect(responseBody.data.description).toEqual(null);
-expect(responseBody.data.description).toEqual(null);
-expect(responseBody.data.image_url).toEqual(null);
-expect(responseBody.data.custom_data).toEqual(null);
-expect(responseBody.data.created_at).toBeDefined();
-expect(responseBody.data.updated_at).toBeDefined();
+expect(responseBody.error.type).toEqual("request_error");
+expect(responseBody.error.code).toEqual("bad_request");
+expect(responseBody.error.detail).toEqual("Invalid request.");
+expect(responseBody.error.documentation_url).toEqual(
+  "https://developer.paddle.com/v1/errors/shared/bad_request",
+);
+expect(responseBody.error.errors).toContainAllValues([
+  {
+    field: "tax_category",
+    message:
+      'must be one of the following: "digital-goods", "ebooks", "implementation-services", "professional-services", "saas", "software-programming-services", "standard", "training-services", "website-hosting"',
+  },
+]);

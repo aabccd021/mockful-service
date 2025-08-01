@@ -110,7 +110,9 @@ export async function handle(req: Request): Promise<Response> {
     typeError !== undefined ||
     imageUrlError !== undefined
   ) {
-    const errors = [nameError].filter((err) => err !== undefined);
+    const errors = [nameError, taxCategoryError, descriptionError, typeError, imageUrlError].filter(
+      (err) => err !== undefined,
+    );
     return invalidRequest(authReq, errors);
   }
 
