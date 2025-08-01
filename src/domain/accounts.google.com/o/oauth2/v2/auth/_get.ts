@@ -69,7 +69,6 @@ export function handle(req: Request): Response {
 
   const reqSearchParam = searchParams.get("code_challenge_method");
   if (reqSearchParam !== null && !knownChallengeMethods.includes(reqSearchParam)) {
-    console.error(`Invalid code_challenge_method requested: ${reqSearchParam}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Invalid parameter value for code_challenge_method: '${reqSearchParam}' is not a valid CodeChallengeMethod</p>
@@ -79,7 +78,6 @@ export function handle(req: Request): Response {
 
   const reqClientId = searchParams.get("client_id");
   if (reqClientId === null) {
-    console.error("No client_id provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Missing required parameter: client_id</p>
@@ -100,7 +98,6 @@ export function handle(req: Request): Response {
 
   const reqRedirectUri = searchParams.get("redirect_uri");
   if (reqRedirectUri === null) {
-    console.error("No redirect_uri provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>Missing required parameter: redirect_uri</p>
@@ -116,7 +113,6 @@ export function handle(req: Request): Response {
 
   const validRedirectUris = redirectUris.map((r) => r.value);
   if (!validRedirectUris.includes(reqRedirectUri)) {
-    console.error(`Invalid redirect_uri requested: ${reqRedirectUri}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
       <p>You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy for keeping apps secure.</p>
