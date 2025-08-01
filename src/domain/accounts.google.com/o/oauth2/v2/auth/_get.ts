@@ -82,6 +82,7 @@ export function handle(req: Request): Response {
     console.error("No client_id provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
+      <p>Missing required parameter: client_id</p>
       <p>Error 400: invalid_request </p>
     `);
   }
