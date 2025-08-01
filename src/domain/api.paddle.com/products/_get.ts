@@ -1,6 +1,5 @@
 // import { db } from "@util/index.ts";
 // import { getAccountId } from "@util/paddle.ts";
-// import * as s from "superstruct";
 //
 // const Customer = s.nullable(
 //   s.object({

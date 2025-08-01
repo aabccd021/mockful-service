@@ -106,7 +106,6 @@
 // import * as sqlite from "bun:sqlite";
 // import { db } from "@util/index";
 // import * as paddle from "@util/paddle.ts";
-// import * as s from "superstruct";
 
 export async function handle(_req: Request): Promise<Response> {
   // not implemented

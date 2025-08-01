@@ -5,7 +5,6 @@
   },
   "dependencies": {
     "@types/bun": "latest",
-    "jose": "latest",
-    "superstruct": "latest"
+    "jose": "latest"
   }
 }
