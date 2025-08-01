@@ -8,15 +8,14 @@ const GoogleAuthUser = s.object({
 
 export type GoogleAuthUser = s.Infer<typeof GoogleAuthUser>;
 
-const AuthSession = s.type({
-  client_id: s.string(),
-  scope: s.nullable(s.string()),
-  user_sub: s.string(),
-  code_challenge: s.nullable(s.string()),
-  code_challenge_method: s.nullable(s.enums(["S256", "plain"])),
-});
-
-type AuthSession = s.Infer<typeof AuthSession>;
+type AuthSession = {
+  client_id: string;
+  scope: string | null;
+  user_sub: string;
+  code_challenge: string | null;
+  code_challenge_method: "S256" | "plain" | null;
+  code: string;
+};
 
 function serializeBoolean(value: "true" | "false" | null): boolean {
   if (value === "true") {
@@ -210,11 +209,10 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const authSession = db
-    .query("SELECT * FROM google_auth_session WHERE code = $code")
+    .query<AuthSession, { code: string }>("SELECT * FROM google_auth_session WHERE code = $code")
     .get({ code });
   db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
-  s.assert(authSession, s.nullable(AuthSession));
   if (authSession === null) {
     return Response.json(
       {
