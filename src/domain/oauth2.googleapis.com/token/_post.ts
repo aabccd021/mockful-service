@@ -1,20 +1,13 @@
 import { db, getStringFormData } from "@util/index.ts";
-import * as s from "superstruct";
-
-const GoogleAuthUser = s.object({
-  email: s.string(),
-  email_verified: s.nullable(s.enums(["true", "false"])),
-});
-
-export type GoogleAuthUser = s.Infer<typeof GoogleAuthUser>;
 
 type AuthSession = {
   client_id: string;
   scope: string | null;
-  user_sub: string;
   code_challenge: string | null;
   code_challenge_method: "S256" | "plain" | null;
-  code: string;
+  user_sub: string;
+  user_email: string;
+  user_email_verified: "true" | "false" | null;
 };
 
 function serializeBoolean(value: "true" | "false" | null): boolean {
@@ -33,7 +26,7 @@ function serializeBoolean(value: "true" | "false" | null): boolean {
 
 function getEmailScopeData(
   scopes: string[],
-  user: GoogleAuthUser,
+  authSession: AuthSession,
 ):
   | undefined
   | {
@@ -44,8 +37,8 @@ function getEmailScopeData(
     return undefined;
   }
   return {
-    email: user.email,
-    email_verified: serializeBoolean(user.email_verified),
+    email: authSession.user_email,
+    email_verified: serializeBoolean(authSession.user_email_verified),
   };
 }
 
@@ -58,13 +51,6 @@ function generateGoogleIdToken(
   if (!scopes.includes("openid")) {
     return undefined;
   }
-
-  const sub = authSession.user_sub;
-
-  const user = db
-    .query("SELECT email,email_verified FROM google_auth_user WHERE sub = $sub")
-    .get({ sub });
-  s.assert(user, GoogleAuthUser);
 
   const atHashRaw = new Bun.CryptoHasher("sha256").update(accessToken).digest();
   const atHash = new Uint8Array(atHashRaw)
@@ -84,13 +70,13 @@ function generateGoogleIdToken(
   const nowEpoch = Math.floor(Date.now() / 1000);
 
   const payload = {
-    ...getEmailScopeData(scopes, user),
+    ...getEmailScopeData(scopes, authSession),
     iss: "https://accounts.google.com",
     aud: authSession.client_id,
     iat: nowEpoch,
     exp: nowEpoch + 3600,
     at_hash: atHash,
-    sub,
+    sub: authSession.user_sub,
   };
 
   const payloadStr = new TextEncoder()
@@ -209,7 +195,22 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const authSession = db
-    .query<AuthSession, { code: string }>("SELECT * FROM google_auth_session WHERE code = $code")
+    .query<AuthSession, { code: string }>(
+      `
+        SELECT 
+          s.client_id,
+          s.scope,
+          s.code_challenge,
+          s.code_challenge_method,
+          s.user_sub,
+          u.email AS user_email,
+          u.email_verified AS user_email_verified
+        FROM google_auth_session s
+        JOIN google_auth_user u 
+          ON s.user_sub = u.sub
+        WHERE code = $code
+      `,
+    )
     .get({ code });
   db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
