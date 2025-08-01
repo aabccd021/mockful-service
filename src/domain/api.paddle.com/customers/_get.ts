@@ -1,6 +1,6 @@
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type QueryOf, type ResponseBodyOf } from "@util/index";
-import { getAccountId } from "@util/paddle.ts";
+import { authenticate } from "@util/paddle.ts";
 
 type Path = openapi.paths["/customers"]["get"];
 
@@ -17,7 +17,10 @@ type Customer = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const requestId = crypto.randomUUID();
+  const [errorRes, auth] = authenticate(req);
+  if (errorRes !== undefined) {
+    return errorRes;
+  }
 
   const rawQuery = new URL(req.url).searchParams;
 
@@ -35,11 +38,6 @@ export async function handle(req: Request): Promise<Response> {
     // status: rawQuery.get("status")?.split(",") ?? undefined,
   };
 
-  const [errorRes, accountId] = getAccountId(req);
-  if (errorRes !== undefined) {
-    return errorRes;
-  }
-
   let customers = null;
   if (reqQuery.email !== undefined) {
     customers = reqQuery.email
@@ -48,7 +46,7 @@ export async function handle(req: Request): Promise<Response> {
           .query<Customer, { email: string; accountId: string }>(
             "SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId",
           )
-          .get({ email, accountId }),
+          .get({ email, accountId: auth.accountId }),
       )
       .filter((val) => val !== null);
   } else {
@@ -56,7 +54,7 @@ export async function handle(req: Request): Promise<Response> {
       .query<Customer, { accountId: string }>(
         "SELECT * FROM paddle_customer WHERE account_id = $accountId",
       )
-      .all({ accountId });
+      .all({ accountId: auth.accountId });
   }
 
   const data = customers.map((customer) => ({
@@ -76,7 +74,7 @@ export async function handle(req: Request): Promise<Response> {
   const resBody: ResponseBodyOf<Path, 200> = {
     data,
     meta: {
-      request_id: requestId,
+      request_id: auth.requestId,
       pagination: {
         has_more: false,
         per_page: data.length,

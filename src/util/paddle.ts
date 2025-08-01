@@ -36,7 +36,10 @@ function authenticationMalformedResponse(): Response {
   );
 }
 
-export function getAccountId(req: Request): ResponseOr<string> {
+export function authenticate(req: Request): ResponseOr<{
+  accountId: string;
+  requestId: string;
+}> {
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
     return [forbiddenResponse()];
@@ -61,7 +64,13 @@ export function getAccountId(req: Request): ResponseOr<string> {
     return [forbiddenResponse()];
   }
 
-  return [undefined, apiKey.account_id];
+  return [
+    undefined,
+    {
+      accountId: apiKey.account_id,
+      requestId: crypto.randomUUID(),
+    },
+  ];
 }
 
 export function generateId(): string {

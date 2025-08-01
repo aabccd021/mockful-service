@@ -2,11 +2,11 @@ import * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
 import {
+  authenticate,
   type DefaultError,
   fieldInvalidType,
   fieldRequired,
   generateId,
-  getAccountId,
   getBody,
   invalidRequest,
 } from "@util/paddle";
@@ -14,9 +14,12 @@ import {
 type Path = openapi.paths["/customers"]["post"];
 
 export async function handle(req: Request): Promise<Response> {
-  const requestId = crypto.randomUUID();
+  const [authErrorRes, auth] = authenticate(req);
+  if (authErrorRes !== undefined) {
+    return authErrorRes;
+  }
 
-  const [errorRes, rawBody] = await getBody(requestId, req);
+  const [errorRes, rawBody] = await getBody(auth.requestId, req);
   if (errorRes !== undefined) {
     return errorRes;
   }
@@ -41,7 +44,7 @@ export async function handle(req: Request): Promise<Response> {
 
   if (emailError !== undefined || nameError !== undefined || localeError !== undefined) {
     const errors = [emailError, nameError].filter((err) => err !== undefined);
-    return invalidRequest(requestId, errors);
+    return invalidRequest(auth.requestId, errors);
   }
 
   const reqBody: RequestBodyOf<Path> = {
@@ -49,11 +52,6 @@ export async function handle(req: Request): Promise<Response> {
     name: reqName,
     locale: reqLocale,
   };
-
-  const [errorRes2, accountId] = getAccountId(req);
-  if (errorRes2 !== undefined) {
-    return errorRes2;
-  }
 
   const id = `ctm_${generateId()}`;
 
@@ -79,7 +77,7 @@ export async function handle(req: Request): Promise<Response> {
       `,
     ).run({
       id,
-      projectId: accountId,
+      projectId: auth.accountId,
       email: reqBody.email,
       locale: reqBody.locale ?? null,
       createdAt: Date.now(),
@@ -100,7 +98,7 @@ export async function handle(req: Request): Promise<Response> {
               "https://developer.paddle.com/v1/errors/customers/customer_already_exists",
           },
           meta: {
-            request_id: requestId,
+            request_id: auth.requestId,
           },
         };
         return Response.json(resBody, {
@@ -147,7 +145,7 @@ export async function handle(req: Request): Promise<Response> {
       import_meta: null,
     },
     meta: {
-      request_id: requestId,
+      request_id: auth.requestId,
     },
   };
 
