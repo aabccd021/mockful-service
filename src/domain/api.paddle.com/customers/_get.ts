@@ -25,8 +25,69 @@ export async function handle(req: Request): Promise<Response> {
 
   const rawQuery = new URL(req.url).searchParams;
 
+  // per_page=-1
+  // {
+  //   "error": {
+  //     "type": "request_error",
+  //     "code": "invalid_field",
+  //     "detail": "Request does not pass validation.",
+  //     "documentation_url": "https://developer.paddle.com/v1/errors/shared/invalid_field",
+  //     "errors": [
+  //       {
+  //         "field": "TransactionsRequest.PerPage",
+  //         "message": "must be greater than or equal to 0. Provided: -1"
+  //       }
+  //     ]
+  //   },
+  //   "meta": {
+  //     "request_id": "984dfe76-35ce-4134-a222-39bac3d32a3e"
+  //   }
+  // }
+  // per_page=1.5
+  // {
+  //   "error": {
+  //     "type": "request_error",
+  //     "code": "bad_request",
+  //     "detail": "Invalid request.",
+  //     "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
+  //     "errors": [
+  //       {
+  //         "field": "per_page",
+  //         "message": "invalid input"
+  //       }
+  //     ]
+  //   },
+  //   "meta": {
+  //     "request_id": "d3c600de-5516-4b2c-8395-e94a96dc0fae"
+  //   }
+  // }
+  //
+  // status=ready,active
+  // {
+  //   "error": {
+  //     "type": "request_error",
+  //     "code": "invalid_field",
+  //     "detail": "Request does not pass validation.",
+  //     "documentation_url": "https://developer.paddle.com/v1/errors/shared/invalid_field",
+  //     "errors": [
+  //       {
+  //         "field": "TransactionsRequest.Status[1]",
+  //         "message": "must be one of the following values: paid|completed|ready|billed|draft|canceled|past_due. Provided: active"
+  //       }
+  //     ]
+  //   },
+  //   "meta": {
+  //     "request_id": "398fb4a5-5eef-497e-818f-bc06b692d70d"
+  //   }
+  // }
   const reqQuery: QueryOf<Path> = {
     email: rawQuery.get("email")?.split(","),
+    after: rawQuery.get("after") ?? undefined,
+    id: rawQuery.get("id")?.split(","),
+    order_by: rawQuery.get("order_by") ?? undefined,
+    search: rawQuery.get("search") ?? undefined,
+    // per_page: ...
+    // status: ...
   };
 
   let customers = null;
