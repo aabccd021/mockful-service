@@ -38,23 +38,6 @@
 //     "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
 //     "errors": [
 //       {
-//         "field": "(root)",
-//         "message": "tax_category is required"
-//       }
-//     ]
-//   },
-//   "meta": {
-//     "request_id": "13262964-cadf-486f-ac5a-dc6d7487d066"
-//   }
-//}
-//{
-//  "error": {
-//     "type": "request_error",
-//     "code": "bad_request",
-//     "detail": "Invalid request.",
-//     "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
-//     "errors": [
-//       {
 //         "field": "tax_category",
 //         "message": "must be one of the following: \"digital-goods\", \"ebooks\", \"implementation-services\", \"professional-services\", \"saas\", \"software-programming-services\", \"standard\", \"training-services\", \"website-hosting\""
 //       }
@@ -64,44 +47,6 @@
 //     "request_id": "db318057-aee4-4898-918e-f908774017c0"
 //   }
 // }
-//{
-//  "error": {
-//    "type": "request_error",
-//    "code": "bad_request",
-//    "detail": "Invalid request.",
-//    "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
-//    "errors": [
-//      {
-//        "field": "tax_category",
-//        "message": "Invalid type. Expected: string, given: number"
-//      }
-//    ]
-//  },
-//  "meta": {
-//    "request_id": "8cf50cb4-1bac-420e-a0f8-3e93f7eb98d5"
-//  }
-// }
-//{
-//  "error": {
-//    "type": "request_error",
-//    "code": "bad_request",
-//    "detail": "Invalid request.",
-//    "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
-//    "errors": [
-//      {
-//        "field": "name",
-//        "message": "Invalid type. Expected: string, given: number"
-//      },
-//      {
-//        "field": "tax_category",
-//        "message": "must be one of the following: \"digital-goods\", \"ebooks\", \"implementation-services\", \"professional-services\", \"saas\", \"software-programming-services\", \"standard\", \"training-services\", \"website-hosting\""
-//      }
-//    ]
-//  },
-//  "meta": {
-//    "request_id": "1a72030e-0fef-46ff-939c-f0b5d024359c"
-//  }
-//}
 
 // import * as sqlite from "bun:sqlite";
 // import { db } from "@util/index";
