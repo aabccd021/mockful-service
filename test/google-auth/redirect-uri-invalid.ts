@@ -21,16 +21,12 @@ const loginResponse = await fetch(authUrl);
 const body = await loginResponse.text();
 expect(body).toInclude("Access blocked: Authorization Error");
 expect(body).toInclude("Error 400: invalid_request");
+expect(body).toInclude(
+  "You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy for keeping apps secure.",
+);
+expect(body).toInclude(
+  "You can let the app developer know that this app doesn't comply with one or more Google validation rules.",
+);
 expect(loginResponse.status).toEqual(200);
 
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-// Access blocked: Authorization Error
-//
-// foo@example.com
-//
-// You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy for keeping apps secure.
-//
-// You can let the app developer know that this app doesn't comply with one or more Google validation rules.
-// Learn more about this error
-// If you are a developer of this app, see error details.
-// Error 400: invalid_request

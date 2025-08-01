@@ -117,6 +117,8 @@ export function handle(req: Request): Response {
     console.error(`Invalid redirect_uri requested: ${reqRedirectUri}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
+      <p>You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy for keeping apps secure.</p>
+      <p>You can let the app developer know that this app doesn't comply with one or more Google validation rules.</p>
       <p>Error 400: invalid_request </p>
     `);
   }
