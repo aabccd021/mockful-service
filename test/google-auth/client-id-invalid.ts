@@ -2,7 +2,6 @@ import { expect } from "bun:test";
 
 const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
 authUrl.searchParams.set("scope", "openid");
-authUrl.searchParams.set("user", "kita-sub");
 authUrl.searchParams.set("response_type", "code");
 authUrl.searchParams.set("client_id", "foo"); // changed
 authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
