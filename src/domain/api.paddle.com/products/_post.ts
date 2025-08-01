@@ -15,9 +15,12 @@ import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
 import {
   authenticate,
+  fieldAbsent,
   fieldEnum,
-  fieldInvalidType,
+  fieldEnumValue,
   fieldRequired,
+  fieldType,
+  fieldValue,
   generateId,
   getBody,
   invalidRequest,
@@ -37,13 +40,13 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const [nameError, reqName] = !("name" in rawBody)
-    ? [fieldRequired("(root)", "name")]
+    ? fieldRequired("(root)", "name")
     : typeof rawBody.name !== "string"
-      ? [fieldInvalidType(rawBody, "name", "string")]
-      : [undefined, rawBody.name];
+      ? fieldType(rawBody, "name", "string")
+      : fieldValue(rawBody.name);
 
   const [taxCategoryError, reqTaxCategory] = !("tax_category" in rawBody)
-    ? [fieldRequired("(root)", "tax_category")]
+    ? fieldRequired("(root)", "tax_category")
     : rawBody.tax_category !== "digital-goods" &&
         rawBody.tax_category !== "ebooks" &&
         rawBody.tax_category !== "implementation-services" &&
@@ -53,38 +56,36 @@ export async function handle(req: Request): Promise<Response> {
         rawBody.tax_category !== "standard" &&
         rawBody.tax_category !== "training-services" &&
         rawBody.tax_category !== "website-hosting"
-      ? [
-          fieldEnum("tax_category", [
-            "digital-goods",
-            "ebooks",
-            "implementation-services",
-            "professional-services",
-            "saas",
-            "software-programming-services",
-            "standard",
-            "training-services",
-            "website-hosting",
-          ]),
-        ]
-      : ([undefined, rawBody.tax_category] as const);
+      ? fieldEnum("tax_category", [
+          "digital-goods",
+          "ebooks",
+          "implementation-services",
+          "professional-services",
+          "saas",
+          "software-programming-services",
+          "standard",
+          "training-services",
+          "website-hosting",
+        ])
+      : fieldEnumValue(rawBody.tax_category);
 
   const [descriptionError, reqDescription] = !("description" in rawBody)
-    ? [undefined, undefined]
+    ? fieldAbsent()
     : typeof rawBody.description !== "string"
-      ? [fieldInvalidType(rawBody, "description", "string")]
-      : [undefined, rawBody.description];
+      ? fieldType(rawBody, "description", "string")
+      : fieldValue(rawBody.description);
 
   const [typeError, reqType] = !("type" in rawBody)
-    ? [undefined, undefined]
+    ? fieldAbsent()
     : rawBody.type !== "standard" && rawBody.type !== "custom"
-      ? [fieldEnum("type", ["standard", "custom"])]
-      : ([undefined, rawBody.type] as const);
+      ? fieldEnum("type", ["standard", "custom"])
+      : fieldEnumValue(rawBody.type);
 
   const [imageUrlError, reqImageUrl] = !("image_url" in rawBody)
-    ? [undefined, undefined]
+    ? fieldAbsent()
     : typeof rawBody.image_url !== "string"
-      ? [fieldInvalidType(rawBody, "image_url", "string")]
-      : [undefined, rawBody.image_url];
+      ? fieldType(rawBody, "image_url", "string")
+      : fieldValue(rawBody.image_url);
 
   if (
     nameError !== undefined ||

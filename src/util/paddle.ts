@@ -134,35 +134,53 @@ export async function getBody(
   }
 
   if (rawBody === null || typeof rawBody !== "object") {
-    return [invalidRequest(authReq, [fieldInvalidType(rawBody, "(root)", "object")])];
+    return [invalidRequest(authReq, fieldType(rawBody, "(root)", "object"))];
   }
 
   return [undefined, rawBody];
 }
 
-export function fieldInvalidType<T, K extends keyof T>(
+export function fieldType<T, K extends keyof T>(
   obj: T,
   field: K & string,
   expectedType: string,
-): FieldError {
+): [FieldError] {
   const target = field === "(root)" ? obj : obj[field];
   const targetType = Number.isInteger(target) ? "integer" : typeof target;
-  return {
-    field,
-    message: `Invalid type. Expected: ${expectedType}, given: ${targetType}`,
-  };
+  return [
+    {
+      field,
+      message: `Invalid type. Expected: ${expectedType}, given: ${targetType}`,
+    },
+  ];
 }
 
-export function fieldRequired(field: string, requiredField: string): FieldError {
-  return {
-    field,
-    message: `${requiredField} is required`,
-  };
+export function fieldRequired(field: string, requiredField: string): [FieldError] {
+  return [
+    {
+      field,
+      message: `${requiredField} is required`,
+    },
+  ];
 }
 
-export function fieldEnum(field: string, validValues: string[]): FieldError {
-  return {
-    field,
-    message: `must be one of the following: ${validValues.map((v) => `"${v}"`).join(", ")}`,
-  };
+export function fieldEnum(field: string, validValues: string[]): [FieldError] {
+  return [
+    {
+      field,
+      message: `must be one of the following: ${validValues.map((v) => `"${v}"`).join(", ")}`,
+    },
+  ];
+}
+
+export function fieldValue<T>(t: T): FieldValidation<T> {
+  return [undefined, t];
+}
+
+export function fieldEnumValue<T extends string>(t: T): FieldValidation<T> {
+  return [undefined, t] as const;
+}
+
+export function fieldAbsent(): FieldValidation<undefined> {
+  return [undefined, undefined] as const;
 }

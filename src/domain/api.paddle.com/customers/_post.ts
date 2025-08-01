@@ -4,8 +4,10 @@ import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
 import {
   authenticate,
   type DefaultError,
-  fieldInvalidType,
+  fieldAbsent,
   fieldRequired,
+  fieldType,
+  fieldValue,
   generateId,
   getBody,
   invalidRequest,
@@ -25,22 +27,22 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const [emailError, reqEmail] = !("email" in rawBody)
-    ? [fieldRequired("(root)", "email")]
+    ? fieldRequired("(root)", "email")
     : typeof rawBody.email !== "string"
-      ? [fieldInvalidType(rawBody, "email", "string")]
-      : [undefined, rawBody.email];
+      ? fieldType(rawBody, "email", "string")
+      : fieldValue(rawBody.email);
 
   const [nameError, reqName] = !("name" in rawBody)
-    ? [undefined, undefined]
+    ? fieldAbsent()
     : typeof rawBody.name !== "string"
-      ? [fieldInvalidType(rawBody, "name", "string")]
-      : [undefined, rawBody.name];
+      ? fieldType(rawBody, "name", "string")
+      : fieldValue(rawBody.name);
 
   const [localeError, reqLocale] = !("locale" in rawBody)
-    ? [undefined, undefined]
+    ? fieldAbsent()
     : typeof rawBody.locale !== "string"
-      ? [fieldInvalidType(rawBody, "locale", "string")]
-      : [undefined, rawBody.locale];
+      ? fieldType(rawBody, "locale", "string")
+      : fieldValue(rawBody.locale);
 
   if (emailError !== undefined || nameError !== undefined || localeError !== undefined) {
     const errors = [emailError, nameError].filter((err) => err !== undefined);
