@@ -17,9 +17,9 @@ type Customer = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const [errorRes, authReq] = authenticate(req);
-  if (errorRes !== undefined) {
-    return errorRes;
+  const [authErrorRes, authReq] = authenticate(req);
+  if (authErrorRes !== undefined) {
+    return authErrorRes;
   }
 
   const rawQuery = new URL(req.url).searchParams;
