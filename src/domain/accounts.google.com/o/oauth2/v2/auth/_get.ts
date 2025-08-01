@@ -52,9 +52,9 @@ export function handle(req: Request): Response {
 
   const reqResponseType = searchParams.get("response_type");
   if (reqResponseType === null) {
-    console.error("No response_type provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
+      <p>Required parameter is missing: response_type</p>
       <p>Error 400: invalid_request </p>
     `);
   }
