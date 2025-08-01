@@ -26,17 +26,7 @@ export async function handle(req: Request): Promise<Response> {
   const rawQuery = new URL(req.url).searchParams;
 
   const reqQuery: QueryOf<Path> = {
-    after: rawQuery.get("after") ?? undefined,
     email: rawQuery.get("email")?.split(","),
-    id: rawQuery.get("id")?.split(","),
-    order_by: rawQuery.get("order_by") ?? undefined,
-    per_page: Number.parseInt(rawQuery.get("per_page") ?? "50", 10),
-    search: rawQuery.get("search") ?? undefined,
-    // {
-    //   "field": "Status[0]",
-    //   "message": "Key: 'FetchAllCustomers.Status[0]' Error:Field validation for 'Status[0]' failed on the 'oneof' tag"
-    // }
-    // status: rawQuery.get("status")?.split(",") ?? undefined,
   };
 
   let customers = null;
