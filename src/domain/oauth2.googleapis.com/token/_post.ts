@@ -26,7 +26,7 @@ function serializeBoolean(value: "true" | "false" | null): boolean {
     return false;
   }
   if (value === null) {
-    throw new Error("User email_verified is required for email scope.");
+    throw new Error("Seed error: scope email is used but email_verified is null.");
   }
   value satisfies never;
   throw new Error(`Invalid boolean value: ${value}. Expected "true" or "false".`);
@@ -51,7 +51,6 @@ function getEmailScopeData(
 }
 
 function generateGoogleIdToken(
-  _req: Request,
   authSession: AuthSession,
   accessToken: string,
   scopeStr: string,
@@ -319,7 +318,7 @@ export async function handle(req: Request): Promise<Response> {
 
   const accessToken = crypto.randomUUID();
 
-  const idToken = generateGoogleIdToken(req, authSession, accessToken, scopeStr);
+  const idToken = generateGoogleIdToken(authSession, accessToken, scopeStr);
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
