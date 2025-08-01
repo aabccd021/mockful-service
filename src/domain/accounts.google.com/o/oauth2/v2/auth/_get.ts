@@ -124,10 +124,9 @@ export function handle(req: Request): Response {
     .entries()
     .map(([name, value]) => `<input type="hidden" name="${name}" value="${value}" />`);
 
-  const users = db
+  const userSubmitButton = db
     .query<{ sub: string; email: string }, []>(`SELECT sub,email FROM google_auth_user`)
-    .all();
-  const userSubmitButton = users
+    .all()
     .map(
       (user) =>
         `<button style="height: 2rem" type="submit" name="user_sub" value="${user.sub}">${user.email}</button>`,
