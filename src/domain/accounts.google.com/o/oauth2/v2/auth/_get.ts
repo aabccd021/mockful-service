@@ -60,9 +60,9 @@ export function handle(req: Request): Response {
   }
 
   if (reqResponseType !== "code") {
-    console.error(`Invalid response_type requested: ${reqResponseType}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
+      <p>Invalid response_type: ${reqResponseType}</p>
       <p>Error 400: invalid_request </p>
     `);
   }

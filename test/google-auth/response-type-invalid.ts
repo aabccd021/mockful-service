@@ -12,11 +12,6 @@ const loginResponse = await fetch(authUrl);
 const body = await loginResponse.text();
 expect(body).toInclude("Access blocked: Authorization Error");
 expect(body).toInclude("Error 400: invalid_request");
+expect(body).toInclude("Invalid response_type: foo");
 expect(loginResponse.status).toEqual(200);
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-// Access blocked: Authorization Error
-//
-// foo@example.com
-// Invalid response_type: foo Learn more about this error
-// If you are a developer of project_id, see error details.
-// Error 400: invalid_request
