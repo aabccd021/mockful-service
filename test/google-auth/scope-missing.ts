@@ -12,6 +12,7 @@ const loginResponse = await fetch(authUrl);
 const body = await loginResponse.text();
 expect(body).toInclude("Access blocked: Authorization Error");
 expect(body).toInclude("Error 400: invalid_request");
+expect(body).toInclude("Missing required parameter: scope");
 expect(loginResponse.status).toEqual(200);
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
 //Access blocked: Authorization Error

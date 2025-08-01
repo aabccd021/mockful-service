@@ -32,9 +32,9 @@ export function handle(req: Request): Response {
 
   const reqScope = searchParams.get("scope");
   if (reqScope === null) {
-    console.error("No scope provided in the request");
     return page(`
       <h1>Access blocked: Authorization Error</h1>
+      <p>Missing required parameter: scope</p>
       <p>Error 400: invalid_request </p>
     `);
   }
