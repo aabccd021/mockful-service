@@ -31,7 +31,7 @@ const customerId = createResponseBody.data.id;
 const listUrl = new URL("http://localhost:3001/https://sandbox-api.paddle.com/customers");
 listUrl.searchParams.set("email", "nijika@example.com");
 
-const listResponse = await fetch(listUrl, {
+const response = await fetch(listUrl, {
   method: "GET",
   headers: {
     Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
@@ -39,9 +39,9 @@ const listResponse = await fetch(listUrl, {
   },
 });
 
-expect(listResponse.status).toEqual(200);
-const listResponseBody = await listResponse.json();
-const customers = listResponseBody.data;
+expect(response.status).toEqual(200);
+const responseBody = await response.json();
+const customers = responseBody.data;
 expect(customers).toBeArrayOfSize(1);
 expect(customers[0]?.email).toEqual("nijika@example.com");
 expect(customers[0]?.id).toEqual(customerId);

@@ -11,30 +11,27 @@ INSERT INTO paddle_api_key (account_id, key) VALUES (
 );
 `);
 
-const createResponse = await fetch(
-  "http://localhost:3001/https://sandbox-api.paddle.com/customers",
-  {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: 3,
-      name: true,
-    }),
+const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.com/customers", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
+    "Content-Type": "application/json",
   },
-);
+  body: JSON.stringify({
+    email: 3,
+    name: true,
+  }),
+});
 
-expect(createResponse.status).toEqual(400);
-const createResponseBody = await createResponse.json();
-expect(createResponseBody.error.type).toEqual("request_error");
-expect(createResponseBody.error.code).toEqual("bad_request");
-expect(createResponseBody.error.detail).toEqual("Invalid request.");
-expect(createResponseBody.error.documentation_url).toEqual(
+expect(response.status).toEqual(400);
+const responseBody = await response.json();
+expect(responseBody.error.type).toEqual("request_error");
+expect(responseBody.error.code).toEqual("bad_request");
+expect(responseBody.error.detail).toEqual("Invalid request.");
+expect(responseBody.error.documentation_url).toEqual(
   "https://developer.paddle.com/v1/errors/shared/bad_request",
 );
-expect(createResponseBody.error.errors).toContainAllValues([
+expect(responseBody.error.errors).toContainAllValues([
   {
     field: "email",
     message: "Invalid type. Expected: string, given: integer",
