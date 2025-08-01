@@ -12,13 +12,7 @@ const loginResponse = await fetch(authUrl);
 const body = await loginResponse.text();
 expect(body).toInclude("Access blocked: Authorization Error");
 expect(body).toInclude("Error 401: invalid_client");
+expect(body).toInclude("The OAuth client was not found.");
 expect(loginResponse.status).toEqual(200);
-// expect(loginResponse.status).toEqual(401);
+
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=foo&flowName=GeneralOAuthFlow
-//
-// Access blocked: Authorization Error
-//
-// foo@example.com
-// The OAuth client was not found.
-// If you are a developer of this app, see error details.
-// Error 401: invalid_client

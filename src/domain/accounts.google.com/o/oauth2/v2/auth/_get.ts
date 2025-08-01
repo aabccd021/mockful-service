@@ -91,9 +91,9 @@ export function handle(req: Request): Response {
     .query("SELECT id FROM google_auth_client WHERE id = $id")
     .get({ id: reqClientId });
   if (client === null) {
-    console.error(`Invalid client_id requested: ${reqClientId}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
+      <p>The OAuth client was not found.</p>
       <p>Error 401: invalid_client </p>
     `);
   }
