@@ -36,10 +36,12 @@ function authenticationMalformedResponse(): Response {
   );
 }
 
-export function authenticate(req: Request): ResponseOr<{
+type AuthenticatedRequest = {
+  id: string;
   accountId: string;
-  requestId: string;
-}> {
+};
+
+export function authenticate(req: Request): ResponseOr<AuthenticatedRequest> {
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
     return [forbiddenResponse()];
@@ -68,7 +70,7 @@ export function authenticate(req: Request): ResponseOr<{
     undefined,
     {
       accountId: apiKey.account_id,
-      requestId: crypto.randomUUID(),
+      id: crypto.randomUUID(),
     },
   ];
 }
@@ -91,7 +93,7 @@ export type FieldError = {
 export type FieldValidation<T> = [FieldError] | [undefined, T];
 
 export function invalidRequest(
-  requestId: string,
+  authReq: AuthenticatedRequest,
   errors: DefaultError["error"]["errors"],
 ): Response {
   const resBody: DefaultError = {
@@ -103,13 +105,16 @@ export function invalidRequest(
       errors: errors,
     },
     meta: {
-      request_id: requestId,
+      request_id: authReq.id,
     },
   };
   return Response.json(resBody, { status: 400 });
 }
 
-export async function getBody(requestId: string, req: Request): Promise<ResponseOr<object>> {
+export async function getBody(
+  authReq: AuthenticatedRequest,
+  req: Request,
+): Promise<ResponseOr<object>> {
   let rawBody = null;
   try {
     rawBody = await req.json();
@@ -122,14 +127,14 @@ export async function getBody(requestId: string, req: Request): Promise<Response
         documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
       },
       meta: {
-        request_id: requestId,
+        request_id: authReq.id,
       },
     };
     return [Response.json(resBody, { status: 400 })];
   }
 
   if (rawBody === null || typeof rawBody !== "object") {
-    return [invalidRequest(requestId, [fieldInvalidType(rawBody, "(root)", "object")])];
+    return [invalidRequest(authReq, [fieldInvalidType(rawBody, "(root)", "object")])];
   }
 
   return [undefined, rawBody];

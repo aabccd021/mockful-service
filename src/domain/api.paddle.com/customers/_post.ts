@@ -14,12 +14,12 @@ import {
 type Path = openapi.paths["/customers"]["post"];
 
 export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, auth] = authenticate(req);
+  const [authErrorRes, authReq] = authenticate(req);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
 
-  const [errorRes, rawBody] = await getBody(auth.requestId, req);
+  const [errorRes, rawBody] = await getBody(authReq, req);
   if (errorRes !== undefined) {
     return errorRes;
   }
@@ -44,7 +44,7 @@ export async function handle(req: Request): Promise<Response> {
 
   if (emailError !== undefined || nameError !== undefined || localeError !== undefined) {
     const errors = [emailError, nameError].filter((err) => err !== undefined);
-    return invalidRequest(auth.requestId, errors);
+    return invalidRequest(authReq, errors);
   }
 
   const reqBody: RequestBodyOf<Path> = {
@@ -77,7 +77,7 @@ export async function handle(req: Request): Promise<Response> {
       `,
     ).run({
       id,
-      projectId: auth.accountId,
+      projectId: authReq.accountId,
       email: reqBody.email,
       locale: reqBody.locale ?? null,
       createdAt: Date.now(),
@@ -98,7 +98,7 @@ export async function handle(req: Request): Promise<Response> {
               "https://developer.paddle.com/v1/errors/customers/customer_already_exists",
           },
           meta: {
-            request_id: auth.requestId,
+            request_id: authReq.id,
           },
         };
         return Response.json(resBody, {
@@ -145,7 +145,7 @@ export async function handle(req: Request): Promise<Response> {
       import_meta: null,
     },
     meta: {
-      request_id: auth.requestId,
+      request_id: authReq.id,
     },
   };
 

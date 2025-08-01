@@ -17,7 +17,7 @@ type Customer = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const [errorRes, auth] = authenticate(req);
+  const [errorRes, authReq] = authenticate(req);
   if (errorRes !== undefined) {
     return errorRes;
   }
@@ -46,7 +46,7 @@ export async function handle(req: Request): Promise<Response> {
           .query<Customer, { email: string; accountId: string }>(
             "SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId",
           )
-          .get({ email, accountId: auth.accountId }),
+          .get({ email, accountId: authReq.accountId }),
       )
       .filter((val) => val !== null);
   } else {
@@ -54,7 +54,7 @@ export async function handle(req: Request): Promise<Response> {
       .query<Customer, { accountId: string }>(
         "SELECT * FROM paddle_customer WHERE account_id = $accountId",
       )
-      .all({ accountId: auth.accountId });
+      .all({ accountId: authReq.accountId });
   }
 
   const data = customers.map((customer) => ({
@@ -74,7 +74,7 @@ export async function handle(req: Request): Promise<Response> {
   const resBody: ResponseBodyOf<Path, 200> = {
     data,
     meta: {
-      request_id: auth.requestId,
+      request_id: authReq.id,
       pagination: {
         has_more: false,
         per_page: data.length,
