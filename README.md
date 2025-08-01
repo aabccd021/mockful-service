@@ -1,9 +1,7 @@
 # TODO
 
-- product create
-- product get
 - price create
-- price get
+- price list
 - transaction create
 - transaction get
 - hosted checkout
