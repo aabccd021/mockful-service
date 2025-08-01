@@ -11,6 +11,7 @@ CREATE TABLE google_auth_session (
   user_sub TEXT,
   client_id TEXT,
   CONSTRAINT google_auth_session_code_pk PRIMARY KEY (code),
+  CONSTRAINT google_auth_session_scope_not_null CHECK (scope IS NOT NULL),
   CONSTRAINT google_auth_session_challenge_method_enum CHECK (code_challenge_method IN ('S256', 'plain')),
   CONSTRAINT google_auth_session_user_sub_not_null CHECK (user_sub IS NOT NULL),
   CONSTRAINT google_auth_session_user_sub_fk FOREIGN KEY (user_sub) REFERENCES google_auth_user(sub) ON DELETE CASCADE,

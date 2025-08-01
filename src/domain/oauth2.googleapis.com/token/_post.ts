@@ -2,7 +2,7 @@ import { db, getStringFormData } from "@util/index.ts";
 
 type AuthSession = {
   client_id: string;
-  scope: string | null;
+  scope: string;
   code_challenge: string | null;
   code_challenge_method: "S256" | "plain" | null;
   user_sub: string;
@@ -24,12 +24,8 @@ function emailVerifiedToBoolean(value: "true" | "false" | null): boolean {
   throw new Error(`Invalid boolean value: ${value}. Expected "true" or "false".`);
 }
 
-function createIdToken(
-  authSession: AuthSession,
-  accessToken: string,
-  scopeStr: string,
-): string | undefined {
-  const scopes = scopeStr.split(" ");
+function createIdToken(authSession: AuthSession, accessToken: string): string | undefined {
+  const scopes = authSession.scope.split(" ");
   if (!scopes.includes("openid")) {
     return undefined;
   }
@@ -298,16 +294,14 @@ export async function handle(req: Request): Promise<Response> {
     );
   }
 
-  const scopeStr = authSession.scope ?? "";
-
   const accessToken = crypto.randomUUID();
 
-  const idToken = createIdToken(authSession, accessToken, scopeStr);
+  const idToken = createIdToken(authSession, accessToken);
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
     access_token: accessToken,
-    scope: scopeStr,
+    scope: authSession.scope,
     token_type: "Bearer",
     expires_in: 3599,
   };
