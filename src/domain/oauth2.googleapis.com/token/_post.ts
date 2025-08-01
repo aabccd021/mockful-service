@@ -21,7 +21,7 @@ function emailVerifiedToBoolean(value: "true" | "false" | null): boolean {
     throw new Error("Scope 'email' is used but email_verified is null.");
   }
   value satisfies never;
-  throw new Error(`Invalid boolean value: ${value}. Expected "true" or "false".`);
+  throw new Error(`Unreachable email_verified value: ${value}`);
 }
 
 function createIdToken(authSession: AuthSession, accessToken: string): string | undefined {
@@ -246,7 +246,7 @@ export async function handle(req: Request): Promise<Response> {
       }
     } else {
       code_challengeMethod satisfies never;
-      throw new Error(`Unknown code_challenge_method: ${code_challengeMethod}`);
+      throw new Error(`Unreachable code_challenge_method value: ${code_challengeMethod}`);
     }
   }
 
