@@ -79,7 +79,7 @@ export type FieldError = {
   message: string;
 };
 
-export type FieldValidation = [FieldError] | [undefined, string];
+export type FieldValidation<T> = [FieldError] | [undefined, T];
 
 export function invalidRequest(
   requestId: string,

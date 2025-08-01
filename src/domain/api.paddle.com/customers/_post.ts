@@ -20,7 +20,7 @@ export async function handle(req: Request): Promise<Response> {
     return errorRes;
   }
 
-  const [emailError, reqEmail]: FieldValidation = !("email" in rawBody)
+  const [emailError, reqEmail]: FieldValidation<string> = !("email" in rawBody)
     ? [
         {
           field: "(root)",
@@ -36,12 +36,25 @@ export async function handle(req: Request): Promise<Response> {
         ]
       : [undefined, rawBody.email];
 
-  if (emailError !== undefined) {
-    return invalidRequest(requestId, [emailError]);
+  const [nameError, reqName]: FieldValidation<string | undefined> = !("name" in rawBody)
+    ? [undefined, undefined]
+    : typeof rawBody.name !== "string"
+      ? [
+          {
+            field: "name",
+            message: `Invalid type. Expected string, received '${typeof rawBody.name}'`,
+          },
+        ]
+      : [undefined, rawBody.name];
+
+  if (emailError !== undefined || nameError !== undefined) {
+    const errors = [emailError, nameError].filter((err) => err !== undefined);
+    return invalidRequest(requestId, errors);
   }
 
   const reqBody: RequestBodyOf<Path> = {
     email: reqEmail,
+    name: reqName,
   };
 
   const [errorRes2, accountId] = getAccountId(req);
