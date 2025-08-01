@@ -143,7 +143,7 @@ export async function handle(req: Request): Promise<Response> {
           $name,
           $taxCategory,
           $description,
-          COALESCE($type, NULL),
+          $type,
           $imageUrl,
           $createdAt,
           $updatedAt
@@ -155,7 +155,7 @@ export async function handle(req: Request): Promise<Response> {
     name: reqBody.name,
     taxCategory: reqBody.tax_category,
     description: reqBody.description ?? null,
-    type: reqBody.type ?? null,
+    type: reqBody.type ?? "standard",
     imageUrl: reqBody.image_url ?? null,
     createdAt: Date.now(),
     updatedAt: Date.now(),
