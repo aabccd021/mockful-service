@@ -145,3 +145,10 @@ export function fieldRequired(field: string, requiredField: string): FieldError 
     message: `${requiredField} is required`,
   };
 }
+
+export function fieldEnum(field: string, validValues: string[]): FieldError {
+  return {
+    field,
+    message: `must be one of the following: ${validValues.map((v) => `"${v}"`).join(", ")}`,
+  };
+}
