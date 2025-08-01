@@ -4,8 +4,6 @@ import { getAccountId } from "@util/paddle.ts";
 
 type Path = openapi.paths["/customers"]["get"];
 
-type Query = QueryOf<Path>;
-
 type Customer = {
   id: string;
   account_id: string;
@@ -23,7 +21,7 @@ export async function handle(req: Request): Promise<Response> {
 
   const rawQuery = new URL(req.url).searchParams;
 
-  const query: Query = {
+  const reqQuery: QueryOf<Path> = {
     after: rawQuery.get("after") ?? undefined,
     email: rawQuery.get("email")?.split(","),
     id: rawQuery.get("id")?.split(","),
@@ -43,8 +41,8 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   let customers = null;
-  if (query.email !== undefined) {
-    customers = query.email
+  if (reqQuery.email !== undefined) {
+    customers = reqQuery.email
       .map((email) =>
         db
           .query<Customer, { email: string; accountId: string }>(
