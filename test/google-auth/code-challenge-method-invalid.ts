@@ -13,12 +13,8 @@ const loginResponse = await fetch(authUrl);
 const body = await loginResponse.text();
 expect(body).toInclude("Access blocked: Authorization Error");
 expect(body).toInclude("Error 400: invalid_request");
+expect(body).toInclude(
+  "Invalid parameter value for code_challenge_method: 'foo' is not a valid CodeChallengeMethod",
+);
 expect(loginResponse.status).toEqual(200);
-// expect(loginResponse.status).toEqual(400);
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-// Access blocked: Authorization Error
-//
-// foo@example.com
-// Invalid parameter value for code_challenge_method: 'foo' is not a valid CodeChallengeMethod Learn more about this error
-// If you are a developer of project_id, see error details.
-// Error 400: invalid_request

@@ -72,6 +72,7 @@ export function handle(req: Request): Response {
     console.error(`Invalid code_challenge_method requested: ${reqSearchParam}`);
     return page(`
       <h1>Access blocked: Authorization Error</h1>
+      <p>Invalid parameter value for code_challenge_method: '${reqSearchParam}' is not a valid CodeChallengeMethod</p>
       <p>Error 400: invalid_request </p>
     `);
   }
