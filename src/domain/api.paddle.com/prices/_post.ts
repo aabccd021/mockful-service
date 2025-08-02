@@ -1,4 +1,14 @@
 // status: 400
+//
+// {
+//   "field": "billing_cycle.frequency",
+//   "message": "Must be greater than or equal to 1"
+// }
+//      {
+//   "field": "billing_cycle.frequency",
+//   "message": "Invalid type. Expected: integer, given: number"
+// }
+
 // {
 //   "error": {
 //     "type": "request_error",
@@ -110,6 +120,11 @@ export async function handle(req: Request): Promise<Response> {
       "CHECK constraint failed: paddle_price_unit_price_amount_not_negative": {
         field: "unit_price.amount",
         message: "The amount cannot be negative",
+      },
+
+      "CHECK constraint failed: paddle_price_billing_cycle_frequency_positive": {
+        field: "billing_cycle.frequency",
+        message: "Must be greater than or equal to 1",
       },
 
       "cannot store REAL value in INTEGER column paddle_price.unit_price_amount": {
