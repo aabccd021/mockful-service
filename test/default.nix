@@ -50,12 +50,12 @@ let
     (mapTests ./google-auth)
     (mapTests ./google-token)
 
-    (mapTests ./paddle-customers-create)
-    (mapTests ./paddle-customers-list)
-    (mapTests ./paddle-products-create)
-    (mapTests ./paddle-products-list)
-    (mapTests ./paddle-prices-create)
-    (mapTests ./paddle-prices-list)
+    (mapTests ./paddle-customer-create)
+    (mapTests ./paddle-customer-list)
+    (mapTests ./paddle-product-create)
+    (mapTests ./paddle-product-list)
+    (mapTests ./paddle-price-create)
+    (mapTests ./paddle-price-list)
   ];
 
 in
