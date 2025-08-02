@@ -1,7 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type ResponseBodyOf } from "@util/index";
-import { authenticate, type DefaultError, generateId, getBody, mapConstraint } from "@util/paddle";
+import { authenticate, type DefaultError, generateId, getBody, mapSqliteError } from "@util/paddle";
 
 type Path = openapi.paths["/customers"]["post"];
 
@@ -46,21 +46,20 @@ export async function handle(req: Request): Promise<Response> {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
-  } catch (error) {
-    const errRes = mapConstraint(authReq, error, {
-      paddle_customer_email_not_null: {
+  } catch (err) {
+    const fieldErr = mapSqliteError(authReq, err, {
+      "CHECK constraint failed: paddle_customer_email_not_null": {
         field: "(root)",
         message: "email is required",
       },
     });
-    if (errRes !== undefined) {
-      return errRes;
+    if (fieldErr !== undefined) {
+      return fieldErr;
     }
 
     if (
-      error instanceof sqlite.SQLiteError &&
-      error.message ===
-        "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
+      err instanceof sqlite.SQLiteError &&
+      err.message === "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
     ) {
       const resBody: DefaultError = {
         error: {
@@ -79,7 +78,8 @@ export async function handle(req: Request): Promise<Response> {
         headers: { "Content-Type": "application/json" },
       });
     }
-    throw error;
+
+    throw err;
   }
 
   const customer = db

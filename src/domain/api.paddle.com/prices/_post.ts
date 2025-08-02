@@ -36,10 +36,9 @@
 // }
 
 import type * as sqlite from "bun:sqlite";
-import { SQLiteError } from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type ResponseBodyOf } from "@util/index";
-import { authenticate, generateId, getBody, invalidRequest, mapConstraint } from "@util/paddle";
+import { authenticate, generateId, getBody, mapSqliteError } from "@util/paddle";
 
 type Path = openapi.paths["/prices"]["post"];
 
@@ -107,25 +106,19 @@ export async function handle(req: Request): Promise<Response> {
       updatedAt: Date.now(),
     });
   } catch (err) {
-    const errRes = mapConstraint(authReq, err, {
-      paddle_price_unit_price_amount_not_negative: {
+    const fieldErr = mapSqliteError(authReq, err, {
+      "CHECK constraint failed: paddle_price_unit_price_amount_not_negative": {
         field: "unit_price.amount",
         message: "The amount cannot be negative",
       },
+
+      "cannot store REAL value in INTEGER column paddle_price.unit_price_amount": {
+        field: "unit_price.amount",
+        message: "The amount value is not a valid integer",
+      },
     });
-    if (errRes !== undefined) {
-      return errRes;
-    }
-    if (
-      err instanceof SQLiteError &&
-      err.message === "cannot store REAL value in INTEGER column paddle_price.unit_price_amount"
-    ) {
-      return invalidRequest(authReq, [
-        {
-          field: "unit_price.amount",
-          message: "The amount value is not a valid integer",
-        },
-      ]);
+    if (fieldErr !== undefined) {
+      return fieldErr;
     }
     throw err;
   }

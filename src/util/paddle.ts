@@ -147,7 +147,7 @@ export async function getBody(authReq: AuthenticatedRequest, req: Request) {
   return [undefined, rawBody] as const;
 }
 
-export function mapConstraint(
+export function mapSqliteError(
   authReq: AuthenticatedRequest,
   err: unknown,
   map: Record<string, FieldError>,
@@ -156,12 +156,7 @@ export function mapConstraint(
     return undefined;
   }
 
-  if (err.code !== "SQLITE_CONSTRAINT_CHECK") {
-    return undefined;
-  }
-
-  const constraintName = err.message.slice("CHECK constraint failed: ".length);
-  const fieldError = map[constraintName];
+  const fieldError = map[err.message];
   if (fieldError === undefined) {
     return undefined;
   }
