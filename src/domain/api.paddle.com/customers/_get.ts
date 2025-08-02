@@ -5,7 +5,7 @@ import { authenticate } from "@util/paddle.ts";
 
 type Path = openapi.paths["/customers"]["get"];
 
-type Customer = {
+type Row = {
   id: string;
   account_id: string;
   email: string;
@@ -115,7 +115,7 @@ export async function handle(req: Request): Promise<Response> {
     customers = reqQuery.email
       .map((email) =>
         db
-          .query<Customer, sqlite.SQLQueryBindings>(
+          .query<Row, sqlite.SQLQueryBindings>(
             "SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId",
           )
           .get({ email, accountId: authReq.accountId }),
@@ -125,13 +125,13 @@ export async function handle(req: Request): Promise<Response> {
     customers = reqQuery.id
       .map((id) =>
         db
-          .query<Customer, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
+          .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
           .get({ id, accountId: authReq.accountId }),
       )
       .filter((val) => val !== null);
   } else {
     customers = db
-      .query<Customer, sqlite.SQLQueryBindings>(
+      .query<Row, sqlite.SQLQueryBindings>(
         "SELECT * FROM paddle_customer WHERE account_id = $accountId",
       )
       .all({ accountId: authReq.accountId });

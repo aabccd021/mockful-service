@@ -5,7 +5,7 @@ import { authenticate } from "@util/paddle.ts";
 
 type Path = openapi.paths["/products"]["get"];
 
-type Product = {
+type Row = {
   id: string;
   account_id: string;
   name: string;
@@ -52,7 +52,7 @@ export async function handle(req: Request): Promise<Response> {
     products = reqQuery.id
       .map((id) =>
         db
-          .query<Product, sqlite.SQLQueryBindings>(
+          .query<Row, sqlite.SQLQueryBindings>(
             "SELECT * FROM paddle_product WHERE id = $id AND status = 'active'",
           )
           .get({ id, accountId: authReq.accountId }),
@@ -60,7 +60,7 @@ export async function handle(req: Request): Promise<Response> {
       .filter((val) => val !== null);
   } else {
     products = db
-      .query<Product, sqlite.SQLQueryBindings>(
+      .query<Row, sqlite.SQLQueryBindings>(
         "SELECT * FROM paddle_product WHERE account_id = $accountId AND status = 'active'",
       )
       .all({ accountId: authReq.accountId });

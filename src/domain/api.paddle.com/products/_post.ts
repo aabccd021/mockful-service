@@ -5,17 +5,27 @@ import { authenticate, generateId, getBody, invalidRequest } from "@util/paddle"
 
 type Path = openapi.paths["/products"]["post"];
 
-const knownTaxCategories = [
-  "digital-goods",
-  "ebooks",
-  "implementation-services",
-  "professional-services",
-  "saas",
-  "software-programming-services",
-  "standard",
-  "training-services",
-  "website-hosting",
-];
+type Row = {
+  id: string;
+  account_id: string;
+  tax_category:
+    | "digital-goods"
+    | "ebooks"
+    | "implementation-services"
+    | "professional-services"
+    | "saas"
+    | "software-programming-services"
+    | "standard"
+    | "training-services"
+    | "website-hosting";
+  created_at: number;
+  updated_at: number;
+  name: string;
+  description?: string;
+  type: "standard" | "custom";
+  image_url?: string;
+  status: "active" | "archived";
+};
 
 export async function handle(req: Request): Promise<Response> {
   const [authErrorRes, authReq] = authenticate(req);
@@ -27,6 +37,18 @@ export async function handle(req: Request): Promise<Response> {
   if (errorRes !== undefined) {
     return errorRes;
   }
+
+  const knownTaxCategories = [
+    "digital-goods",
+    "ebooks",
+    "implementation-services",
+    "professional-services",
+    "saas",
+    "software-programming-services",
+    "standard",
+    "training-services",
+    "website-hosting",
+  ] as const;
 
   if (!knownTaxCategories.includes(reqBody.tax_category)) {
     const validCategories = knownTaxCategories.map((c) => `"${c}"`).join(", ");
@@ -123,30 +145,7 @@ export async function handle(req: Request): Promise<Response> {
   // }
 
   const product = db
-    .query<
-      {
-        id: string;
-        account_id: string;
-        tax_category:
-          | "digital-goods"
-          | "ebooks"
-          | "implementation-services"
-          | "professional-services"
-          | "saas"
-          | "software-programming-services"
-          | "standard"
-          | "training-services"
-          | "website-hosting";
-        created_at: number;
-        updated_at: number;
-        name: string;
-        description?: string;
-        type: "standard" | "custom";
-        image_url?: string;
-        status: "active" | "archived";
-      },
-      sqlite.SQLQueryBindings
-    >("SELECT * FROM paddle_product WHERE id = $id")
+    .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_product WHERE id = $id")
     .get({ id });
 
   if (product === null) {

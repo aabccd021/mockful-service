@@ -5,6 +5,18 @@ import { authenticate, type DefaultError, generateId, getBody, mapSqliteError } 
 
 type Path = openapi.paths["/customers"]["post"];
 
+type Row = {
+  id: string;
+  account_id: string;
+  email: string;
+  status: "active" | "archived";
+  name: string | null;
+  marketing_consent: "true" | "false";
+  locale: string;
+  created_at: number;
+  updated_at: number;
+};
+
 export async function handle(req: Request): Promise<Response> {
   const [authErrorRes, authReq] = authenticate(req);
   if (authErrorRes !== undefined) {
@@ -83,20 +95,7 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const customer = db
-    .query<
-      {
-        id: string;
-        account_id: string;
-        email: string;
-        status: "active" | "archived";
-        name: string | null;
-        marketing_consent: "true" | "false";
-        locale: string;
-        created_at: number;
-        updated_at: number;
-      },
-      sqlite.SQLQueryBindings
-    >("SELECT * FROM paddle_customer WHERE id = $id")
+    .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
     .get({ id });
 
   if (customer === null) {

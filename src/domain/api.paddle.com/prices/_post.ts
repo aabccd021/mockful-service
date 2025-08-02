@@ -5,9 +5,54 @@ import { authenticate, generateId, getBody, mapSqliteError } from "@util/paddle"
 
 type Path = openapi.paths["/prices"]["post"];
 
-type CurrencyCode = openapi.components["schemas"]["currency_code"];
-
-type Interval = openapi.components["schemas"]["duration"]["interval"];
+type Row = {
+  id: string;
+  description: string;
+  product_id: string;
+  unit_price_amount: number;
+  unit_price_currency_code:
+    | "USD"
+    | "EUR"
+    | "GBP"
+    | "JPY"
+    | "AUD"
+    | "CAD"
+    | "CHF"
+    | "HKD"
+    | "SGD"
+    | "SEK"
+    | "ARS"
+    | "BRL"
+    | "CNY"
+    | "COP"
+    | "CZK"
+    | "DKK"
+    | "HUF"
+    | "ILS"
+    | "INR"
+    | "KRW"
+    | "MXN"
+    | "NOK"
+    | "NZD"
+    | "PLN"
+    | "RUB"
+    | "THB"
+    | "TRY"
+    | "TWD"
+    | "UAH"
+    | "VND"
+    | "ZAR";
+  type: "standard" | "custom";
+  name: string | null;
+  billing_cycle_frequency: number | null;
+  billing_cycle_interval: null | "day" | "week" | "month" | "year";
+  tax_mode: "account_setting" | "external" | "internal";
+  status: "active" | "archived";
+  created_at: number;
+  updated_at: number;
+  quantity_minimum: number;
+  quantity_maximum: number;
+};
 
 export async function handle(req: Request): Promise<Response> {
   const [authErrorRes, authReq] = authenticate(req);
@@ -113,26 +158,7 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const product = db
-    .query<
-      {
-        id: string;
-        description: string;
-        product_id: string;
-        unit_price_amount: number;
-        unit_price_currency_code: CurrencyCode;
-        type: "standard" | "custom";
-        name: string | null;
-        billing_cycle_frequency: number | null;
-        billing_cycle_interval: Interval | null;
-        tax_mode: "account_setting" | "external" | "internal";
-        status: "active" | "archived";
-        created_at: number;
-        updated_at: number;
-        quantity_minimum: number;
-        quantity_maximum: number;
-      },
-      sqlite.SQLQueryBindings
-    >("SELECT * FROM paddle_price WHERE id = $id")
+    .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_price WHERE id = $id")
     .get({ id });
 
   if (product === null) {
