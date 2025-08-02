@@ -1,4 +1,4 @@
-import * as v2 from "./v2/_route.ts";
+import * as v2 from "./v2/route.ts";
 
 export async function handle(req: Request, paths: string[]): Promise<Response> {
   const [path, ...subPaths] = paths;

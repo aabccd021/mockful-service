@@ -1,12 +1,14 @@
-import * as _post from "./_post.ts";
+import * as get from "./get.ts";
 
+// https://www.google.com/favicon.ico
 export async function handle(req: Request, paths: string[]): Promise<Response> {
   const [path] = paths;
   if (path === undefined) {
-    if (req.method === "POST") {
-      return _post.handle(req);
+    if (req.method === "GET") {
+      return get.handle(req);
     }
     return new Response("Method Not Allowed", { status: 405 });
   }
+
   return new Response("Not Found", { status: 404 });
 }

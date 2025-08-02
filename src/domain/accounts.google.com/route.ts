@@ -1,6 +1,6 @@
-import * as faviconIco from "./favicon.ico/_route.ts";
-import * as o from "./o/_route.ts";
-import * as signin from "./signin/_route.ts";
+import * as faviconIco from "./favicon.ico/route.ts";
+import * as o from "./o/route.ts";
+import * as signin from "./signin/route.ts";
 
 export async function handle(req: Request, paths: string[]): Promise<Response> {
   const [path, ...subPaths] = paths;

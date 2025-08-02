@@ -1,7 +1,7 @@
-import * as customers from "./customers/_route.ts";
-import * as prices from "./prices/_route.ts";
-import * as products from "./products/_route.ts";
-import * as transactions from "./transactions/_route.ts";
+import * as customers from "./customers/route.ts";
+import * as prices from "./prices/route.ts";
+import * as products from "./products/route.ts";
+import * as transactions from "./transactions/route.ts";
 
 export async function handle(req: Request, paths: string[]): Promise<Response> {
   const [path, ...subPaths] = paths;

@@ -2846,7 +2846,7 @@ export interface components {
       first_line: components["schemas"]["address_first_line"];
       second_line: components["schemas"]["address_second_line"];
       city: components["schemas"]["address_city"];
-      postal_code: components["schemas"]["address_postal_code"];
+      postal_code: components["schemas"]["addresspostal_code"];
       region: components["schemas"]["address_region"];
       /** @description Supported two-letter ISO 3166-1 alpha-2 country code for this address. */
       country_code: components["schemas"]["country_code"];
@@ -3046,7 +3046,7 @@ export interface components {
      * Postal Code
      * @description ZIP or postal code of this address. Required for some countries.
      */
-    address_postal_code: string | null;
+    addresspostal_code: string | null;
     /**
      * Region
      * @description State, county, or region of this address.
