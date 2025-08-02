@@ -173,14 +173,23 @@ CREATE TABLE paddle_price (
 ) STRICT;
 
 CREATE TABLE paddle_transaction (
-  customer_id TEXT,
   id TEXT,
+  status TEXT,
+  customer_id TEXT,
+  collection_mode TEXT DEFAULT 'automatic',
+  created_at INTEGER,
+  updated_at INTEGER,
   CONSTRAINT paddle_transaction_pk PRIMARY KEY (id),
   CONSTRAINT paddle_transaction_id_prefix CHECK (id LIKE 'txn_%'),
   CONSTRAINT paddle_transaction_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_transaction_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
-  CONSTRAINT paddle_transaction_customer_id_not_null CHECK (customer_id IS NOT NULL),
-  CONSTRAINT paddle_transaction_customer_id_fk FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON DELETE CASCADE
+  CONSTRAINT paddle_transaction_status_not_null CHECK (status IS NOT NULL),
+  CONSTRAINT paddle_transaction_status_enum CHECK (status IN ('draft', 'ready', 'billed', 'paid', 'completed', 'canceled', 'past_due')),
+  CONSTRAINT paddle_transaction_customer_id_fk FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON DELETE CASCADE,
+  CONSTRAINT paddle_transaction_collection_mode_not_null CHECK (collection_mode IS NOT NULL),
+  CONSTRAINT paddle_transaction_collection_mode_enum CHECK (collection_mode IN ('automatic', 'manual')),
+  CONSTRAINT paddle_transaction_created_at_not_null CHECK (created_at IS NOT NULL),
+  CONSTRAINT paddle_transaction_updated_at_not_null CHECK (updated_at IS NOT NULL)
 ) STRICT;
 
 CREATE TABLE paddle_transaction_item (
