@@ -1,48 +1,12 @@
 // status: 400
-//
-// {
-//   "field": "billing_cycle.frequency",
-//   "message": "Must be greater than or equal to 1"
-// }
-//      {
-//   "field": "billing_cycle.frequency",
-//   "message": "Invalid type. Expected: integer, given: number"
-// }
-
-// {
-//   "error": {
-//     "type": "request_error",
-//     "code": "bad_request",
-//     "detail": "Invalid request.",
-//     "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
-//     "errors": [
 //       {
 //         "field": "quantity.minimum",
 //         "message": "Must be greater than or equal to 1"
 //       }
-//     ]
-//   },
-//   "meta": {
-//     "request_id": "0cd1fc4e-1216-4148-aa81-afb5376883a7"
-//   }
-// }
-// status: 400, max < min
-// {
-//   "error": {
-//     "type": "request_error",
-//     "code": "bad_request",
-//     "detail": "Invalid request.",
-//     "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
-//     "errors": [
 //       {
 //         "field": "quantity",
 //         "message": "Invalid request."
 //       }
-//     ]
-//   },
-//   "meta": {
-//     "request_id": "4d817483-1533-46c2-9d1f-43ce78d1b7e3"
-//   }
 // }
 
 import type * as sqlite from "bun:sqlite";
@@ -130,6 +94,11 @@ export async function handle(req: Request): Promise<Response> {
       "cannot store REAL value in INTEGER column paddle_price.unit_price_amount": {
         field: "unit_price.amount",
         message: "The amount value is not a valid integer",
+      },
+
+      "cannot store REAL value in INTEGER column paddle_price.billing_cycle_frequency": {
+        field: "billing_cycle.frequency",
+        message: "Invalid type. Expected: integer, given: number",
       },
     });
     if (fieldErr !== undefined) {
