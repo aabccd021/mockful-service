@@ -141,6 +141,8 @@ export async function handle(req: Request): Promise<Response> {
         status: "active" | "archived";
         created_at: number;
         updated_at: number;
+        quantity_minimum: number;
+        quantity_maximum: number;
       },
       sqlite.SQLQueryBindings
     >("SELECT * FROM paddle_price WHERE id = $id")
@@ -167,10 +169,9 @@ export async function handle(req: Request): Promise<Response> {
       billing_cycle: productBillingCycle,
       trial_period: null,
       unit_price_overrides: [],
-      // TODO
       quantity: {
-        minimum: 1,
-        maximum: 100,
+        minimum: product.quantity_minimum,
+        maximum: product.quantity_maximum,
       },
       status: product.status,
       id: product.id,
