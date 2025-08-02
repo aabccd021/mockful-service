@@ -45,7 +45,7 @@ export async function handle(req: Request): Promise<Response> {
       : fieldValue(rawBody.locale);
 
   if (emailError !== undefined || nameError !== undefined || localeError !== undefined) {
-    const errors = [emailError, nameError].filter((err) => err !== undefined);
+    const errors = [emailError, nameError, localeError].filter((err) => err !== undefined);
     return invalidRequest(authReq, errors);
   }
 

@@ -129,12 +129,33 @@ CREATE TABLE paddle_product (
 ) STRICT;
 
 CREATE TABLE paddle_price (
+  description TEXT,
   product_id TEXT,
+  unit_price_amount INTEGER,
+  unit_price_currency_code TEXT,
+  type TEXT DEFAULT 'standard',
+  name TEXT,  
+  tax_mode TEXT DEFAULT 'account_setting',
+  status TEXT DEFAULT 'active',
+  created_at INTEGER,
+  updated_at INTEGER,
   id TEXT,
   CONSTRAINT paddle_price_pk PRIMARY KEY (id),
   CONSTRAINT paddle_price_id_prefix CHECK (id LIKE 'pri_%'),
   CONSTRAINT paddle_price_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_price_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CONSTRAINT paddle_price_description_not_null CHECK (description IS NOT NULL),
+  CONSTRAINT paddle_price_unit_price_amount_not_null CHECK (unit_price_amount IS NOT NULL),
+  CONSTRAINT paddle_price_unit_price_currency_code_not_null CHECK (unit_price_currency_code IS NOT NULL),
+  CONSTRAINT paddle_price_unit_price_currency_code_enum CHECK (unit_price_currency_code IN ( 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'HKD', 'SGD', 'SEK', 'ARS', 'BRL', 'CNY', 'COP', 'CZK', 'DKK', 'HUF', 'ILS', 'INR', 'KRW', 'MXN', 'NOK', 'NZD', 'PLN', 'RUB', 'THB', 'TRY', 'TWD', 'UAH', 'VND', 'ZAR')),
+  CONSTRAINT paddle_price_type_enum CHECK (type IN ('standard', 'custom')),
+  CONSTRAINT paddle_price_type_not_null CHECK (type IS NOT NULL),
+  CONSTRAINT paddle_price_tax_mode_enum CHECK (tax_mode IN ('account_setting', 'external', 'internal')),
+  CONSTRAINT paddle_price_tax_mode_not_null CHECK (tax_mode IS NOT NULL),
+  CONSTRAINT paddle_price_status_enum CHECK (status IN ('active', 'archived')),
+  CONSTRAINT paddle_price_status_not_null CHECK (status IS NOT NULL),
+  CONSTRAINT paddle_price_created_at_not_null CHECK (created_at IS NOT NULL),
+  CONSTRAINT paddle_price_updated_at_not_null CHECK (updated_at IS NOT NULL),
   CONSTRAINT paddle_price_product_id_not_null CHECK (product_id IS NOT NULL),
   CONSTRAINT paddle_price_product_id_fk FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON DELETE CASCADE
 ) STRICT;

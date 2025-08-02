@@ -91,11 +91,11 @@ export type FieldError = {
   message: string;
 };
 
-export type FieldValidation<T> = [FieldError] | [undefined, T];
+export type FieldValidation<T> = [FieldError[]] | [undefined, T];
 
 export function invalidRequest(
   authReq: AuthenticatedRequest,
-  errors: DefaultError["error"]["errors"],
+  errors: DefaultError["error"]["errors"][],
 ): Response {
   const resBody: DefaultError = {
     error: {
@@ -103,7 +103,7 @@ export function invalidRequest(
       code: "bad_request",
       detail: "Invalid request.",
       documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-      errors: errors,
+      errors: errors.filter((e) => e !== undefined).flat(),
     },
     meta: {
       request_id: authReq.id,
@@ -145,32 +145,38 @@ export function fieldType<T, K extends keyof T>(
   obj: T,
   field: K & string,
   expectedType: string,
-): [FieldError] {
+): [FieldError[]] {
   const target = field === "(root)" ? obj : obj[field];
   const targetType = Number.isInteger(target) ? "integer" : typeof target;
   return [
-    {
-      field,
-      message: `Invalid type. Expected: ${expectedType}, given: ${targetType}`,
-    },
+    [
+      {
+        field,
+        message: `Invalid type. Expected: ${expectedType}, given: ${targetType}`,
+      },
+    ],
   ];
 }
 
-export function fieldRequired(field: string, requiredField: string): [FieldError] {
+export function fieldRequired(field: string, requiredField: string): [FieldError[]] {
   return [
-    {
-      field,
-      message: `${requiredField} is required`,
-    },
+    [
+      {
+        field,
+        message: `${requiredField} is required`,
+      },
+    ],
   ];
 }
 
-export function fieldEnum(field: string, validValues: string[]): [FieldError] {
+export function fieldEnum(field: string, validValues: string[]): [FieldError[]] {
   return [
-    {
-      field,
-      message: `must be one of the following: ${validValues.map((v) => `"${v}"`).join(", ")}`,
-    },
+    [
+      {
+        field,
+        message: `must be one of the following: ${validValues.map((v) => `"${v}"`).join(", ")}`,
+      },
+    ],
   ];
 }
 

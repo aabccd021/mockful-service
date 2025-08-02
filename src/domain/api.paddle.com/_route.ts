@@ -1,4 +1,5 @@
 import * as customers from "./customers/_route.ts";
+import * as prices from "./prices/_route.ts";
 import * as products from "./products/_route.ts";
 
 export async function handle(req: Request, paths: string[]): Promise<Response> {
@@ -10,6 +11,10 @@ export async function handle(req: Request, paths: string[]): Promise<Response> {
 
   if (path === "products") {
     return products.handle(req, subPaths);
+  }
+
+  if (path === "prices") {
+    return prices.handle(req, subPaths);
   }
 
   return new Response("Not Found", { status: 404 });
