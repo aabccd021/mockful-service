@@ -55,6 +55,7 @@ let
     (mapTests ./paddle-products-create)
     (mapTests ./paddle-products-list)
     (mapTests ./paddle-prices-create)
+    (mapTests ./paddle-prices-list)
   ];
 
 in

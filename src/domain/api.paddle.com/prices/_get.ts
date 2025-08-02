@@ -62,30 +62,32 @@ export async function handle(req: Request): Promise<Response> {
 
   const query = new URL(req.url).searchParams;
   const queryRecurring = query.get("recurring") ?? null;
-  const queryId = query.get("id")?.split(",");
+  const queryProductId = query.get("product_id")?.split(",") ?? null;
 
   let prices = null;
-  if (queryId !== undefined) {
-    prices = queryId
-      .map((id) =>
-        db
-          .query<Row, sqlite.SQLQueryBindings>(
-            `
+  if (queryProductId !== null) {
+    prices = queryProductId.flatMap((productId) =>
+      db
+        .query<Row, sqlite.SQLQueryBindings>(
+          `
               SELECT * 
-              FROM paddle_prices 
-              WHERE id = $id 
-                AND ($recurring IS NULL OR recurring = $recurring)
+              FROM paddle_price
+              WHERE product_id = $productId
+                AND CASE 
+                    WHEN $recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
+                    WHEN $recurring = 'false' THEN billing_cycle_frequency IS NULL
+                    ELSE FALSE -- This branch should never execute with proper input validation
+                END
             `,
-          )
-          .get({ id, recurring: queryRecurring }),
-      )
-      .filter((val) => val !== null);
+        )
+        .all({ productId: productId, recurring: queryRecurring }),
+    );
   } else {
     prices = db
       .query<Row, sqlite.SQLQueryBindings>(
         `
           SELECT * 
-          FROM paddle_prices 
+          FROM paddle_price 
           WHERE account_id = $accountId
            AND ($recurring IS NULL OR recurring = $recurring)  
         `,
