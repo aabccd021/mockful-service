@@ -1,3 +1,21 @@
+//status: 400
+// {
+//   "error": {
+//     "type": "request_error",
+//     "code": "bad_request",
+//     "detail": "Invalid request.",
+//     "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
+//     "errors": [
+//       {
+//         "field": "unit_price.amount",
+//         "message": "The amount cannot be negative"
+//       }
+//     ]
+//   },
+//   "meta": {
+//     "request_id": "2e3ea7ad-ce52-4553-a07f-502f1a24d1a6"
+//   }
+// }
 // status: 400
 // {
 //   "error": {
@@ -36,6 +54,7 @@
 // }
 
 import type * as sqlite from "bun:sqlite";
+import { SQLiteError } from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
 import {
@@ -279,8 +298,9 @@ export async function handle(req: Request): Promise<Response> {
 
   const id = `pri_${generateId()}`;
 
-  db.query(
-    `
+  try {
+    db.query(
+      `
       INSERT INTO paddle_price (
         id,
         description,
@@ -310,20 +330,35 @@ export async function handle(req: Request): Promise<Response> {
         $updatedAt
       )
     `,
-  ).run({
-    id,
-    description: reqBody.description,
-    productId: reqBody.product_id,
-    unitPriceAmount: reqBody.unit_price.amount,
-    unitPriceCurrencyCode: reqBody.unit_price.currency_code,
-    type: reqBody.type ?? "standard",
-    name: reqBody.name ?? null,
-    billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
-    billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
-    taxMode: reqBody.tax_mode ?? "account_setting",
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  });
+    ).run({
+      id,
+      description: reqBody.description,
+      productId: reqBody.product_id,
+      unitPriceAmount: reqBody.unit_price.amount,
+      unitPriceCurrencyCode: reqBody.unit_price.currency_code,
+      type: reqBody.type ?? "standard",
+      name: reqBody.name ?? null,
+      billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
+      billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
+      taxMode: reqBody.tax_mode ?? "account_setting",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+  } catch (err) {
+    if (err instanceof SQLiteError) {
+      if (err.message === "CHECK constraint failed: paddle_price_unit_price_amount_not_negative") {
+        return invalidRequest(authReq, [
+          [
+            {
+              field: "unit_price.amount",
+              message: "The amount cannot be negative",
+            },
+          ],
+        ]);
+      }
+    }
+    throw err;
+  }
 
   const product = db
     .query<
@@ -367,6 +402,7 @@ export async function handle(req: Request): Promise<Response> {
       billing_cycle: productBillingCycle,
       trial_period: null,
       unit_price_overrides: [],
+      // TODO
       quantity: {
         minimum: 1,
         maximum: 100,

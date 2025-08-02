@@ -148,6 +148,7 @@ CREATE TABLE paddle_price (
   CONSTRAINT paddle_price_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CONSTRAINT paddle_price_description_not_null CHECK (description IS NOT NULL),
   CONSTRAINT paddle_price_unit_price_amount_not_null CHECK (unit_price_amount IS NOT NULL),
+  CONSTRAINT paddle_price_unit_price_amount_not_negative CHECK (unit_price_amount >= 0),
   CONSTRAINT paddle_price_unit_price_currency_code_not_null CHECK (unit_price_currency_code IS NOT NULL),
   CONSTRAINT paddle_price_unit_price_currency_code_enum CHECK (unit_price_currency_code IN ( 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'HKD', 'SGD', 'SEK', 'ARS', 'BRL', 'CNY', 'COP', 'CZK', 'DKK', 'HUF', 'ILS', 'INR', 'KRW', 'MXN', 'NOK', 'NZD', 'PLN', 'RUB', 'THB', 'TRY', 'TWD', 'UAH', 'VND', 'ZAR')),
   CONSTRAINT paddle_price_type_enum CHECK (type IN ('standard', 'custom')),
