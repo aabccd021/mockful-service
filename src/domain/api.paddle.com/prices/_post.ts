@@ -344,21 +344,21 @@ export async function handle(req: Request): Promise<Response> {
     throw new Error("Unreachable");
   }
 
-  let billingCycle = null;
+  let productBillingCycle = null;
   if (product.billing_cycle_frequency !== null && product.billing_cycle_interval !== null) {
-    billingCycle = {
+    productBillingCycle = {
       frequency: product.billing_cycle_frequency,
       interval: product.billing_cycle_interval,
     };
   } else if (product.billing_cycle_frequency === null && product.billing_cycle_interval === null) {
-    billingCycle = null;
+    productBillingCycle = null;
   } else {
     throw new Error("Unreachable");
   }
 
   const resBody: ResponseBodyOf<Path, 201> = {
     data: {
-      billing_cycle: billingCycle,
+      billing_cycle: productBillingCycle,
       trial_period: null,
       unit_price_overrides: [],
       quantity: {
