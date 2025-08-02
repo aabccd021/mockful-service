@@ -221,7 +221,7 @@ export async function handle(req: Request): Promise<Response> {
       : fieldEnumValue(rawBody.type);
 
   const [nameError, reqName] = !("name" in rawBody)
-    ? fieldRequired("(root)", "name")
+    ? fieldAbsent()
     : typeof rawBody.name !== "string"
       ? fieldType(rawBody, "name", "string")
       : fieldValue(rawBody.name);
@@ -292,6 +292,8 @@ export async function handle(req: Request): Promise<Response> {
         billing_cycle_frequency,
         billing_cycle_interval,
         tax_mode,
+        created_at,
+        updated_at
       )
       VALUES (
         $id,
@@ -303,7 +305,9 @@ export async function handle(req: Request): Promise<Response> {
         $name,
         $billingCycleFrequency,
         $billingCycleInterval,
-        $taxMode
+        $taxMode,
+        $createdAt,
+        $updatedAt
       )
     `,
   ).run({
@@ -317,6 +321,8 @@ export async function handle(req: Request): Promise<Response> {
     billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
     billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
     taxMode: reqBody.tax_mode ?? "account_setting",
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
   });
 
   const product = db
@@ -325,7 +331,7 @@ export async function handle(req: Request): Promise<Response> {
         id: string;
         description: string;
         product_id: string;
-        unit_price_amount: string;
+        unit_price_amount: number;
         unit_price_currency_code: CurrencyCode;
         type: "standard" | "custom";
         name: string | null;
@@ -370,7 +376,7 @@ export async function handle(req: Request): Promise<Response> {
       description: product.description,
       product_id: product.product_id,
       unit_price: {
-        amount: product.unit_price_amount,
+        amount: product.unit_price_amount.toString(),
         currency_code: product.unit_price_currency_code,
       },
       type: product.type,
