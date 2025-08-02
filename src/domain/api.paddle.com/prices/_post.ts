@@ -56,6 +56,8 @@ type Path = openapi.paths["/prices"]["post"];
 
 type CurrencyCode = openapi.components["schemas"]["currency_code"];
 
+type Interval = openapi.components["schemas"]["duration"]["interval"];
+
 function validateUnitPrice(unitPrice: object): FieldValidation<{
   amount: string;
   currency_code: CurrencyCode;
@@ -148,6 +150,41 @@ function validateUnitPrice(unitPrice: object): FieldValidation<{
   ];
 }
 
+function validateBillingCycle(billingCycle: object): FieldValidation<{
+  frequency: number;
+  interval: Interval;
+}> {
+  const [frequencyError, reqFrequency] = !("frequency" in billingCycle)
+    ? fieldRequired("billing_cycle", "frequency")
+    : typeof billingCycle.frequency !== "number"
+      ? fieldType(billingCycle, "frequency", "number")
+      : fieldValue(billingCycle.frequency);
+
+  const [intervalError, reqInterval] = !("interval" in billingCycle)
+    ? fieldRequired("billing_cycle", "interval")
+    : typeof billingCycle.interval !== "string"
+      ? fieldType(billingCycle, "interval", "string")
+      : billingCycle.interval !== "day" &&
+          billingCycle.interval !== "week" &&
+          billingCycle.interval !== "month" &&
+          billingCycle.interval !== "year"
+        ? fieldEnum("interval", ["day", "week", "month", "year"])
+        : fieldEnumValue(billingCycle.interval);
+
+  if (frequencyError !== undefined || intervalError !== undefined) {
+    const errors = [frequencyError, intervalError].flat().filter((err) => err !== undefined);
+    return [errors];
+  }
+
+  return [
+    undefined,
+    {
+      frequency: reqFrequency,
+      interval: reqInterval,
+    },
+  ];
+}
+
 export async function handle(req: Request): Promise<Response> {
   const [authErrorRes, authReq] = authenticate(req);
   if (authErrorRes !== undefined) {
@@ -189,6 +226,14 @@ export async function handle(req: Request): Promise<Response> {
       ? fieldType(rawBody, "name", "string")
       : fieldValue(rawBody.name);
 
+  const [billingCycleError, reqBillingCycle] = !("billing_cycle" in rawBody)
+    ? fieldAbsent()
+    : rawBody.billing_cycle === null
+      ? fieldAbsent()
+      : typeof rawBody.billing_cycle !== "object"
+        ? fieldType(rawBody, "billing_cycle", "object")
+        : validateBillingCycle(rawBody.billing_cycle);
+
   const [taxModeError, reqTaxMode] = !("tax_mode" in rawBody)
     ? fieldAbsent()
     : rawBody.tax_mode !== "account_setting" &&
@@ -200,18 +245,20 @@ export async function handle(req: Request): Promise<Response> {
   if (
     descriptionError !== undefined ||
     productIdError !== undefined ||
-    nameError !== undefined ||
+    unitPriceError !== undefined ||
     typeError !== undefined ||
-    taxModeError !== undefined ||
-    unitPriceError !== undefined
+    nameError !== undefined ||
+    billingCycleError !== undefined ||
+    taxModeError !== undefined
   ) {
     const errors = [
       descriptionError,
       productIdError,
-      nameError,
-      typeError,
-      taxModeError,
       unitPriceError,
+      typeError,
+      nameError,
+      billingCycleError,
+      taxModeError,
     ].filter((err) => err !== undefined);
     return invalidRequest(authReq, errors);
   }
@@ -222,15 +269,12 @@ export async function handle(req: Request): Promise<Response> {
     unit_price: reqUnitPrice,
     type: reqType,
     name: reqName,
-
-    // TODO
-    // billing_cycle: reqBillingCycle,
-
-    // trial_period: reqTrialPeriod,
+    billing_cycle: reqBillingCycle,
     tax_mode: reqTaxMode,
+    custom_data: null,
+    // trial_period: reqTrialPeriod,
     // unit_price_overrides: reqUnitPriceOverrides,
     // quantity: reqQuantity,
-    custom_data: null,
   };
 
   const id = `pri_${generateId()}`;
@@ -245,6 +289,8 @@ export async function handle(req: Request): Promise<Response> {
         unit_price_currency_code,
         type,
         name,
+        billing_cycle_frequency,
+        billing_cycle_interval,
         tax_mode,
       )
       VALUES (
@@ -255,6 +301,8 @@ export async function handle(req: Request): Promise<Response> {
         $unitPriceCurrencyCode,
         $type,
         $name,
+        $billingCycleFrequency,
+        $billingCycleInterval,
         $taxMode
       )
     `,
@@ -266,6 +314,8 @@ export async function handle(req: Request): Promise<Response> {
     unitPriceCurrencyCode: reqBody.unit_price.currency_code,
     type: reqBody.type ?? "standard",
     name: reqBody.name ?? null,
+    billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
+    billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
     taxMode: reqBody.tax_mode ?? "account_setting",
   });
 
@@ -279,6 +329,8 @@ export async function handle(req: Request): Promise<Response> {
         unit_price_currency_code: CurrencyCode;
         type: "standard" | "custom";
         name: string | null;
+        billing_cycle_frequency: number | null;
+        billing_cycle_interval: Interval | null;
         tax_mode: "account_setting" | "external" | "internal";
         status: "active" | "archived";
         created_at: number;
@@ -292,9 +344,21 @@ export async function handle(req: Request): Promise<Response> {
     throw new Error("Unreachable");
   }
 
+  let billingCycle = null;
+  if (product.billing_cycle_frequency !== null && product.billing_cycle_interval !== null) {
+    billingCycle = {
+      frequency: product.billing_cycle_frequency,
+      interval: product.billing_cycle_interval,
+    };
+  } else if (product.billing_cycle_frequency === null && product.billing_cycle_interval === null) {
+    billingCycle = null;
+  } else {
+    throw new Error("Unreachable");
+  }
+
   const resBody: ResponseBodyOf<Path, 201> = {
     data: {
-      billing_cycle: null,
+      billing_cycle: billingCycle,
       trial_period: null,
       unit_price_overrides: [],
       quantity: {

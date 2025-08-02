@@ -135,6 +135,8 @@ CREATE TABLE paddle_price (
   unit_price_currency_code TEXT,
   type TEXT DEFAULT 'standard',
   name TEXT,  
+  billing_cycle_frequency INTEGER,
+  billing_cycle_interval TEXT,
   tax_mode TEXT DEFAULT 'account_setting',
   status TEXT DEFAULT 'active',
   created_at INTEGER,
@@ -150,6 +152,11 @@ CREATE TABLE paddle_price (
   CONSTRAINT paddle_price_unit_price_currency_code_enum CHECK (unit_price_currency_code IN ( 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'HKD', 'SGD', 'SEK', 'ARS', 'BRL', 'CNY', 'COP', 'CZK', 'DKK', 'HUF', 'ILS', 'INR', 'KRW', 'MXN', 'NOK', 'NZD', 'PLN', 'RUB', 'THB', 'TRY', 'TWD', 'UAH', 'VND', 'ZAR')),
   CONSTRAINT paddle_price_type_enum CHECK (type IN ('standard', 'custom')),
   CONSTRAINT paddle_price_type_not_null CHECK (type IS NOT NULL),
+  CONSTRAINT paddle_price_billing_cycle_object CHECK (
+    (billing_cycle_frequency IS NOT NULL AND billing_cycle_interval IS NOT NULL) OR
+    (billing_cycle_frequency IS NULL AND billing_cycle_interval IS NULL)
+  ),
+  CONSTRAINT paddle_price_billing_cycle_interval_enum CHECK (billing_cycle_interval IN ('day', 'week', 'month', 'year')),
   CONSTRAINT paddle_price_tax_mode_enum CHECK (tax_mode IN ('account_setting', 'external', 'internal')),
   CONSTRAINT paddle_price_tax_mode_not_null CHECK (tax_mode IS NOT NULL),
   CONSTRAINT paddle_price_status_enum CHECK (status IN ('active', 'archived')),
