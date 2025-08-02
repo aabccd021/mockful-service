@@ -157,50 +157,50 @@ export async function handle(req: Request): Promise<Response> {
     throw err;
   }
 
-  const product = db
+  const price = db
     .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_price WHERE id = $id")
     .get({ id });
 
-  if (product === null) {
+  if (price === null) {
     throw new Error("Unreachable");
   }
 
-  let productBillingCycle = null;
-  if (product.billing_cycle_frequency !== null && product.billing_cycle_interval !== null) {
-    productBillingCycle = {
-      frequency: product.billing_cycle_frequency,
-      interval: product.billing_cycle_interval,
+  let priceBillingCycle = null;
+  if (price.billing_cycle_frequency !== null && price.billing_cycle_interval !== null) {
+    priceBillingCycle = {
+      frequency: price.billing_cycle_frequency,
+      interval: price.billing_cycle_interval,
     };
-  } else if (product.billing_cycle_frequency === null && product.billing_cycle_interval === null) {
-    productBillingCycle = null;
+  } else if (price.billing_cycle_frequency === null && price.billing_cycle_interval === null) {
+    priceBillingCycle = null;
   } else {
     throw new Error("Unreachable");
   }
 
   const resBody: ResponseBodyOf<Path, 201> = {
     data: {
-      billing_cycle: productBillingCycle,
+      billing_cycle: priceBillingCycle,
       trial_period: null,
       unit_price_overrides: [],
       quantity: {
-        minimum: product.quantity_minimum,
-        maximum: product.quantity_maximum,
+        minimum: price.quantity_minimum,
+        maximum: price.quantity_maximum,
       },
-      status: product.status,
-      id: product.id,
-      description: product.description,
-      product_id: product.product_id,
+      status: price.status,
+      id: price.id,
+      description: price.description,
+      product_id: price.product_id,
       unit_price: {
-        amount: product.unit_price_amount.toString(),
-        currency_code: product.unit_price_currency_code,
+        amount: price.unit_price_amount.toString(),
+        currency_code: price.unit_price_currency_code,
       },
-      type: product.type,
-      name: product.name,
-      tax_mode: product.tax_mode,
+      type: price.type,
+      name: price.name,
+      tax_mode: price.tax_mode,
       custom_data: null,
       import_meta: null,
-      created_at: new Date(product.created_at).toISOString(),
-      updated_at: new Date(product.updated_at).toISOString(),
+      created_at: new Date(price.created_at).toISOString(),
+      updated_at: new Date(price.updated_at).toISOString(),
     },
     meta: {
       request_id: authReq.id,
