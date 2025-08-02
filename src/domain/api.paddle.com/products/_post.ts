@@ -1,20 +1,21 @@
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
-import {
-  authenticate,
-  fieldAbsent,
-  fieldEnum,
-  fieldEnumValue,
-  fieldRequired,
-  fieldType,
-  fieldValue,
-  generateId,
-  getBody,
-  invalidRequest,
-} from "@util/paddle";
+import { db, type ResponseBodyOf } from "@util/index";
+import { authenticate, generateId, getBody, invalidRequest, mapConstraint } from "@util/paddle";
 
 type Path = openapi.paths["/products"]["post"];
+
+const knownTaxCategories = [
+  "digital-goods",
+  "ebooks",
+  "implementation-services",
+  "professional-services",
+  "saas",
+  "software-programming-services",
+  "standard",
+  "training-services",
+  "website-hosting",
+];
 
 export async function handle(req: Request): Promise<Response> {
   const [authErrorRes, authReq] = authenticate(req);
@@ -22,79 +23,20 @@ export async function handle(req: Request): Promise<Response> {
     return authErrorRes;
   }
 
-  const [errorRes, rawBody] = await getBody(authReq, req);
+  const [errorRes, reqBody] = await getBody(authReq, req);
   if (errorRes !== undefined) {
     return errorRes;
   }
 
-  const [nameError, reqName] = !("name" in rawBody)
-    ? fieldRequired("(root)", "name")
-    : typeof rawBody.name !== "string"
-      ? fieldType(rawBody, "name", "string")
-      : fieldValue(rawBody.name);
-
-  const [taxCategoryError, reqTaxCategory] = !("tax_category" in rawBody)
-    ? fieldRequired("(root)", "tax_category")
-    : rawBody.tax_category !== "digital-goods" &&
-        rawBody.tax_category !== "ebooks" &&
-        rawBody.tax_category !== "implementation-services" &&
-        rawBody.tax_category !== "professional-services" &&
-        rawBody.tax_category !== "saas" &&
-        rawBody.tax_category !== "software-programming-services" &&
-        rawBody.tax_category !== "standard" &&
-        rawBody.tax_category !== "training-services" &&
-        rawBody.tax_category !== "website-hosting"
-      ? fieldEnum("tax_category", [
-          "digital-goods",
-          "ebooks",
-          "implementation-services",
-          "professional-services",
-          "saas",
-          "software-programming-services",
-          "standard",
-          "training-services",
-          "website-hosting",
-        ])
-      : fieldEnumValue(rawBody.tax_category);
-
-  const [descriptionError, reqDescription] = !("description" in rawBody)
-    ? fieldAbsent()
-    : typeof rawBody.description !== "string"
-      ? fieldType(rawBody, "description", "string")
-      : fieldValue(rawBody.description);
-
-  const [typeError, reqType] = !("type" in rawBody)
-    ? fieldAbsent()
-    : rawBody.type !== "standard" && rawBody.type !== "custom"
-      ? fieldEnum("type", ["standard", "custom"])
-      : fieldEnumValue(rawBody.type);
-
-  const [imageUrlError, reqImageUrl] = !("image_url" in rawBody)
-    ? fieldAbsent()
-    : typeof rawBody.image_url !== "string"
-      ? fieldType(rawBody, "image_url", "string")
-      : fieldValue(rawBody.image_url);
-
-  if (
-    nameError !== undefined ||
-    taxCategoryError !== undefined ||
-    descriptionError !== undefined ||
-    typeError !== undefined ||
-    imageUrlError !== undefined
-  ) {
-    const errors = [nameError, taxCategoryError, descriptionError, typeError, imageUrlError].filter(
-      (err) => err !== undefined,
-    );
-    return invalidRequest(authReq, errors);
+  if (!knownTaxCategories.includes(reqBody.tax_category)) {
+    const validCategories = knownTaxCategories.map((c) => `"${c}"`).join(", ");
+    return invalidRequest(authReq, [
+      {
+        field: "tax_category",
+        message: `must be one of the following: ${validCategories}`,
+      },
+    ]);
   }
-
-  const reqBody: RequestBodyOf<Path> = {
-    name: reqName,
-    tax_category: reqTaxCategory,
-    description: reqDescription,
-    type: reqType,
-    image_url: reqImageUrl,
-  };
 
   const enabledCategory = db
     .query(
@@ -130,8 +72,9 @@ export async function handle(req: Request): Promise<Response> {
 
   const id = `pro_${generateId()}`;
 
-  db.query(
-    `
+  try {
+    db.query(
+      `
       INSERT INTO paddle_product (
         account_id, 
         id, 
@@ -155,17 +98,29 @@ export async function handle(req: Request): Promise<Response> {
         $updatedAt
       )
     `,
-  ).run({
-    accountId: authReq.accountId,
-    id,
-    name: reqBody.name,
-    taxCategory: reqBody.tax_category,
-    description: reqBody.description ?? null,
-    type: reqBody.type ?? "standard",
-    imageUrl: reqBody.image_url ?? null,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  });
+    ).run({
+      accountId: authReq.accountId,
+      id,
+      name: reqBody.name,
+      taxCategory: reqBody.tax_category,
+      description: reqBody.description ?? null,
+      type: reqBody.type ?? "standard",
+      imageUrl: reqBody.image_url ?? null,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+  } catch (err) {
+    const errRes = mapConstraint(authReq, err, {
+      paddle_price_unit_price_amount_not_negative: {
+        field: "unit_price.amount",
+        message: "The amount cannot be negative",
+      },
+    });
+    if (errRes !== undefined) {
+      return errRes;
+    }
+    throw err;
+  }
 
   const product = db
     .query<

@@ -1,17 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
-import {
-  authenticate,
-  type DefaultError,
-  fieldAbsent,
-  fieldRequired,
-  fieldType,
-  fieldValue,
-  generateId,
-  getBody,
-  invalidRequest,
-} from "@util/paddle";
+import { db, type ResponseBodyOf } from "@util/index";
+import { authenticate, type DefaultError, generateId, getBody, mapConstraint } from "@util/paddle";
 
 type Path = openapi.paths["/customers"]["post"];
 
@@ -21,39 +11,10 @@ export async function handle(req: Request): Promise<Response> {
     return authErrorRes;
   }
 
-  const [errorRes, rawBody] = await getBody(authReq, req);
+  const [errorRes, reqBody] = await getBody(authReq, req);
   if (errorRes !== undefined) {
     return errorRes;
   }
-
-  const [emailError, reqEmail] = !("email" in rawBody)
-    ? fieldRequired("(root)", "email")
-    : typeof rawBody.email !== "string"
-      ? fieldType(rawBody, "email", "string")
-      : fieldValue(rawBody.email);
-
-  const [nameError, reqName] = !("name" in rawBody)
-    ? fieldAbsent()
-    : typeof rawBody.name !== "string"
-      ? fieldType(rawBody, "name", "string")
-      : fieldValue(rawBody.name);
-
-  const [localeError, reqLocale] = !("locale" in rawBody)
-    ? fieldAbsent()
-    : typeof rawBody.locale !== "string"
-      ? fieldType(rawBody, "locale", "string")
-      : fieldValue(rawBody.locale);
-
-  if (emailError !== undefined || nameError !== undefined || localeError !== undefined) {
-    const errors = [emailError, nameError, localeError].filter((err) => err !== undefined);
-    return invalidRequest(authReq, errors);
-  }
-
-  const reqBody: RequestBodyOf<Path> = {
-    email: reqEmail,
-    name: reqName,
-    locale: reqLocale,
-  };
 
   const id = `ctm_${generateId()}`;
 
@@ -86,30 +47,39 @@ export async function handle(req: Request): Promise<Response> {
       updatedAt: Date.now(),
     });
   } catch (error) {
-    if (error instanceof sqlite.SQLiteError) {
-      if (
-        error.message ===
-        "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
-      ) {
-        const resBody: DefaultError = {
-          error: {
-            type: "request_error",
-            code: "customer_already_exists",
-            detail: `customer email conflicts with customer of id ${id}`,
-            documentation_url:
-              "https://developer.paddle.com/v1/errors/customers/customer_already_exists",
-          },
-          meta: {
-            request_id: authReq.id,
-          },
-        };
-        return Response.json(resBody, {
-          status: 409,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+    const errRes = mapConstraint(authReq, error, {
+      paddle_customer_email_not_null: {
+        field: "(root)",
+        message: "email is required",
+      },
+    });
+    if (errRes !== undefined) {
+      return errRes;
     }
-    throw new Error("Unreachable", { cause: error });
+
+    if (
+      error instanceof sqlite.SQLiteError &&
+      error.message ===
+        "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
+    ) {
+      const resBody: DefaultError = {
+        error: {
+          type: "request_error",
+          code: "customer_already_exists",
+          detail: `customer email conflicts with customer of id ${id}`,
+          documentation_url:
+            "https://developer.paddle.com/v1/errors/customers/customer_already_exists",
+        },
+        meta: {
+          request_id: authReq.id,
+        },
+      };
+      return Response.json(resBody, {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    throw error;
   }
 
   const customer = db

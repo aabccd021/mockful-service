@@ -1,4 +1,5 @@
 import type * as sqlite from "bun:sqlite";
+import { SQLiteError } from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import type { ResponseOr } from "@util/index.ts";
 import { db } from "@util/index.ts";
@@ -95,7 +96,7 @@ export type FieldValidation<T> = [FieldError[]] | [undefined, T];
 
 export function invalidRequest(
   authReq: AuthenticatedRequest,
-  errors: DefaultError["error"]["errors"][],
+  errors: DefaultError["error"]["errors"],
 ): Response {
   const resBody: DefaultError = {
     error: {
@@ -103,7 +104,7 @@ export function invalidRequest(
       code: "bad_request",
       detail: "Invalid request.",
       documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-      errors: errors.filter((e) => e !== undefined).flat(),
+      errors,
     },
     meta: {
       request_id: authReq.id,
@@ -112,10 +113,7 @@ export function invalidRequest(
   return Response.json(resBody, { status: 400 });
 }
 
-export async function getBody(
-  authReq: AuthenticatedRequest,
-  req: Request,
-): Promise<ResponseOr<object>> {
+export async function getBody(authReq: AuthenticatedRequest, req: Request) {
   let rawBody = null;
   try {
     rawBody = await req.json();
@@ -131,63 +129,42 @@ export async function getBody(
         request_id: authReq.id,
       },
     };
-    return [Response.json(resBody, { status: 400 })];
+    return [Response.json(resBody, { status: 400 })] as const;
   }
 
   if (rawBody === null || typeof rawBody !== "object") {
-    return [invalidRequest(authReq, fieldType(rawBody, "(root)", "object"))];
+    const rawBodyType = rawBody === null ? "null" : typeof rawBody;
+    return [
+      invalidRequest(authReq, [
+        {
+          field: "(root)",
+          message: `Invalid type. Expected: object, given: ${rawBodyType}`,
+        },
+      ]),
+    ];
   }
 
-  return [undefined, rawBody];
+  return [undefined, rawBody] as const;
 }
 
-export function fieldType<T, K extends keyof T>(
-  obj: T,
-  field: K & string,
-  expectedType: string,
-): [FieldError[]] {
-  const target = field === "(root)" ? obj : obj[field];
-  const targetType = Number.isInteger(target) ? "integer" : typeof target;
-  return [
-    [
-      {
-        field,
-        message: `Invalid type. Expected: ${expectedType}, given: ${targetType}`,
-      },
-    ],
-  ];
-}
+export function mapConstraint(
+  authReq: AuthenticatedRequest,
+  err: unknown,
+  map: Record<string, FieldError>,
+): Response | undefined {
+  if (!(err instanceof SQLiteError)) {
+    return undefined;
+  }
 
-export function fieldRequired(field: string, requiredField: string): [FieldError[]] {
-  return [
-    [
-      {
-        field,
-        message: `${requiredField} is required`,
-      },
-    ],
-  ];
-}
+  if (err.code !== "SQLITE_CONSTRAINT_CHECK") {
+    return undefined;
+  }
 
-export function fieldEnum(field: string, validValues: string[]): [FieldError[]] {
-  return [
-    [
-      {
-        field,
-        message: `must be one of the following: ${validValues.map((v) => `"${v}"`).join(", ")}`,
-      },
-    ],
-  ];
-}
+  const constraintName = err.message.slice("CHECK constraint failed: ".length);
+  const fieldError = map[constraintName];
+  if (fieldError === undefined) {
+    return undefined;
+  }
 
-export function fieldValue<T>(t: T): FieldValidation<T> {
-  return [undefined, t];
-}
-
-export function fieldEnumValue<T extends string>(t: T): FieldValidation<T> {
-  return [undefined, t] as const;
-}
-
-export function fieldAbsent(): FieldValidation<undefined> {
-  return [undefined, undefined] as const;
+  return invalidRequest(authReq, [fieldError]);
 }

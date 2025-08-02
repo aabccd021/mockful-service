@@ -36,22 +36,9 @@
 // }
 
 import type * as sqlite from "bun:sqlite";
-import { SQLiteError } from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type RequestBodyOf, type ResponseBodyOf } from "@util/index";
-import {
-  authenticate,
-  type FieldValidation,
-  fieldAbsent,
-  fieldEnum,
-  fieldEnumValue,
-  fieldRequired,
-  fieldType,
-  fieldValue,
-  generateId,
-  getBody,
-  invalidRequest,
-} from "@util/paddle";
+import { db, type ResponseBodyOf } from "@util/index";
+import { authenticate, generateId, getBody, mapConstraint } from "@util/paddle";
 
 type Path = openapi.paths["/prices"]["post"];
 
@@ -59,224 +46,16 @@ type CurrencyCode = openapi.components["schemas"]["currency_code"];
 
 type Interval = openapi.components["schemas"]["duration"]["interval"];
 
-function validateUnitPrice(unitPrice: object): FieldValidation<{
-  amount: string;
-  currency_code: CurrencyCode;
-}> {
-  const [amountError, reqAmount] = !("amount" in unitPrice)
-    ? fieldRequired("unit_price", "amount")
-    : typeof unitPrice.amount !== "string"
-      ? fieldType(unitPrice, "amount", "string")
-      : fieldValue(unitPrice.amount);
-
-  const [currencyCodeError, reqCurrencyCode] = !("currency_code" in unitPrice)
-    ? fieldRequired("unit_price", "currency_code")
-    : unitPrice.currency_code !== "USD" &&
-        unitPrice.currency_code !== "EUR" &&
-        unitPrice.currency_code !== "GBP" &&
-        unitPrice.currency_code !== "JPY" &&
-        unitPrice.currency_code !== "AUD" &&
-        unitPrice.currency_code !== "CAD" &&
-        unitPrice.currency_code !== "CHF" &&
-        unitPrice.currency_code !== "HKD" &&
-        unitPrice.currency_code !== "SGD" &&
-        unitPrice.currency_code !== "SEK" &&
-        unitPrice.currency_code !== "ARS" &&
-        unitPrice.currency_code !== "BRL" &&
-        unitPrice.currency_code !== "CNY" &&
-        unitPrice.currency_code !== "COP" &&
-        unitPrice.currency_code !== "CZK" &&
-        unitPrice.currency_code !== "DKK" &&
-        unitPrice.currency_code !== "HUF" &&
-        unitPrice.currency_code !== "ILS" &&
-        unitPrice.currency_code !== "INR" &&
-        unitPrice.currency_code !== "KRW" &&
-        unitPrice.currency_code !== "MXN" &&
-        unitPrice.currency_code !== "NOK" &&
-        unitPrice.currency_code !== "NZD" &&
-        unitPrice.currency_code !== "PLN" &&
-        unitPrice.currency_code !== "RUB" &&
-        unitPrice.currency_code !== "THB" &&
-        unitPrice.currency_code !== "TRY" &&
-        unitPrice.currency_code !== "TWD" &&
-        unitPrice.currency_code !== "UAH" &&
-        unitPrice.currency_code !== "VND" &&
-        unitPrice.currency_code !== "ZAR"
-      ? fieldEnum("currency_code", [
-          "USD",
-          "EUR",
-          "GBP",
-          "JPY",
-          "AUD",
-          "CAD",
-          "CHF",
-          "HKD",
-          "SGD",
-          "SEK",
-          "ARS",
-          "BRL",
-          "CNY",
-          "COP",
-          "CZK",
-          "DKK",
-          "HUF",
-          "ILS",
-          "INR",
-          "KRW",
-          "MXN",
-          "NOK",
-          "NZD",
-          "PLN",
-          "RUB",
-          "THB",
-          "TRY",
-          "TWD",
-          "UAH",
-          "VND",
-          "ZAR",
-        ])
-      : fieldEnumValue(unitPrice.currency_code);
-
-  if (amountError !== undefined || currencyCodeError !== undefined) {
-    const errors = [amountError, currencyCodeError].flat().filter((err) => err !== undefined);
-    return [errors];
-  }
-
-  return [
-    undefined,
-    {
-      amount: reqAmount,
-      currency_code: reqCurrencyCode,
-    },
-  ];
-}
-
-function validateBillingCycle(billingCycle: object): FieldValidation<{
-  frequency: number;
-  interval: Interval;
-}> {
-  const [frequencyError, reqFrequency] = !("frequency" in billingCycle)
-    ? fieldRequired("billing_cycle", "frequency")
-    : typeof billingCycle.frequency !== "number"
-      ? fieldType(billingCycle, "frequency", "number")
-      : fieldValue(billingCycle.frequency);
-
-  const [intervalError, reqInterval] = !("interval" in billingCycle)
-    ? fieldRequired("billing_cycle", "interval")
-    : typeof billingCycle.interval !== "string"
-      ? fieldType(billingCycle, "interval", "string")
-      : billingCycle.interval !== "day" &&
-          billingCycle.interval !== "week" &&
-          billingCycle.interval !== "month" &&
-          billingCycle.interval !== "year"
-        ? fieldEnum("interval", ["day", "week", "month", "year"])
-        : fieldEnumValue(billingCycle.interval);
-
-  if (frequencyError !== undefined || intervalError !== undefined) {
-    const errors = [frequencyError, intervalError].flat().filter((err) => err !== undefined);
-    return [errors];
-  }
-
-  return [
-    undefined,
-    {
-      frequency: reqFrequency,
-      interval: reqInterval,
-    },
-  ];
-}
-
 export async function handle(req: Request): Promise<Response> {
   const [authErrorRes, authReq] = authenticate(req);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
 
-  const [errorRes, rawBody] = await getBody(authReq, req);
+  const [errorRes, reqBody] = await getBody(authReq, req);
   if (errorRes !== undefined) {
     return errorRes;
   }
-
-  const [descriptionError, reqDescription] = !("description" in rawBody)
-    ? fieldRequired("(root)", "description")
-    : typeof rawBody.description !== "string"
-      ? fieldType(rawBody, "description", "string")
-      : fieldValue(rawBody.description);
-
-  const [productIdError, reqProductId] = !("product_id" in rawBody)
-    ? fieldRequired("(root)", "product_id")
-    : typeof rawBody.product_id !== "string"
-      ? fieldType(rawBody, "product_id", "string")
-      : fieldValue(rawBody.product_id);
-
-  const [unitPriceError, reqUnitPrice] = !("unit_price" in rawBody)
-    ? fieldRequired("(root)", "unit_price")
-    : typeof rawBody.unit_price !== "object" || rawBody.unit_price === null
-      ? fieldType(rawBody, "unit_price", "object")
-      : validateUnitPrice(rawBody.unit_price);
-
-  const [typeError, reqType] = !("type" in rawBody)
-    ? fieldAbsent()
-    : rawBody.type !== "standard" && rawBody.type !== "custom"
-      ? fieldEnum("type", ["standard", "custom"])
-      : fieldEnumValue(rawBody.type);
-
-  const [nameError, reqName] = !("name" in rawBody)
-    ? fieldAbsent()
-    : typeof rawBody.name !== "string"
-      ? fieldType(rawBody, "name", "string")
-      : fieldValue(rawBody.name);
-
-  const [billingCycleError, reqBillingCycle] = !("billing_cycle" in rawBody)
-    ? fieldAbsent()
-    : rawBody.billing_cycle === null
-      ? fieldAbsent()
-      : typeof rawBody.billing_cycle !== "object"
-        ? fieldType(rawBody, "billing_cycle", "object")
-        : validateBillingCycle(rawBody.billing_cycle);
-
-  const [taxModeError, reqTaxMode] = !("tax_mode" in rawBody)
-    ? fieldAbsent()
-    : rawBody.tax_mode !== "account_setting" &&
-        rawBody.tax_mode !== "external" &&
-        rawBody.tax_mode !== "internal"
-      ? fieldEnum("tax_mode", ["account_setting", "external", "internal"])
-      : fieldEnumValue(rawBody.tax_mode);
-
-  if (
-    descriptionError !== undefined ||
-    productIdError !== undefined ||
-    unitPriceError !== undefined ||
-    typeError !== undefined ||
-    nameError !== undefined ||
-    billingCycleError !== undefined ||
-    taxModeError !== undefined
-  ) {
-    const errors = [
-      descriptionError,
-      productIdError,
-      unitPriceError,
-      typeError,
-      nameError,
-      billingCycleError,
-      taxModeError,
-    ].filter((err) => err !== undefined);
-    return invalidRequest(authReq, errors);
-  }
-
-  const reqBody: RequestBodyOf<Path> = {
-    description: reqDescription,
-    product_id: reqProductId,
-    unit_price: reqUnitPrice,
-    type: reqType,
-    name: reqName,
-    billing_cycle: reqBillingCycle,
-    tax_mode: reqTaxMode,
-    custom_data: null,
-    // trial_period: reqTrialPeriod,
-    // unit_price_overrides: reqUnitPriceOverrides,
-    // quantity: reqQuantity,
-  };
 
   const id = `pri_${generateId()}`;
 
@@ -327,17 +106,14 @@ export async function handle(req: Request): Promise<Response> {
       updatedAt: Date.now(),
     });
   } catch (err) {
-    if (err instanceof SQLiteError) {
-      if (err.message === "CHECK constraint failed: paddle_price_unit_price_amount_not_negative") {
-        return invalidRequest(authReq, [
-          [
-            {
-              field: "unit_price.amount",
-              message: "The amount cannot be negative",
-            },
-          ],
-        ]);
-      }
+    const errRes = mapConstraint(authReq, err, {
+      paddle_price_unit_price_amount_not_negative: {
+        field: "unit_price.amount",
+        message: "The amount cannot be negative",
+      },
+    });
+    if (errRes !== undefined) {
+      return errRes;
     }
     throw err;
   }
