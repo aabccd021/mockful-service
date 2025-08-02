@@ -49,22 +49,22 @@ export async function handle(req: Request): Promise<Response> {
   const insertTransaction = db.transaction(() => {
     db.query(
       `
-          INSERT INTO paddle_transaction (
-            id,
-            status,
-            customer_id,
-            collection_method,
-            created_at,
-            updated_at
-          ) VALUES (
-            $id,
-            $status,
-            $customer_id,
-            $collection_method,
-            $created_at,
-            $updated_at
-          )
-        `,
+        INSERT INTO paddle_transaction (
+          id,
+          status,
+          customer_id,
+          collection_method,
+          created_at,
+          updated_at
+        ) VALUES (
+          $id,
+          $status,
+          $customer_id,
+          $collection_method,
+          $created_at,
+          $updated_at
+        )
+      `,
     ).run({
       id,
       status: "draft",
@@ -76,16 +76,16 @@ export async function handle(req: Request): Promise<Response> {
     for (const item of items) {
       db.query(
         `
-            INSERT INTO paddle_transaction_item (
-              transaction_id,
-              price_id,
-              quantity
-            ) VALUES (  
-              $transactionId,
-              $priceId,
-              $quantity
-            )
-          `,
+          INSERT INTO paddle_transaction_item (
+            transaction_id,
+            price_id,
+            quantity
+          ) VALUES (  
+            $transactionId,
+            $priceId,
+            $quantity
+          )
+        `,
       ).run({
         transactionId: id,
         priceId: item.price_id,
