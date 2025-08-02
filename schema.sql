@@ -174,7 +174,7 @@ CREATE TABLE paddle_price (
 
 CREATE TABLE paddle_transaction (
   id TEXT,
-  status TEXT,
+  status TEXT DEFAULT 'draft',
   customer_id TEXT,
   collection_mode TEXT DEFAULT 'automatic',
   created_at INTEGER,
