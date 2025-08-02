@@ -3,6 +3,8 @@
 //         "field": "quantity.minimum",
 //         "message": "Must be greater than or equal to 1"
 //       }
+//
+//       // min > max
 //       {
 //         "field": "quantity",
 //         "message": "Invalid request."
@@ -47,6 +49,8 @@ export async function handle(req: Request): Promise<Response> {
         billing_cycle_frequency,
         billing_cycle_interval,
         tax_mode,
+        quantity_minimum,
+        quantity_maximum,
         created_at,
         updated_at
       )
@@ -61,6 +65,8 @@ export async function handle(req: Request): Promise<Response> {
         $billingCycleFrequency,
         $billingCycleInterval,
         $taxMode,
+        $quantityMinimum,
+        $quantityMaximum,
         $createdAt,
         $updatedAt
       )
@@ -76,6 +82,8 @@ export async function handle(req: Request): Promise<Response> {
       billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
       billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
       taxMode: reqBody.tax_mode ?? "account_setting",
+      quantityMinimum: reqBody.quantity?.minimum ?? 1,
+      quantityMaximum: reqBody.quantity?.maximum ?? 100,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -99,6 +107,16 @@ export async function handle(req: Request): Promise<Response> {
       "cannot store REAL value in INTEGER column paddle_price.billing_cycle_frequency": {
         field: "billing_cycle.frequency",
         message: "Invalid type. Expected: integer, given: number",
+      },
+
+      "CHECK constraint failed: paddle_price_quantity_minimum_positive": {
+        field: "quantity.minimum",
+        message: "Must be greater than or equal to 1",
+      },
+
+      "CHECK constraint failed: paddle_price_quantity_valid": {
+        field: "quantity",
+        message: "Invalid request.",
       },
     });
     if (fieldErr !== undefined) {
