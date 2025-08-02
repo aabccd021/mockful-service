@@ -1,16 +1,3 @@
-// status: 400
-//       {
-//         "field": "quantity.minimum",
-//         "message": "Must be greater than or equal to 1"
-//       }
-//
-//       // min > max
-//       {
-//         "field": "quantity",
-//         "message": "Invalid request."
-//       }
-// }
-
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type ResponseBodyOf } from "@util/index";
