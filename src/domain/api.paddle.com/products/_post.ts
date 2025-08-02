@@ -1,7 +1,7 @@
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
 import { db, type ResponseBodyOf } from "@util/index";
-import { authenticate, generateId, getBody, invalidRequest, mapConstraint } from "@util/paddle";
+import { authenticate, generateId, getBody, invalidRequest } from "@util/paddle";
 
 type Path = openapi.paths["/products"]["post"];
 
@@ -72,9 +72,9 @@ export async function handle(req: Request): Promise<Response> {
 
   const id = `pro_${generateId()}`;
 
-  try {
-    db.query(
-      `
+  // try {
+  db.query(
+    `
       INSERT INTO paddle_product (
         account_id, 
         id, 
@@ -98,29 +98,29 @@ export async function handle(req: Request): Promise<Response> {
         $updatedAt
       )
     `,
-    ).run({
-      accountId: authReq.accountId,
-      id,
-      name: reqBody.name,
-      taxCategory: reqBody.tax_category,
-      description: reqBody.description ?? null,
-      type: reqBody.type ?? "standard",
-      imageUrl: reqBody.image_url ?? null,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-  } catch (err) {
-    const errRes = mapConstraint(authReq, err, {
-      paddle_price_unit_price_amount_not_negative: {
-        field: "unit_price.amount",
-        message: "The amount cannot be negative",
-      },
-    });
-    if (errRes !== undefined) {
-      return errRes;
-    }
-    throw err;
-  }
+  ).run({
+    accountId: authReq.accountId,
+    id,
+    name: reqBody.name,
+    taxCategory: reqBody.tax_category,
+    description: reqBody.description ?? null,
+    type: reqBody.type ?? "standard",
+    imageUrl: reqBody.image_url ?? null,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  });
+  // } catch (err) {
+  // const errRes = mapConstraint(authReq, err, {
+  //   paddle_price_unit_price_amount_not_negative: {
+  //     field: "unit_price.amount",
+  //     message: "The amount cannot be negative",
+  //   },
+  // });
+  // if (errRes !== undefined) {
+  //   return errRes;
+  // }
+  //   throw err;
+  // }
 
   const product = db
     .query<
