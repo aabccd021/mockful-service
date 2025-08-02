@@ -110,6 +110,7 @@ await fetch("http://localhost:3001/https://sandbox-api.paddle.com/prices", {
 });
 
 const listUrl = new URL("http://localhost:3001/https://sandbox-api.paddle.com/prices");
+listUrl.searchParams.set("product_id", product2Id);
 
 const listProduct2Recurring = await fetch(listUrl, {
   method: "GET",
@@ -121,8 +122,6 @@ const listProduct2Recurring = await fetch(listUrl, {
 
 expect(listProduct2Recurring.status).toEqual(200);
 const listProduct2RecurringBody = await listProduct2Recurring.json();
-expect(listProduct2RecurringBody.data).toBeArrayOfSize(4);
-expect(listProduct2RecurringBody.data[0].description).toEqual("product1-recurring");
-expect(listProduct2RecurringBody.data[1].description).toEqual("product1-onetime");
-expect(listProduct2RecurringBody.data[2].description).toEqual("product2-recurring");
-expect(listProduct2RecurringBody.data[3].description).toEqual("product2-onetime");
+expect(listProduct2RecurringBody.data).toBeArrayOfSize(2);
+expect(listProduct2RecurringBody.data[0].description).toEqual("product2-recurring");
+expect(listProduct2RecurringBody.data[1].description).toEqual("product2-onetime");

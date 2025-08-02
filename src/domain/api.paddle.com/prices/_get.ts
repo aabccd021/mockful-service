@@ -70,15 +70,15 @@ export async function handle(req: Request): Promise<Response> {
       db
         .query<Row, sqlite.SQLQueryBindings>(
           `
-              SELECT * 
-              FROM paddle_price
-              WHERE product_id = $productId
-                AND CASE 
-                    WHEN $recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
-                    WHEN $recurring = 'false' THEN billing_cycle_frequency IS NULL
-                    ELSE FALSE -- This branch should never execute with proper input validation
-                END
-            `,
+            SELECT * 
+            FROM paddle_price
+            WHERE product_id = $productId
+              AND CASE 
+                  WHEN $recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
+                  WHEN $recurring = 'false' THEN billing_cycle_frequency IS NULL
+                  ELSE TRUE
+              END
+          `,
         )
         .all({ productId: productId, recurring: queryRecurring }),
     );
@@ -86,10 +86,15 @@ export async function handle(req: Request): Promise<Response> {
     prices = db
       .query<Row, sqlite.SQLQueryBindings>(
         `
-          SELECT * 
-          FROM paddle_price 
-          WHERE account_id = $accountId
-           AND ($recurring IS NULL OR recurring = $recurring)  
+          SELECT paddle_price.*
+          FROM paddle_price
+          JOIN paddle_product ON paddle_price.product_id = paddle_product.id
+          WHERE paddle_product.account_id = $accountId
+            AND CASE 
+                WHEN $recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
+                WHEN $recurring = 'false' THEN billing_cycle_frequency IS NULL
+                ELSE TRUE
+            END
         `,
       )
       .all({ accountId: authReq.accountId, recurring: queryRecurring });
