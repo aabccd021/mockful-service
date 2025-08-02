@@ -1,21 +1,3 @@
-//status: 400
-// {
-//   "error": {
-//     "type": "request_error",
-//     "code": "bad_request",
-//     "detail": "Invalid request.",
-//     "documentation_url": "https://developer.paddle.com/v1/errors/shared/bad_request",
-//     "errors": [
-//       {
-//         "field": "unit_price.amount",
-//         "message": "The amount cannot be negative"
-//       }
-//     ]
-//   },
-//   "meta": {
-//     "request_id": "2e3ea7ad-ce52-4553-a07f-502f1a24d1a6"
-//   }
-// }
 // status: 400
 // {
 //   "error": {
