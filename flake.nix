@@ -51,13 +51,13 @@
 
       treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
-        programs.prettier.enable = true;
         programs.nixfmt.enable = true;
         programs.biome.enable = true;
+        programs.biome.settings = builtins.fromJSON (builtins.readFile ./biome.json);
+        programs.biome.formatUnsafe = true;
+        settings.formatter.biome.options = [ "--vcs-enabled=false" ];
         programs.shfmt.enable = true;
         programs.shellcheck.enable = true;
-        settings.formatter.prettier.priority = 1;
-        settings.formatter.biome.priority = 2;
         settings.formatter.shellcheck.options = [
           "-s"
           "sh"
@@ -82,10 +82,10 @@
       lintCheck = pkgs.runCommand "lintCheck" { } ''
         cp -Lr ${nodeModules}/node_modules ./node_modules
         cp -Lr ${./src} ./src
-        cp -L ${./biome.jsonc} ./biome.jsonc
+        cp -L ${./biome.json} ./biome.json
         cp -L ${./tsconfig.json} ./tsconfig.json
         cp -L ${./package.json} ./package.json
-        ${pkgs.biome}/bin/biome check --error-on-warnings
+        ${pkgs.biome}/bin/biome check --vcs-enabled=false --error-on-warnings
         touch "$out"
       '';
 
@@ -97,14 +97,6 @@
         vscode-langservers-extracted = pkgs.vscode-langservers-extracted;
         bun2nix = inputs.bun2nix.packages.x86_64-linux.default;
         nixd = pkgs.nixd;
-      };
-
-      prefmt = pkgs.writeShellApplication {
-        name = "prefmt";
-        runtimeInputs = [ pkgs.biome ];
-        text = ''
-          biome check --fix --unsafe
-        '';
       };
 
       dev = pkgs.writeShellApplication {
@@ -124,7 +116,6 @@
         // inputPackages
         // {
           dev = dev;
-          prefmt = prefmt;
           tests = pkgs.linkFarm "tests" test;
           formatting = treefmtEval.config.build.check self;
           formatter = formatter;
