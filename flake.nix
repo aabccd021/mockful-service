@@ -64,7 +64,6 @@
         ];
         settings.global.excludes = [
           "LICENSE"
-          "*.ico"
           "*.sql"
         ];
       };
