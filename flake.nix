@@ -79,16 +79,6 @@
         touch "$out"
       '';
 
-      lintCheck = pkgs.runCommand "lintCheck" { } ''
-        cp -Lr ${nodeModules}/node_modules ./node_modules
-        cp -Lr ${./src} ./src
-        cp -L ${./biome.json} ./biome.json
-        cp -L ${./tsconfig.json} ./tsconfig.json
-        cp -L ${./package.json} ./package.json
-        ${pkgs.biome}/bin/biome check --vcs-enabled=false --error-on-warnings
-        touch "$out"
-      '';
-
       inputPackages = {
         bun = pkgs.bun;
         biome = pkgs.biome;
@@ -121,7 +111,6 @@
           formatter = formatter;
           allInputs = collectInputs inputs;
           typeCheck = typeCheck;
-          lintCheck = lintCheck;
           default = pkgs.netero-oauth-mock;
           netero-oauth-mock = pkgs.netero-oauth-mock;
         };
