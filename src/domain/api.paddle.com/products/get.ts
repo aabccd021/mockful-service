@@ -39,12 +39,7 @@ export async function handle(req: Request): Promise<Response> {
   const reqQuery: QueryOf<Path> = {
     after: rawQuery.get("after") ?? undefined,
     id: rawQuery.get("id")?.split(","),
-    // include: rawQuery.get("include")?.split(","),
     order_by: rawQuery.get("order_by") ?? undefined,
-    // per_page: rawQuery.get("per_page") ?? undefined,
-    // status: rawQuery.get("status") ?? undefined,
-    // tax_category: rawQuery.get("tax_category") ?? undefined,
-    // type: rawQuery.get("type") ?? undefined,
   };
 
   let products = null;
