@@ -23,6 +23,10 @@ const config = new client.Configuration(
 
 client.allowInsecureRequests(config);
 
+const state = client.randomState();
+const code_verifier = client.randomPKCECodeVerifier();
+const code_challenge = await client.calculatePKCECodeChallenge(code_verifier);
+
 const loginResponse = await fetch(
   "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
   {
@@ -34,8 +38,8 @@ const loginResponse = await fetch(
       response_type: "code",
       client_id: "mock_client_id",
       redirect_uri: `https://localhost:3000/login-callback`,
-      state: "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
-      code_challenge: "G5k-xbS5eqMAekQELZ07AhN64LQxBuB4wVG7wryu5b8",
+      state,
+      code_challenge,
       code_challenge_method: "S256",
     }),
   },
@@ -44,8 +48,8 @@ const loginResponse = await fetch(
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 
 const tokens = await client.authorizationCodeGrant(config, location, {
-  pkceCodeVerifier: "AWnuB2qLobencpDhxdlDb_yeTixrfG9SiKYOjwYrz4I",
-  expectedState: "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
+  pkceCodeVerifier: code_verifier,
+  expectedState: state,
   idTokenExpected: true,
 });
 expect(tokens.claims()?.sub).toEqual("kita-sub");
