@@ -59,7 +59,6 @@
         programs.biome.settings.linter.rules.suspicious.noConsole.level = "error";
         programs.biome.settings.linter.rules.suspicious.noConsole.options.allow = [ "error" ];
         programs.biome.formatUnsafe = true;
-        settings.formatter.biome.options = [ "--vcs-enabled=false" ];
         programs.shfmt.enable = true;
         programs.shellcheck.enable = true;
         settings.formatter.shellcheck.options = [
