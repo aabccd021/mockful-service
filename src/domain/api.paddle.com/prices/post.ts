@@ -1,7 +1,7 @@
 import type * as sqlite from "bun:sqlite";
 import type { paths } from "@openapi/paddle.ts";
 import { db, type ResponseOf } from "@util/index";
-import { authenticate, generateId, getBody, mapSqliteError } from "@util/paddle";
+import { authenticate, generateId, getBody } from "@util/paddle";
 
 type Path = paths["/prices"]["post"];
 
@@ -67,9 +67,8 @@ export async function handle(req: Request): Promise<Response> {
 
   const id = `pri_${generateId()}`;
 
-  try {
-    db.query(
-      `
+  db.query(
+    `
       INSERT INTO paddle_price (
         id,
         description,
@@ -103,59 +102,22 @@ export async function handle(req: Request): Promise<Response> {
         $updatedAt
       )
     `,
-    ).run({
-      id,
-      description: reqBody.description,
-      productId: reqBody.product_id,
-      unitPriceAmount: reqBody.unit_price.amount,
-      unitPriceCurrencyCode: reqBody.unit_price.currency_code,
-      type: reqBody.type ?? "standard",
-      name: reqBody.name ?? null,
-      billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
-      billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
-      taxMode: reqBody.tax_mode ?? "account_setting",
-      quantityMinimum: reqBody.quantity?.minimum ?? 1,
-      quantityMaximum: reqBody.quantity?.maximum ?? 100,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-  } catch (err) {
-    const fieldErr = mapSqliteError(authReq, err, {
-      "CHECK constraint failed: paddle_price_unit_price_amount_not_negative": {
-        field: "unit_price.amount",
-        message: "The amount cannot be negative",
-      },
-
-      "CHECK constraint failed: paddle_price_billing_cycle_frequency_positive": {
-        field: "billing_cycle.frequency",
-        message: "Must be greater than or equal to 1",
-      },
-
-      "cannot store REAL value in INTEGER column paddle_price.unit_price_amount": {
-        field: "unit_price.amount",
-        message: "The amount value is not a valid integer",
-      },
-
-      "cannot store REAL value in INTEGER column paddle_price.billing_cycle_frequency": {
-        field: "billing_cycle.frequency",
-        message: "Invalid type. Expected: integer, given: number",
-      },
-
-      "CHECK constraint failed: paddle_price_quantity_minimum_positive": {
-        field: "quantity.minimum",
-        message: "Must be greater than or equal to 1",
-      },
-
-      "CHECK constraint failed: paddle_price_quantity_valid": {
-        field: "quantity",
-        message: "Invalid request.",
-      },
-    });
-    if (fieldErr !== undefined) {
-      return fieldErr;
-    }
-    throw err;
-  }
+  ).run({
+    id,
+    description: reqBody.description,
+    productId: reqBody.product_id,
+    unitPriceAmount: reqBody.unit_price.amount,
+    unitPriceCurrencyCode: reqBody.unit_price.currency_code,
+    type: reqBody.type ?? "standard",
+    name: reqBody.name ?? null,
+    billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
+    billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
+    taxMode: reqBody.tax_mode ?? "account_setting",
+    quantityMinimum: reqBody.quantity?.minimum ?? 1,
+    quantityMaximum: reqBody.quantity?.maximum ?? 100,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  });
 
   const price = db
     .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_price WHERE id = $id")
