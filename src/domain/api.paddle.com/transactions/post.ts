@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type ResponseBodyOf } from "@util/index";
+import { db, type ResponseOf } from "@util/index";
 import { authenticate, generateId, getBody, invalidRequest } from "@util/paddle";
 
 type Path = openapi.paths["/transactions"]["post"];
@@ -105,26 +105,61 @@ export async function handle(req: Request): Promise<Response> {
     throw new Error("Unreachable");
   }
 
-  const data: Pick<
-    ResponseBodyOf<Path, 201>["data"],
-    "id" | "status" | "customer_id" | "created_at" | "updated_at"
-  > = {
-    id: transaction.id,
-    status: transaction.status,
-    customer_id: transaction.customer_id,
-    created_at: new Date(transaction.created_at).toISOString(),
-    updated_at: new Date(transaction.updated_at).toISOString(),
-  };
+  const response: ResponseOf<Path, 201> = [
+    {
+      meta: {
+        request_id: authReq.id,
+      },
+      data: {
+        id: transaction.id,
+        status: transaction.status,
+        customer_id: transaction.customer_id,
+        created_at: new Date(transaction.created_at).toISOString(),
+        updated_at: new Date(transaction.updated_at).toISOString(),
 
-  const resBody = {
-    data,
-    meta: {
-      request_id: authReq.id,
+        // TODO
+        address_id: null,
+        business_id: null,
+        custom_data: null,
+        currency_code: "USD",
+        origin: "api",
+        subscription_id: null,
+        invoice_id: null,
+        invoice_number: null,
+        collection_mode: "automatic",
+        discount_id: null,
+        billing_details: null,
+        billing_period: null,
+        items: [],
+        payments: [],
+        checkout: null,
+        billed_at: null,
+        revised_at: null,
+        details: {
+          tax_rates_used: [],
+          adjusted_payout_totals: null,
+          payout_totals: null,
+          line_items: [],
+          adjusted_totals: {
+            subtotal: "",
+            tax: "",
+            total: "",
+            grand_total: "",
+            fee: null,
+            currency_code: "USD",
+            earnings: null,
+          },
+          totals: {
+            subtotal: "",
+            discount: "",
+            tax: "",
+            total: "",
+          },
+        },
+      },
     },
-  };
+    { status: 201 },
+  ];
 
-  return Response.json(resBody, {
-    status: 201,
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json(...response);
 }

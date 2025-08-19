@@ -1,7 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type ResponseBodyOf } from "@util/index";
-import { authenticate, type DefaultError, generateId, getBody, mapSqliteError } from "@util/paddle";
+import { db, type ResponseOf } from "@util/index";
+import { authenticate, type ErrorBody, generateId, getBody, mapSqliteError } from "@util/paddle";
 
 type Path = openapi.paths["/customers"]["post"];
 
@@ -73,7 +73,7 @@ export async function handle(req: Request): Promise<Response> {
       err instanceof sqlite.SQLiteError &&
       err.message === "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
     ) {
-      const resBody: DefaultError = {
+      const resBody: ErrorBody = {
         error: {
           type: "request_error",
           code: "customer_already_exists",
@@ -102,26 +102,28 @@ export async function handle(req: Request): Promise<Response> {
     throw new Error("Unreachable");
   }
 
-  const resBody: ResponseBodyOf<Path, 201> = {
-    data: {
-      id: customer.id,
-      email: customer.email,
-      status: customer.status,
-      name: customer.name,
-      marketing_consent: customer.marketing_consent === "true",
-      created_at: new Date(customer.created_at).toISOString(),
-      updated_at: new Date(customer.updated_at).toISOString(),
-      locale: customer.locale,
-      custom_data: null,
-      import_meta: null,
+  const response: ResponseOf<Path, 201> = [
+    {
+      data: {
+        id: customer.id,
+        email: customer.email,
+        status: customer.status,
+        name: customer.name,
+        marketing_consent: customer.marketing_consent === "true",
+        created_at: new Date(customer.created_at).toISOString(),
+        updated_at: new Date(customer.updated_at).toISOString(),
+        locale: customer.locale,
+        custom_data: null,
+        import_meta: null,
+      },
+      meta: {
+        request_id: authReq.id,
+      },
     },
-    meta: {
-      request_id: authReq.id,
+    {
+      status: 201,
     },
-  };
+  ];
 
-  return Response.json(resBody, {
-    status: 201,
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json(...response);
 }

@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type ResponseBodyOf } from "@util/index";
+import { db, type QueryOf, type ResponseOf } from "@util/index";
 import { authenticate } from "@util/paddle.ts";
 
 type Path = openapi.paths["/customers"]["get"];
@@ -25,17 +25,19 @@ export async function handle(req: Request): Promise<Response> {
 
   const rawQuery = new URL(req.url).searchParams;
 
-  const query = {
+  const reqQuery: QueryOf<Path> = {
     email: rawQuery.get("email")?.split(","),
     after: rawQuery.get("after") ?? undefined,
     id: rawQuery.get("id")?.split(","),
     order_by: rawQuery.get("order_by") ?? undefined,
     search: rawQuery.get("search") ?? undefined,
+    // per_page: ...
+    // status: ...
   };
 
   let customers = null;
-  if (query.email !== undefined) {
-    customers = query.email
+  if (reqQuery.email !== undefined) {
+    customers = reqQuery.email
       .map((email) =>
         db
           .query<Row, sqlite.SQLQueryBindings>(
@@ -44,8 +46,8 @@ export async function handle(req: Request): Promise<Response> {
           .get({ email, accountId: authReq.accountId }),
       )
       .filter((val) => val !== null);
-  } else if (query.id !== undefined) {
-    customers = query.id
+  } else if (reqQuery.id !== undefined) {
+    customers = reqQuery.id
       .map((id) =>
         db
           .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
@@ -74,17 +76,20 @@ export async function handle(req: Request): Promise<Response> {
     import_meta: null,
   }));
 
-  const resBody: ResponseBodyOf<Path, 200> = {
-    data,
-    meta: {
-      request_id: authReq.id,
-      pagination: {
-        has_more: false,
-        per_page: data.length,
-        next: "",
+  const response: ResponseOf<Path, 200> = [
+    {
+      data,
+      meta: {
+        request_id: authReq.id,
+        pagination: {
+          has_more: false,
+          per_page: data.length,
+          next: "",
+        },
       },
     },
-  };
+    { status: 200 },
+  ];
 
-  return Response.json(resBody, { status: 200 });
+  return Response.json(...response);
 }

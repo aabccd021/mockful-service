@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type ResponseBodyOf } from "@util/index";
+import { db, type ResponseOf } from "@util/index";
 import { authenticate, generateId, getBody, mapSqliteError } from "@util/paddle";
 
 type Path = openapi.paths["/prices"]["post"];
@@ -177,38 +177,40 @@ export async function handle(req: Request): Promise<Response> {
     throw new Error("Unreachable");
   }
 
-  const resBody: ResponseBodyOf<Path, 201> = {
-    data: {
-      billing_cycle: priceBillingCycle,
-      trial_period: null,
-      unit_price_overrides: [],
-      quantity: {
-        minimum: price.quantity_minimum,
-        maximum: price.quantity_maximum,
+  const response: ResponseOf<Path, 201> = [
+    {
+      data: {
+        billing_cycle: priceBillingCycle,
+        trial_period: null,
+        unit_price_overrides: [],
+        quantity: {
+          minimum: price.quantity_minimum,
+          maximum: price.quantity_maximum,
+        },
+        status: price.status,
+        id: price.id,
+        description: price.description,
+        product_id: price.product_id,
+        unit_price: {
+          amount: price.unit_price_amount.toString(),
+          currency_code: price.unit_price_currency_code,
+        },
+        type: price.type,
+        name: price.name,
+        tax_mode: price.tax_mode,
+        custom_data: null,
+        import_meta: null,
+        created_at: new Date(price.created_at).toISOString(),
+        updated_at: new Date(price.updated_at).toISOString(),
       },
-      status: price.status,
-      id: price.id,
-      description: price.description,
-      product_id: price.product_id,
-      unit_price: {
-        amount: price.unit_price_amount.toString(),
-        currency_code: price.unit_price_currency_code,
+      meta: {
+        request_id: authReq.id,
       },
-      type: price.type,
-      name: price.name,
-      tax_mode: price.tax_mode,
-      custom_data: null,
-      import_meta: null,
-      created_at: new Date(price.created_at).toISOString(),
-      updated_at: new Date(price.updated_at).toISOString(),
     },
-    meta: {
-      request_id: authReq.id,
+    {
+      status: 201,
     },
-  };
+  ];
 
-  return Response.json(resBody, {
-    status: 201,
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json(...response);
 }

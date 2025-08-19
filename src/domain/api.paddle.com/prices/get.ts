@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type ResponseBodyOf } from "@util/index";
+import { db, type ResponseOf } from "@util/index";
 import { authenticate } from "@util/paddle.ts";
 
 type Path = openapi.paths["/prices"]["get"];
@@ -139,17 +139,22 @@ export async function handle(req: Request): Promise<Response> {
     };
   });
 
-  const resBody: ResponseBodyOf<Path, 200> = {
-    data,
-    meta: {
-      request_id: authReq.id,
-      pagination: {
-        has_more: false,
-        per_page: data.length,
-        next: "",
+  const response: ResponseOf<Path, 200> = [
+    {
+      data,
+      meta: {
+        request_id: authReq.id,
+        pagination: {
+          has_more: false,
+          per_page: data.length,
+          next: "",
+        },
       },
     },
-  };
+    {
+      status: 200,
+    },
+  ];
 
-  return Response.json(resBody, { status: 200 });
+  return Response.json(...response);
 }

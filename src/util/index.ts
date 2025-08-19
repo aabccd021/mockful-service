@@ -50,7 +50,14 @@ type _ApplicationJsonOf<T> = T extends { "application/json": infer R } ? R : nev
 
 export type RequestBodyOf<T> = _ApplicationJsonOf<_ContentOf<_RequestBodyOf<T>>>;
 
-export type ResponseBodyOf<
+export type ResponseOf<
   T extends { responses: Record<string, unknown> },
   K extends keyof T["responses"],
-> = _ApplicationJsonOf<_ContentOf<T["responses"][K]>>;
+  Z extends { status: K } = { status: K },
+> = [_ApplicationJsonOf<_ContentOf<T["responses"][K]>>, Z & ResponseInit];
+
+type _ParametersOf<T> = T extends { parameters: infer P } ? P : never;
+
+type _QueryOf<T> = T extends { query?: infer Q } ? Q : never;
+
+export type QueryOf<T> = _QueryOf<_ParametersOf<T>>;

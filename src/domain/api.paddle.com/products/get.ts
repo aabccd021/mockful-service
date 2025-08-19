@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type ResponseBodyOf } from "@util/index";
+import { db, type QueryOf, type ResponseOf } from "@util/index";
 import { authenticate } from "@util/paddle.ts";
 
 type Path = openapi.paths["/products"]["get"];
@@ -36,10 +36,15 @@ export async function handle(req: Request): Promise<Response> {
 
   const rawQuery = new URL(req.url).searchParams;
 
-  const reqQuery = {
+  const reqQuery: QueryOf<Path> = {
     after: rawQuery.get("after") ?? undefined,
     id: rawQuery.get("id")?.split(","),
+    // include: rawQuery.get("include")?.split(","),
     order_by: rawQuery.get("order_by") ?? undefined,
+    // per_page: rawQuery.get("per_page") ?? undefined,
+    // status: rawQuery.get("status") ?? undefined,
+    // tax_category: rawQuery.get("tax_category") ?? undefined,
+    // type: rawQuery.get("type") ?? undefined,
   };
 
   let products = null;
@@ -75,17 +80,20 @@ export async function handle(req: Request): Promise<Response> {
     import_meta: null,
   }));
 
-  const resBody: ResponseBodyOf<Path, 200> = {
-    data,
-    meta: {
-      request_id: authReq.id,
-      pagination: {
-        has_more: false,
-        per_page: data.length,
-        next: "",
+  const response: ResponseOf<Path, 200> = [
+    {
+      data,
+      meta: {
+        request_id: authReq.id,
+        pagination: {
+          has_more: false,
+          per_page: data.length,
+          next: "",
+        },
       },
     },
-  };
+    { status: 200 },
+  ];
 
-  return Response.json(resBody, { status: 200 });
+  return Response.json(...response);
 }

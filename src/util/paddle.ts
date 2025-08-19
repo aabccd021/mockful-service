@@ -85,7 +85,7 @@ export function generateId(): string {
     .join("");
 }
 
-export type DefaultError = openapi.components["schemas"]["error"];
+export type ErrorBody = openapi.components["schemas"]["error"];
 
 export type FieldError = {
   field: string;
@@ -96,9 +96,9 @@ export type FieldValidation<T> = [FieldError[]] | [undefined, T];
 
 export function invalidRequest(
   authReq: AuthenticatedRequest,
-  errors: DefaultError["error"]["errors"],
+  errors: ErrorBody["error"]["errors"],
 ): Response {
-  const resBody: DefaultError = {
+  const resBody: ErrorBody = {
     error: {
       type: "request_error",
       code: "bad_request",
@@ -118,7 +118,7 @@ export async function getBody(authReq: AuthenticatedRequest, req: Request) {
   try {
     rawBody = await req.json();
   } catch (_) {
-    const resBody: DefaultError = {
+    const resBody: ErrorBody = {
       error: {
         type: "request_error",
         code: "bad_request",

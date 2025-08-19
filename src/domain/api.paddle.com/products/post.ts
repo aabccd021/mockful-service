@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
 import type * as openapi from "@openapi/paddle.ts";
-import { db, type ResponseBodyOf } from "@util/index";
+import { db, type ResponseOf } from "@util/index";
 import { authenticate, generateId, getBody, invalidRequest } from "@util/paddle";
 
 type Path = openapi.paths["/products"]["post"];
@@ -152,27 +152,29 @@ export async function handle(req: Request): Promise<Response> {
     throw new Error("Unreachable");
   }
 
-  const resBody: ResponseBodyOf<Path, 201> = {
-    data: {
-      id: product.id,
-      tax_category: product.tax_category,
-      created_at: new Date(product.created_at).toISOString(),
-      updated_at: new Date(product.updated_at).toISOString(),
-      name: product.name,
-      description: product.description ?? null,
-      type: product.type,
-      image_url: product.image_url ?? null,
-      custom_data: null,
-      status: product.status,
-      import_meta: null,
+  const response: ResponseOf<Path, 201> = [
+    {
+      data: {
+        id: product.id,
+        tax_category: product.tax_category,
+        created_at: new Date(product.created_at).toISOString(),
+        updated_at: new Date(product.updated_at).toISOString(),
+        name: product.name,
+        description: product.description ?? null,
+        type: product.type,
+        image_url: product.image_url ?? null,
+        custom_data: null,
+        status: product.status,
+        import_meta: null,
+      },
+      meta: {
+        request_id: authReq.id,
+      },
     },
-    meta: {
-      request_id: authReq.id,
+    {
+      status: 201,
     },
-  };
+  ];
 
-  return Response.json(resBody, {
-    status: 201,
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json(...response);
 }

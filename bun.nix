@@ -2,9 +2,9 @@
 {
   "@types/bun" = {
     out_path = "@types/bun";
-    name = "@types/bun@1.2.19";
-    url = "https://registry.npmjs.org/@types/bun/-/bun-1.2.19.tgz";
-    hash = "sha512-d9ZCmrH3CJ2uYKXQIUuZ/pUnTqIvLDS0SK7pFmbx8ma+ziH/FRMoAq5bYpRG7y+w1gl+HgyNZbtqgMq4W4e2Lg==";
+    name = "@types/bun@1.2.20";
+    url = "https://registry.npmjs.org/@types/bun/-/bun-1.2.20.tgz";
+    hash = "sha512-dX3RGzQ8+KgmMw7CsW4xT5ITBSCrSbfHc36SNT31EOUg/LA9JWq0VDdEXDRSe1InVWpd2yLUM1FUF/kEOyTzYA==";
   };
   "@types/node" = {
     out_path = "@types/node";
@@ -20,9 +20,9 @@
   };
   "bun-types" = {
     out_path = "bun-types";
-    name = "bun-types@1.2.19";
-    url = "https://registry.npmjs.org/bun-types/-/bun-types-1.2.19.tgz";
-    hash = "sha512-uAOTaZSPuYsWIXRpj7o56Let0g/wjihKCkeRqUBhlLVM/Bt+Fj9xTo+LhC1OV1XDaGkz4hNC80et5xgy+9KTHQ==";
+    name = "bun-types@1.2.20";
+    url = "https://registry.npmjs.org/bun-types/-/bun-types-1.2.20.tgz";
+    hash = "sha512-pxTnQYOrKvdOwyiyd/7sMt9yFOenN004Y6O4lCcCUoKVej48FS5cvTw9geRaEcB9TsDZaJKAxPTVvi8tFsVuXA==";
   };
   "csstype" = {
     out_path = "csstype";
