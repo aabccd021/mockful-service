@@ -37,15 +37,6 @@ export async function handle(req: Request): Promise<Response> {
     ]);
   }
 
-  if (items.length === 0) {
-    return invalidRequest(authReq, [
-      {
-        field: "items",
-        message: "Array must have at least one item",
-      },
-    ]);
-  }
-
   const insertTransaction = db.transaction(() => {
     db.query(
       `
