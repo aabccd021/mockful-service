@@ -1,7 +1,7 @@
 import type * as sqlite from "bun:sqlite";
 import type { paths } from "@openapi/paddle.ts";
 import { db, type ResponseOf } from "@util/index";
-import { authenticate, generateId, getBody } from "@util/paddle";
+import { authenticate, generateId } from "@util/paddle";
 
 type Path = paths["/prices"]["post"];
 
@@ -60,10 +60,7 @@ export async function handle(req: Request): Promise<Response> {
     return authErrorRes;
   }
 
-  const [errorRes, reqBody] = await getBody(authReq, req);
-  if (errorRes !== undefined) {
-    return errorRes;
-  }
+  const reqBody = await req.json();
 
   const id = `pri_${generateId()}`;
 
