@@ -36,6 +36,18 @@
     url = "https://registry.npmjs.org/jose/-/jose-6.0.12.tgz";
     hash = "sha512-T8xypXs8CpmiIi78k0E+Lk7T2zlK4zDyg+o1CZ4AkOHgDg98ogdP2BeZ61lTFKFyoEwJ9RgAgN+SdM3iPgNonQ==";
   };
+  "oauth4webapi" = {
+    out_path = "oauth4webapi";
+    name = "oauth4webapi@3.7.0";
+    url = "https://registry.npmjs.org/oauth4webapi/-/oauth4webapi-3.7.0.tgz";
+    hash = "sha512-Q52wTPUWPsVLVVmTViXPQFMW2h2xv2jnDGxypjpelCFKaOjLsm7AxYuOk1oQgFm95VNDbuggasu9htXrz6XwKw==";
+  };
+  "openid-client" = {
+    out_path = "openid-client";
+    name = "openid-client@6.6.4";
+    url = "https://registry.npmjs.org/openid-client/-/openid-client-6.6.4.tgz";
+    hash = "sha512-PLWVhRksRnNH05sqeuCX/PR+1J70NyZcAcPske+FeF732KKONd3v0p5Utx1ro1iLfCglH8B3/+dA1vqIHDoIiA==";
+  };
   "undici-types" = {
     out_path = "undici-types";
     name = "undici-types@6.21.0";

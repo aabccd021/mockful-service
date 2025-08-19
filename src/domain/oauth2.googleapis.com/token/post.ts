@@ -143,9 +143,9 @@ export async function handle(req: Request): Promise<Response> {
     );
   }
 
-  const [clientId, clientSecret] = atob(credentials).split(":");
+  const [clientIdRaw, clientSecretRaw] = atob(credentials).split(":");
 
-  if (clientId === undefined || clientId === "") {
+  if (clientIdRaw === undefined || clientIdRaw === "") {
     return Response.json(
       {
         error: "invalid_request",
@@ -155,7 +155,9 @@ export async function handle(req: Request): Promise<Response> {
     );
   }
 
-  if (clientSecret === undefined || clientSecret === "") {
+  const clientId = decodeURIComponent(clientIdRaw);
+
+  if (clientSecretRaw === undefined || clientSecretRaw === "") {
     return Response.json(
       {
         error: "invalid_request",
@@ -164,6 +166,8 @@ export async function handle(req: Request): Promise<Response> {
       { status: 400 },
     );
   }
+
+  const clientSecret = decodeURIComponent(clientSecretRaw);
 
   const code = formData.get("code");
   if (code === undefined || code === "") {

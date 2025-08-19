@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "@types/bun": "latest",
-    "jose": "latest"
+    "jose": "latest",
+    "openid-client": "^6.6.4"
   }
 }
