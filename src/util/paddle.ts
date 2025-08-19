@@ -12,9 +12,7 @@ function forbiddenResponse(): Response {
         documentation_url: "https://developer.paddle.com/v1/errors/shared/forbidden",
       },
     },
-    {
-      status: 403,
-    },
+    { status: 403 },
   );
 }
 
@@ -28,9 +26,7 @@ function authenticationMalformedResponse(): Response {
         documentation_url: "https://developer.paddle.com/v1/errors/shared/authentication_malformed",
       },
     },
-    {
-      status: 400,
-    },
+    { status: 400 },
   );
 }
 

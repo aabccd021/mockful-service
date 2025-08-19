@@ -143,8 +143,6 @@ export async function handle(req: Request): Promise<Response> {
         request_id: authReq.id,
       },
     },
-    {
-      status: 201,
-    },
+    { status: 201 },
   );
 }

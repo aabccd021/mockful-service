@@ -151,8 +151,6 @@ export async function handle(req: Request): Promise<Response> {
         },
       },
     },
-    {
-      status: 200,
-    },
+    { status: 200 },
   );
 }
