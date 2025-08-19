@@ -1,7 +1,7 @@
 import type * as sqlite from "bun:sqlite";
 import type { paths } from "@openapi/paddle.ts";
 import { db, type ResponseOf } from "@util/index";
-import { authenticate, generateId, getBody, invalidRequest } from "@util/paddle";
+import { authenticate, generateId, getBody } from "@util/paddle";
 
 type Path = paths["/transactions"]["post"];
 
@@ -26,16 +26,6 @@ export async function handle(req: Request): Promise<Response> {
   }
 
   const id = `txn_${generateId()}`;
-
-  const items = reqBody.items;
-  if (!Array.isArray(items)) {
-    return invalidRequest(authReq, [
-      {
-        field: "items",
-        message: "The items field must be an array.",
-      },
-    ]);
-  }
 
   const insertTransaction = db.transaction(() => {
     db.query(
@@ -64,7 +54,7 @@ export async function handle(req: Request): Promise<Response> {
       created_at: Date.now(),
       updated_at: Date.now(),
     });
-    for (const item of items) {
+    for (const item of reqBody.items) {
       db.query(
         `
           INSERT INTO paddle_transaction_item (
