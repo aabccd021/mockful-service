@@ -1,9 +1,6 @@
 import type * as sqlite from "bun:sqlite";
-import type { paths } from "@openapi/paddle.ts";
-import { db, type ResponseOf } from "@util/index";
+import { db } from "@util/index";
 import * as paddle from "@util/paddle";
-
-type Path = paths["/transactions"]["post"];
 
 type TransactionRow = {
   id: string;
@@ -83,7 +80,7 @@ export async function handle(req: Request): Promise<Response> {
     throw new Error("Unreachable");
   }
 
-  const response: ResponseOf<Path, 201> = [
+  return Response.json(
     {
       meta: {
         request_id: authReq.id,
@@ -137,7 +134,5 @@ export async function handle(req: Request): Promise<Response> {
       },
     },
     { status: 201 },
-  ];
-
-  return Response.json(...response);
+  );
 }

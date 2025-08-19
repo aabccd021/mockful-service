@@ -1,9 +1,6 @@
 import * as sqlite from "bun:sqlite";
-import type { paths } from "@openapi/paddle.ts";
-import { db, type ResponseOf } from "@util/index";
+import { db } from "@util/index";
 import * as paddle from "@util/paddle";
-
-type Path = paths["/customers"]["post"];
 
 type Row = {
   id: string;
@@ -60,7 +57,7 @@ export async function handle(req: Request): Promise<Response> {
       err instanceof sqlite.SQLiteError &&
       err.message === "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"
     ) {
-      const resBody: paddle.ErrorBody = {
+      const resBody = {
         error: {
           type: "request_error",
           code: "customer_already_exists",
@@ -86,7 +83,7 @@ export async function handle(req: Request): Promise<Response> {
     throw new Error("Unreachable");
   }
 
-  const response: ResponseOf<Path, 201> = [
+  return Response.json(
     {
       data: {
         id: customer.id,
@@ -107,7 +104,5 @@ export async function handle(req: Request): Promise<Response> {
     {
       status: 201,
     },
-  ];
-
-  return Response.json(...response);
+  );
 }

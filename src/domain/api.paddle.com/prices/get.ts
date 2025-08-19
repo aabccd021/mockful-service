@@ -1,9 +1,6 @@
 import type * as sqlite from "bun:sqlite";
-import type { paths } from "@openapi/paddle.ts";
-import { db, type ResponseOf } from "@util/index";
+import { db } from "@util/index";
 import * as paddle from "@util/paddle.ts";
-
-type Path = paths["/prices"]["get"];
 
 type Row = {
   id: string;
@@ -142,7 +139,7 @@ export async function handle(req: Request): Promise<Response> {
     };
   });
 
-  const response: ResponseOf<Path, 200> = [
+  return Response.json(
     {
       data,
       meta: {
@@ -157,7 +154,5 @@ export async function handle(req: Request): Promise<Response> {
     {
       status: 200,
     },
-  ];
-
-  return Response.json(...response);
+  );
 }

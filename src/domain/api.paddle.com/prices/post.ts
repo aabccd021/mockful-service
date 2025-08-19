@@ -1,9 +1,6 @@
 import type * as sqlite from "bun:sqlite";
-import type { paths } from "@openapi/paddle.ts";
-import { db, type ResponseOf } from "@util/index";
+import { db } from "@util/index";
 import * as paddle from "@util/paddle";
-
-type Path = paths["/prices"]["post"];
 
 type Row = {
   id: string;
@@ -136,11 +133,10 @@ export async function handle(req: Request): Promise<Response> {
     throw new Error("Unreachable");
   }
 
-  const response: ResponseOf<Path, 201> = [
+  return Response.json(
     {
       data: {
         billing_cycle: priceBillingCycle,
-        trial_period: null,
         unit_price_overrides: [],
         quantity: {
           minimum: price.quantity_minimum,
@@ -157,19 +153,16 @@ export async function handle(req: Request): Promise<Response> {
         type: price.type,
         name: price.name,
         tax_mode: price.tax_mode,
-        custom_data: null,
-        import_meta: null,
         created_at: new Date(price.created_at).toISOString(),
         updated_at: new Date(price.updated_at).toISOString(),
+        trial_period: null,
+        custom_data: null,
+        import_meta: null,
       },
       meta: {
         request_id: authReq.id,
       },
     },
-    {
-      status: 201,
-    },
-  ];
-
-  return Response.json(...response);
+    { status: 201 },
+  );
 }

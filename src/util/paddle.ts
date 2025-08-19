@@ -1,5 +1,4 @@
 import type * as sqlite from "bun:sqlite";
-import type { components } from "@openapi/paddle.ts";
 import type { ResponseOr } from "@util/index.ts";
 import { db } from "@util/index.ts";
 
@@ -81,5 +80,3 @@ export function generateId(): string {
     .map((b) => chars.charAt(b % chars.length))
     .join("");
 }
-
-export type ErrorBody = components["schemas"]["error"];
