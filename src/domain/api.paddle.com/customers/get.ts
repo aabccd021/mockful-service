@@ -64,8 +64,6 @@ export async function handle(req: Request): Promise<Response> {
     marketing_consent: customer.marketing_consent === "true",
     created_at: new Date(customer.created_at).toISOString(),
     updated_at: new Date(customer.updated_at).toISOString(),
-    custom_data: null,
-    import_meta: null,
   }));
 
   return Response.json(

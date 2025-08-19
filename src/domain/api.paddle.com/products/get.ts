@@ -19,7 +19,6 @@ type Row = {
     | "training-services"
     | "website-hosting";
   image_url: string | null;
-  custom_data: null;
   status: "active" | "archived";
   created_at: number;
   updated_at: number;
@@ -68,8 +67,6 @@ export async function handle(req: Request): Promise<Response> {
     status: product.status,
     created_at: new Date(product.created_at).toISOString(),
     updated_at: new Date(product.updated_at).toISOString(),
-    custom_data: null,
-    import_meta: null,
   }));
 
   return Response.json(

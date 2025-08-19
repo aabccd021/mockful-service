@@ -91,8 +91,6 @@ export async function handle(req: Request): Promise<Response> {
         created_at: new Date(customer.created_at).toISOString(),
         updated_at: new Date(customer.updated_at).toISOString(),
         locale: customer.locale,
-        custom_data: null,
-        import_meta: null,
       },
     },
     { status: 201 },

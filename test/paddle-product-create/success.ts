@@ -33,6 +33,5 @@ expect(responseBody.data.status).toEqual("active");
 expect(responseBody.data.description).toEqual(null);
 expect(responseBody.data.description).toEqual(null);
 expect(responseBody.data.image_url).toEqual(null);
-expect(responseBody.data.custom_data).toEqual(null);
 expect(responseBody.data.created_at).toBeDefined();
 expect(responseBody.data.updated_at).toBeDefined();

@@ -132,10 +132,6 @@ export async function handle(req: Request): Promise<Response> {
       tax_mode: price.tax_mode,
       created_at: new Date(price.created_at).toISOString(),
       updated_at: new Date(price.updated_at).toISOString(),
-      trial_period: null,
-      unit_price_overrides: [],
-      custom_data: null,
-      import_meta: null,
     };
   });
 
