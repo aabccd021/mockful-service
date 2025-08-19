@@ -1,7 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import type { paths } from "@openapi/paddle.ts";
 import { db, type ResponseOf } from "@util/index";
-import { authenticate, type ErrorBody, generateId, getBody, mapSqliteError } from "@util/paddle";
+import { authenticate, type ErrorBody, generateId, getBody } from "@util/paddle";
 
 type Path = paths["/customers"]["post"];
 
@@ -59,16 +59,6 @@ export async function handle(req: Request): Promise<Response> {
       updatedAt: Date.now(),
     });
   } catch (err) {
-    const fieldErr = mapSqliteError(authReq, err, {
-      "CHECK constraint failed: paddle_customer_email_not_null": {
-        field: "(root)",
-        message: "email is required",
-      },
-    });
-    if (fieldErr !== undefined) {
-      return fieldErr;
-    }
-
     if (
       err instanceof sqlite.SQLiteError &&
       err.message === "UNIQUE constraint failed: paddle_customer.account_id, paddle_customer.email"

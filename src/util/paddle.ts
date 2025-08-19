@@ -1,5 +1,4 @@
 import type * as sqlite from "bun:sqlite";
-import { SQLiteError } from "bun:sqlite";
 import type { components } from "@openapi/paddle.ts";
 import type { ResponseOr } from "@util/index.ts";
 import { db } from "@util/index.ts";
@@ -142,37 +141,4 @@ export async function getBody(authReq: AuthenticatedRequest, req: Request) {
   }
 
   return [undefined, rawBody] as const;
-}
-
-export function mapSqliteError(
-  authReq: AuthenticatedRequest,
-  err: unknown,
-  map: Record<string, FieldError>,
-): Response | undefined {
-  if (!(err instanceof SQLiteError)) {
-    return undefined;
-  }
-
-  const fieldError = map[err.message];
-  if (fieldError === undefined) {
-    return undefined;
-  }
-
-  return Response.json(
-    {
-      error: {
-        type: "request_error",
-        code: "bad_request",
-        detail: "Invalid request.",
-        documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-        errors: [fieldError],
-      },
-      meta: {
-        request_id: authReq.id,
-      },
-    },
-    {
-      status: 400,
-    },
-  );
 }
