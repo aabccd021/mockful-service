@@ -89,23 +89,11 @@
         vscode-langservers-extracted = pkgs.vscode-langservers-extracted;
       };
 
-      dev = pkgs.writeShellApplication {
-        name = "dev";
-        runtimeInputs = [
-          pkgs.bun
-          pkgs.netero-oauth-mock
-          pkgs.sqlite
-        ];
-        runtimeEnv.NODE_MODULES = nodeModules;
-        text = builtins.readFile ./dev.sh;
-      };
-
       packages =
         devShells
         // test
         // inputPackages
         // {
-          dev = dev;
           tests = pkgs.linkFarm "tests" test;
           formatting = treefmtEval.config.build.check self;
           formatter = formatter;
