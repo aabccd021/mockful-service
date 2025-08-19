@@ -60,13 +60,16 @@ export async function handle(req: Request): Promise<Response> {
     return authErrorRes;
   }
 
-  const query = new URL(req.url).searchParams;
-  const queryRecurring = query.get("recurring") ?? null;
-  const queryProductId = query.get("product_id")?.split(",") ?? null;
+  const rawQuery = new URL(req.url).searchParams;
+
+  const reqQuery = {
+    recurring: rawQuery.get("recurring") ?? null,
+    productId: rawQuery.get("product_id")?.split(",") ?? null,
+  };
 
   let prices = null;
-  if (queryProductId !== null) {
-    prices = queryProductId.flatMap((productId) =>
+  if (reqQuery.productId !== null) {
+    prices = reqQuery.productId.flatMap((productId) =>
       db
         .query<Row, sqlite.SQLQueryBindings>(
           `
@@ -80,7 +83,7 @@ export async function handle(req: Request): Promise<Response> {
               END
           `,
         )
-        .all({ productId: productId, recurring: queryRecurring }),
+        .all({ productId: productId, recurring: reqQuery.recurring }),
     );
   } else {
     prices = db
@@ -97,7 +100,7 @@ export async function handle(req: Request): Promise<Response> {
             END
         `,
       )
-      .all({ accountId: authReq.accountId, recurring: queryRecurring });
+      .all({ accountId: authReq.accountId, recurring: reqQuery.recurring });
   }
 
   const data = prices.map((price) => {

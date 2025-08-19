@@ -55,9 +55,3 @@ export type ResponseOf<
   K extends keyof T["responses"],
   Z extends { status: K } = { status: K },
 > = [_ApplicationJsonOf<_ContentOf<T["responses"][K]>>, Z & ResponseInit];
-
-type _ParametersOf<T> = T extends { parameters: infer P } ? P : never;
-
-type _QueryOf<T> = T extends { query?: infer Q } ? Q : never;
-
-export type QueryOf<T> = _QueryOf<_ParametersOf<T>>;

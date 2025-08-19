@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
 import type { paths } from "@openapi/paddle.ts";
-import { db, type QueryOf, type ResponseOf } from "@util/index";
+import { db, type ResponseOf } from "@util/index";
 import * as paddle from "@util/paddle.ts";
 
 type Path = paths["/products"]["get"];
@@ -36,7 +36,7 @@ export async function handle(req: Request): Promise<Response> {
 
   const rawQuery = new URL(req.url).searchParams;
 
-  const reqQuery: QueryOf<Path> = {
+  const reqQuery = {
     after: rawQuery.get("after") ?? undefined,
     id: rawQuery.get("id")?.split(","),
     order_by: rawQuery.get("order_by") ?? undefined,
