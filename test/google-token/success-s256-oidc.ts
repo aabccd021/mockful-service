@@ -11,14 +11,23 @@ new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
   INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
 `);
 
+const config = new client.Configuration(
+  {
+    issuer: "https://accounts.google.com",
+    token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
+  },
+  "mock_client_id",
+  {},
+  client.ClientSecretBasic("mock_client_secret"),
+);
+
+client.allowInsecureRequests(config);
+
 const loginResponse = await fetch(
   "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
   {
     method: "POST",
     redirect: "manual",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
     body: new URLSearchParams({
       scope: "openid",
       user_sub: "kita-sub",
@@ -33,18 +42,6 @@ const loginResponse = await fetch(
 );
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
-
-const config = new client.Configuration(
-  {
-    issuer: "https://accounts.google.com",
-    token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-  },
-  "mock_client_id",
-  {},
-  client.ClientSecretBasic("mock_client_secret"),
-);
-
-client.allowInsecureRequests(config);
 
 const tokens = await client.authorizationCodeGrant(config, location, {
   pkceCodeVerifier: "AWnuB2qLobencpDhxdlDb_yeTixrfG9SiKYOjwYrz4I",
