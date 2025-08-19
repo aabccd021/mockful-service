@@ -53,7 +53,11 @@
         projectRootFile = "flake.nix";
         programs.nixfmt.enable = true;
         programs.biome.enable = true;
-        programs.biome.settings = builtins.fromJSON (builtins.readFile ./biome.json);
+        programs.biome.settings.formatter.indentStyle = "space";
+        programs.biome.settings.formatter.lineWidth = 100;
+        programs.biome.settings.linter.rules.complexity.useLiteralKeys = "off";
+        programs.biome.settings.linter.rules.suspicious.noConsole.level = "error";
+        programs.biome.settings.linter.rules.suspicious.noConsole.options.allow = [ "error" ];
         programs.biome.formatUnsafe = true;
         settings.formatter.biome.options = [ "--vcs-enabled=false" ];
         programs.shfmt.enable = true;
@@ -79,13 +83,10 @@
       '';
 
       inputPackages = {
-        bun = pkgs.bun;
-        biome = pkgs.biome;
+        nixd = pkgs.nixd;
         typescript = pkgs.typescript;
         typescript-language-server = pkgs.typescript-language-server;
         vscode-langservers-extracted = pkgs.vscode-langservers-extracted;
-        bun2nix = inputs.bun2nix.packages.x86_64-linux.default;
-        nixd = pkgs.nixd;
       };
 
       dev = pkgs.writeShellApplication {
