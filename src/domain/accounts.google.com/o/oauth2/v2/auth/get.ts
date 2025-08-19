@@ -122,9 +122,9 @@ export function handle(req: Request): Response {
     `);
   }
 
-  const paramInputs = searchParams
-    .entries()
-    .map(([name, value]) => `<input type="hidden" name="${name}" value="${value}" />`);
+  // const paramInputs = searchParams
+  //   .entries()
+  //   .map(([name, value]) => `<input type="hidden" name="${name}" value="${value}" />`);
 
   const userSubmitButton = db
     .query<{ sub: string; email: string }, []>(`SELECT sub,email FROM google_auth_user`)
@@ -152,8 +152,7 @@ export function handle(req: Request): Response {
     >
       Cancel
     </a>
-    <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
-      ${Array.from(paramInputs).join("")} 
+    <form method="post" action="${searchParams.toString()}" style="display: flex; flex-direction: column; gap: 1rem;">
       ${userSubmitButton} 
     </form>
   `);
