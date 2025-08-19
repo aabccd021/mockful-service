@@ -72,10 +72,7 @@ export async function handle(req: Request): Promise<Response> {
           request_id: authReq.id,
         },
       };
-      return Response.json(resBody, {
-        status: 409,
-        headers: { "Content-Type": "application/json" },
-      });
+      return Response.json(resBody, { status: 409 });
     }
 
     throw err;

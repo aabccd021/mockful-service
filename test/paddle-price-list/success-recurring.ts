@@ -17,7 +17,6 @@ const product1Res = await fetch("http://localhost:3001/https://sandbox-api.paddl
   method: "POST",
   headers: {
     Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
-    "Content-Type": "application/json",
   },
   body: JSON.stringify({
     name: "prod1",
@@ -31,7 +30,6 @@ const product2Res = await fetch("http://localhost:3001/https://sandbox-api.paddl
   method: "POST",
   headers: {
     Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
-    "Content-Type": "application/json",
   },
   body: JSON.stringify({
     name: "prod1",
@@ -116,7 +114,6 @@ const listProduct2Recurring = await fetch(listUrl, {
   method: "GET",
   headers: {
     Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
-    "Content-Type": "application/json",
   },
 });
 

@@ -15,7 +15,6 @@ await fetch("http://localhost:3001/https://sandbox-api.paddle.com/customers", {
   method: "POST",
   headers: {
     Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
-    "Content-Type": "application/json",
   },
   body: JSON.stringify({
     email: "nijika@example.com",
@@ -26,7 +25,6 @@ const kitaRes = await fetch("http://localhost:3001/https://sandbox-api.paddle.co
   method: "POST",
   headers: {
     Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
-    "Content-Type": "application/json",
   },
   body: JSON.stringify({
     email: "kita@example.com",
@@ -38,7 +36,6 @@ const yamadaRes = await fetch("http://localhost:3001/https://sandbox-api.paddle.
   method: "POST",
   headers: {
     Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
-    "Content-Type": "application/json",
   },
   body: JSON.stringify({
     email: "yamada@example.com",
@@ -53,7 +50,6 @@ const response = await fetch(listUrl, {
   method: "GET",
   headers: {
     Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
-    "Content-Type": "application/json",
   },
 });
 

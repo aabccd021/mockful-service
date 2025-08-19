@@ -15,7 +15,6 @@ function forbiddenResponse(): Response {
     },
     {
       status: 403,
-      headers: { "Content-Type": "application/json" },
     },
   );
 }
@@ -32,7 +31,6 @@ function authenticationMalformedResponse(): Response {
     },
     {
       status: 400,
-      headers: { "Content-Type": "application/json" },
     },
   );
 }
@@ -85,10 +83,3 @@ export function generateId(): string {
 }
 
 export type ErrorBody = components["schemas"]["error"];
-
-export type FieldError = {
-  field: string;
-  message: string;
-};
-
-export type FieldValidation<T> = [FieldError[]] | [undefined, T];
