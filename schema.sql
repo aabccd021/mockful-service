@@ -14,22 +14,21 @@ CREATE TABLE google_auth_session (
   CONSTRAINT google_auth_session_scope_not_null CHECK (scope IS NOT NULL),
   CONSTRAINT google_auth_session_challenge_method_enum CHECK (code_challenge_method IN ('S256', 'plain')),
   CONSTRAINT google_auth_session_user_sub_not_null CHECK (user_sub IS NOT NULL),
-  CONSTRAINT google_auth_session_user_sub_fk FOREIGN KEY (user_sub) REFERENCES google_auth_user(sub) ON DELETE CASCADE,
   CONSTRAINT google_auth_session_client_id_not_null CHECK (client_id IS NOT NULL),
-  CONSTRAINT google_auth_session_client_id_fk FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
+  FOREIGN KEY (user_sub) REFERENCES google_auth_user(sub) ON DELETE CASCADE,
+  FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_auth_user (
   sub TEXT,
-  email TEXT,
+  email TEXT UNIQUE,
   email_verified TEXT,
   project_id TEXT,
   CONSTRAINT google_auth_user_sub_pk PRIMARY KEY (sub),
   CONSTRAINT google_auth_user_email_not_null CHECK (email IS NOT NULL),
-  CONSTRAINT google_auth_user_email_unique UNIQUE (email),
   CONSTRAINT google_auth_user_email_verified_boolean CHECK (email_verified IN ('true', 'false')),
   CONSTRAINT google_auth_user_project_id_not_null CHECK (project_id IS NOT NULL),
-  CONSTRAINT google_auth_user_project_id_fk FOREIGN KEY (project_id) REFERENCES google_project(id) ON DELETE CASCADE
+  FOREIGN KEY (project_id) REFERENCES google_project(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_auth_client (
@@ -47,7 +46,7 @@ CREATE TABLE google_auth_redirect_uri (
   client_id TEXT,
   CONSTRAINT google_auth_redirect_uri_value_not_null CHECK (value IS NOT NULL),
   CONSTRAINT google_auth_redirect_uri_client_id_not_null CHECK (client_id IS NOT NULL),
-  CONSTRAINT google_auth_redirect_uri_client_id_fk FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
+  FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_account (
@@ -71,7 +70,7 @@ CREATE TABLE paddle_api_key (
   CONSTRAINT paddle_api_key_id_prefix CHECK (key LIKE 'pdl_live_apikey_%' OR key LIKE 'pdl_sdbx_apikey_%'), -- https://developer.paddle.com/api-reference/about/api-keys#format
   CONSTRAINT paddle_api_key_id_length CHECK (LENGTH(key) = 69),
   CONSTRAINT paddle_api_key_account_id_not_null CHECK (account_id IS NOT NULL),
-  CONSTRAINT paddle_api_key_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
+  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_customer (
@@ -84,11 +83,11 @@ CREATE TABLE paddle_customer (
   created_at INTEGER,
   updated_at INTEGER,
   account_id TEXT,
+  UNIQUE (account_id, email),
   CONSTRAINT paddle_customer_id_pk PRIMARY KEY (id),
   CONSTRAINT paddle_customer_id_prefix CHECK (id LIKE 'ctm_%'),
   CONSTRAINT paddle_customer_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_customer_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
-  CONSTRAINT paddle_customer_email_unique UNIQUE (account_id, email),
   CONSTRAINT paddle_customer_email_not_null CHECK (email IS NOT NULL),
   CONSTRAINT paddle_customer_status_enum CHECK (status IN ('active', 'archived')),
   CONSTRAINT paddle_customer_status_not_null CHECK (status IS NOT NULL),
@@ -98,7 +97,7 @@ CREATE TABLE paddle_customer (
   CONSTRAINT paddle_customer_created_at_not_null CHECK (created_at IS NOT NULL),
   CONSTRAINT paddle_customer_updated_at_not_null CHECK (updated_at IS NOT NULL),
   CONSTRAINT paddle_customer_account_id_not_null CHECK (account_id IS NOT NULL),
-  CONSTRAINT paddle_customer_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
+  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_product (
@@ -125,7 +124,7 @@ CREATE TABLE paddle_product (
   CONSTRAINT paddle_product_created_at_not_null CHECK (created_at IS NOT NULL),
   CONSTRAINT paddle_product_updated_at_not_null CHECK (updated_at IS NOT NULL),
   CONSTRAINT paddle_product_account_id_not_null CHECK (account_id IS NOT NULL),
-  CONSTRAINT paddle_product_account_id_fk FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
+  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_price (
@@ -169,7 +168,7 @@ CREATE TABLE paddle_price (
   CONSTRAINT paddle_price_created_at_not_null CHECK (created_at IS NOT NULL),
   CONSTRAINT paddle_price_updated_at_not_null CHECK (updated_at IS NOT NULL),
   CONSTRAINT paddle_price_product_id_not_null CHECK (product_id IS NOT NULL),
-  CONSTRAINT paddle_price_product_id_fk FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON DELETE CASCADE
+  FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_transaction (
@@ -185,11 +184,11 @@ CREATE TABLE paddle_transaction (
   CONSTRAINT paddle_transaction_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CONSTRAINT paddle_transaction_status_not_null CHECK (status IS NOT NULL),
   CONSTRAINT paddle_transaction_status_enum CHECK (status IN ('draft', 'ready', 'billed', 'paid', 'completed', 'canceled', 'past_due')),
-  CONSTRAINT paddle_transaction_customer_id_fk FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON DELETE CASCADE,
   CONSTRAINT paddle_transaction_collection_mode_not_null CHECK (collection_mode IS NOT NULL),
   CONSTRAINT paddle_transaction_collection_mode_enum CHECK (collection_mode IN ('automatic', 'manual')),
   CONSTRAINT paddle_transaction_created_at_not_null CHECK (created_at IS NOT NULL),
-  CONSTRAINT paddle_transaction_updated_at_not_null CHECK (updated_at IS NOT NULL)
+  CONSTRAINT paddle_transaction_updated_at_not_null CHECK (updated_at IS NOT NULL),
+  FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_transaction_item (
@@ -197,6 +196,6 @@ CREATE TABLE paddle_transaction_item (
   price_id TEXT NOT NULL,
   quantity INTEGER NOT NULL,
   CONSTRAINT paddle_transaction_item_pk PRIMARY KEY (transaction_id, price_id),
-  CONSTRAINT paddle_transaction_item_transaction_id_fk FOREIGN KEY (transaction_id) REFERENCES paddle_transaction(id) ON DELETE CASCADE,
-  CONSTRAINT paddle_transaction_item_price_id_fk FOREIGN KEY (price_id) REFERENCES paddle_price(id) ON DELETE CASCADE
+  FOREIGN KEY (transaction_id) REFERENCES paddle_transaction(id) ON DELETE CASCADE,
+  FOREIGN KEY (price_id) REFERENCES paddle_price(id) ON DELETE CASCADE
 ) STRICT
