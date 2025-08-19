@@ -51,5 +51,4 @@ const tokens = await client.authorizationCodeGrant(config, location, {
   expectedState: "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
   idTokenExpected: true,
 });
-const claims = tokens.claims();
-expect(claims?.sub).toEqual("kita-sub");
+expect(tokens.claims()?.sub).toEqual("kita-sub");
