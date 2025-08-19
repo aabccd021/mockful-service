@@ -1,7 +1,7 @@
 import type * as sqlite from "bun:sqlite";
 import type { paths } from "@openapi/paddle.ts";
 import { db, type QueryOf, type ResponseOf } from "@util/index";
-import { authenticate } from "@util/paddle.ts";
+import * as paddle from "@util/paddle.ts";
 
 type Path = paths["/products"]["get"];
 
@@ -29,7 +29,7 @@ type Row = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, authReq] = authenticate(req);
+  const [authErrorRes, authReq] = paddle.authenticate(req);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
