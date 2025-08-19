@@ -69,10 +69,5 @@ export async function handle(req: Request): Promise<Response> {
     updated_at: new Date(product.updated_at).toISOString(),
   }));
 
-  return Response.json(
-    {
-      data,
-    },
-    { status: 200 },
-  );
+  return Response.json({ data }, { status: 200 });
 }
