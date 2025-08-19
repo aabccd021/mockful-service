@@ -70,7 +70,7 @@
 
       formatter = treefmtEval.config.build.wrapper;
 
-      typeCheck = pkgs.runCommand "typeCheck" { } ''
+      tsc = pkgs.runCommand "tsc" { } ''
         cp -Lr ${nodeModules}/node_modules ./node_modules
         cp -Lr ${./src} ./src
         cp -L ${./tsconfig.json} ./tsconfig.json
@@ -109,7 +109,7 @@
           formatting = treefmtEval.config.build.check self;
           formatter = formatter;
           allInputs = collectInputs inputs;
-          typeCheck = typeCheck;
+          tsc = tsc;
           default = pkgs.netero-oauth-mock;
           netero-oauth-mock = pkgs.netero-oauth-mock;
         };
