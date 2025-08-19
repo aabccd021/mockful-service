@@ -66,7 +66,7 @@ export async function handle(req: Request): Promise<Response> {
           request_id: authReq.id,
         },
       },
-      { status: 400, headers: { "Content-Type": "application/json" } },
+      { status: 400 },
     );
   }
 

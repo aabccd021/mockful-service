@@ -94,25 +94,6 @@ export type FieldError = {
 
 export type FieldValidation<T> = [FieldError[]] | [undefined, T];
 
-export function invalidRequest(
-  authReq: AuthenticatedRequest,
-  errors: ErrorBody["error"]["errors"],
-): Response {
-  const resBody: ErrorBody = {
-    error: {
-      type: "request_error",
-      code: "bad_request",
-      detail: "Invalid request.",
-      documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-      errors: errors,
-    },
-    meta: {
-      request_id: authReq.id,
-    },
-  };
-  return Response.json(resBody, { status: 400 });
-}
-
 export async function getBody(authReq: AuthenticatedRequest, req: Request) {
   let rawBody = null;
   try {
@@ -135,12 +116,28 @@ export async function getBody(authReq: AuthenticatedRequest, req: Request) {
   if (rawBody === null || typeof rawBody !== "object") {
     const rawBodyType = rawBody === null ? "null" : typeof rawBody;
     return [
-      invalidRequest(authReq, [
+      Response.json(
         {
-          field: "(root)",
-          message: `Invalid type. Expected: object, given: ${rawBodyType}`,
+          error: {
+            type: "request_error",
+            code: "bad_request",
+            detail: "Invalid request.",
+            documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
+            errors: [
+              {
+                field: "(root)",
+                message: `Invalid type. Expected: object, given: ${rawBodyType}`,
+              },
+            ],
+          },
+          meta: {
+            request_id: authReq.id,
+          },
         },
-      ]),
+        {
+          status: 400,
+        },
+      ),
     ];
   }
 
@@ -161,5 +158,21 @@ export function mapSqliteError(
     return undefined;
   }
 
-  return invalidRequest(authReq, [fieldError]);
+  return Response.json(
+    {
+      error: {
+        type: "request_error",
+        code: "bad_request",
+        detail: "Invalid request.",
+        documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
+        errors: [fieldError],
+      },
+      meta: {
+        request_id: authReq.id,
+      },
+    },
+    {
+      status: 400,
+    },
+  );
 }
