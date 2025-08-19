@@ -1,9 +1,9 @@
 import type * as sqlite from "bun:sqlite";
-import type * as openapi from "@openapi/paddle.ts";
+import type { paths } from "@openapi/paddle.ts";
 import { db, type ResponseOf } from "@util/index";
 import { authenticate, generateId, getBody, mapSqliteError } from "@util/paddle";
 
-type Path = openapi.paths["/prices"]["post"];
+type Path = paths["/prices"]["post"];
 
 type Row = {
   id: string;

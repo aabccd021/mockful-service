@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
 import { SQLiteError } from "bun:sqlite";
-import type * as openapi from "@openapi/paddle.ts";
+import type { components } from "@openapi/paddle.ts";
 import type { ResponseOr } from "@util/index.ts";
 import { db } from "@util/index.ts";
 
@@ -85,7 +85,7 @@ export function generateId(): string {
     .join("");
 }
 
-export type ErrorBody = openapi.components["schemas"]["error"];
+export type ErrorBody = components["schemas"]["error"];
 
 export type FieldError = {
   field: string;
@@ -104,7 +104,7 @@ export function invalidRequest(
       code: "bad_request",
       detail: "Invalid request.",
       documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-      errors,
+      errors: errors ?? [],
     },
     meta: {
       request_id: authReq.id,

@@ -1,24 +1,35 @@
 {
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
+    // Environment Settings
+    "module": "preserve",
+    "lib": ["esnext", "webworker"],
+    "target": "esnext",
+
+    // Outputs
+    "noEmit": true,
+
+    // Strict
+    "strict": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "module": "Preserve",
-    "moduleDetection": "force",
-    "moduleResolution": "bundler",
-    "noEmit": true,
+    "isolatedModules": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ESNext",
+    "useUnknownInCatchVariables": true,
     "verbatimModuleSyntax": true,
+
+    // Misc
+    "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
+
     "baseUrl": "./src",
+    // Paths
     "paths": {
       "@util/*": ["./util/*"],
       "@openapi/*": ["./openapi/*"]

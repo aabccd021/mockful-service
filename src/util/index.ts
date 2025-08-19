@@ -12,7 +12,7 @@ export function errorMessage(...message: string[]): Response {
 export async function getStringFormData(req: Request): Promise<ReadonlyMap<string, string>> {
   const formDataRaw = await req.formData();
   const data = new Map<string, string>();
-  for (const [key, value] of formDataRaw) {
+  for (const [key, value] of formDataRaw.entries()) {
     if (typeof value === "string") {
       data.set(key, value);
     }
