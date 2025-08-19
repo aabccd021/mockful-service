@@ -104,7 +104,7 @@ export function invalidRequest(
       code: "bad_request",
       detail: "Invalid request.",
       documentation_url: "https://developer.paddle.com/v1/errors/shared/bad_request",
-      errors: errors ?? [],
+      errors: errors,
     },
     meta: {
       request_id: authReq.id,
