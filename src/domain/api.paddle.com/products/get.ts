@@ -26,7 +26,7 @@ type Row = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, authReq] = paddle.authenticate(req);
+  const [authErrorRes, accountId] = paddle.authenticate(req);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
@@ -47,7 +47,7 @@ export async function handle(req: Request): Promise<Response> {
           .query<Row, sqlite.SQLQueryBindings>(
             "SELECT * FROM paddle_product WHERE id = $id AND status = 'active'",
           )
-          .get({ id, accountId: authReq.accountId }),
+          .get({ id, accountId: accountId }),
       )
       .filter((val) => val !== null);
   } else {
@@ -55,7 +55,7 @@ export async function handle(req: Request): Promise<Response> {
       .query<Row, sqlite.SQLQueryBindings>(
         "SELECT * FROM paddle_product WHERE account_id = $accountId AND status = 'active'",
       )
-      .all({ accountId: authReq.accountId });
+      .all({ accountId: accountId });
   }
 
   const data = products.map((product) => ({
@@ -75,14 +75,6 @@ export async function handle(req: Request): Promise<Response> {
   return Response.json(
     {
       data,
-      meta: {
-        request_id: authReq.id,
-        pagination: {
-          has_more: false,
-          per_page: data.length,
-          next: "",
-        },
-      },
     },
     { status: 200 },
   );

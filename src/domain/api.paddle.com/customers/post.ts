@@ -15,7 +15,7 @@ type Row = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, authReq] = paddle.authenticate(req);
+  const [authErrorRes, accountId] = paddle.authenticate(req);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
@@ -46,7 +46,7 @@ export async function handle(req: Request): Promise<Response> {
       `,
     ).run({
       id,
-      accountId: authReq.accountId,
+      accountId: accountId,
       email: reqBody.email,
       locale: reqBody.locale ?? "en",
       createdAt: Date.now(),
@@ -64,9 +64,6 @@ export async function handle(req: Request): Promise<Response> {
           detail: `customer email conflicts with customer of id ${id}`,
           documentation_url:
             "https://developer.paddle.com/v1/errors/customers/customer_already_exists",
-        },
-        meta: {
-          request_id: authReq.id,
         },
       };
       return Response.json(resBody, { status: 409 });
@@ -96,9 +93,6 @@ export async function handle(req: Request): Promise<Response> {
         locale: customer.locale,
         custom_data: null,
         import_meta: null,
-      },
-      meta: {
-        request_id: authReq.id,
       },
     },
     { status: 201 },

@@ -12,7 +12,7 @@ type TransactionRow = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, authReq] = paddle.authenticate(req);
+  const [authErrorRes] = paddle.authenticate(req);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
@@ -82,9 +82,6 @@ export async function handle(req: Request): Promise<Response> {
 
   return Response.json(
     {
-      meta: {
-        request_id: authReq.id,
-      },
       data: {
         id: transaction.id,
         status: transaction.status,

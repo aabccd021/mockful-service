@@ -30,12 +30,7 @@ function authenticationMalformedResponse(): Response {
   );
 }
 
-type AuthenticatedRequest = {
-  id: string;
-  accountId: string;
-};
-
-export function authenticate(req: Request): ResponseOr<AuthenticatedRequest> {
+export function authenticate(req: Request): ResponseOr<string> {
   const authHeader = req.headers.get("Authorization");
   if (authHeader === null) {
     return [forbiddenResponse()];
@@ -60,13 +55,7 @@ export function authenticate(req: Request): ResponseOr<AuthenticatedRequest> {
     return [forbiddenResponse()];
   }
 
-  return [
-    undefined,
-    {
-      accountId: apiKey.account_id,
-      id: crypto.randomUUID(),
-    },
-  ];
+  return [undefined, apiKey.account_id];
 }
 
 export function generateId(): string {

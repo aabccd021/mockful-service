@@ -52,7 +52,7 @@ type Row = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, authReq] = paddle.authenticate(req);
+  const [authErrorRes, accountId] = paddle.authenticate(req);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
@@ -97,7 +97,7 @@ export async function handle(req: Request): Promise<Response> {
             END
         `,
       )
-      .all({ accountId: authReq.accountId, recurring: reqQuery.recurring });
+      .all({ accountId: accountId, recurring: reqQuery.recurring });
   }
 
   const data = prices.map((price) => {
@@ -115,8 +115,6 @@ export async function handle(req: Request): Promise<Response> {
 
     return {
       billing_cycle: priceBillingCycle,
-      trial_period: null,
-      unit_price_overrides: [],
       quantity: {
         minimum: price.quantity_minimum,
         maximum: price.quantity_maximum,
@@ -132,25 +130,14 @@ export async function handle(req: Request): Promise<Response> {
       type: price.type,
       name: price.name,
       tax_mode: price.tax_mode,
-      custom_data: null,
-      import_meta: null,
       created_at: new Date(price.created_at).toISOString(),
       updated_at: new Date(price.updated_at).toISOString(),
+      trial_period: null,
+      unit_price_overrides: [],
+      custom_data: null,
+      import_meta: null,
     };
   });
 
-  return Response.json(
-    {
-      data,
-      meta: {
-        request_id: authReq.id,
-        pagination: {
-          has_more: false,
-          per_page: data.length,
-          next: "",
-        },
-      },
-    },
-    { status: 200 },
-  );
+  return Response.json({ data }, { status: 200 });
 }

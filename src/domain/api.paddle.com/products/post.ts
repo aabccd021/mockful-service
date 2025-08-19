@@ -25,7 +25,7 @@ type Row = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, authReq] = paddle.authenticate(req);
+  const [authErrorRes, accountId] = paddle.authenticate(req);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
@@ -42,7 +42,7 @@ export async function handle(req: Request): Promise<Response> {
       `,
     )
     .get({
-      accountId: authReq.accountId,
+      accountId: accountId,
       taxCategory: reqBody.tax_category,
     });
 
@@ -55,9 +55,6 @@ export async function handle(req: Request): Promise<Response> {
           detail: "tax category not approved",
           documentation_url:
             "https://developer.paddle.com/v1/errors/products/product_tax_category_not_approved",
-        },
-        meta: {
-          request_id: authReq.id,
         },
       },
       { status: 400 },
@@ -93,7 +90,7 @@ export async function handle(req: Request): Promise<Response> {
       )
     `,
   ).run({
-    accountId: authReq.accountId,
+    accountId: accountId,
     id,
     name: reqBody.name,
     taxCategory: reqBody.tax_category,
@@ -138,9 +135,6 @@ export async function handle(req: Request): Promise<Response> {
         custom_data: null,
         status: product.status,
         import_meta: null,
-      },
-      meta: {
-        request_id: authReq.id,
       },
     },
     { status: 201 },

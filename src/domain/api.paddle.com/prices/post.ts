@@ -52,7 +52,7 @@ type Row = {
 };
 
 export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, authReq] = paddle.authenticate(req);
+  const [authErrorRes] = paddle.authenticate(req);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
@@ -158,9 +158,6 @@ export async function handle(req: Request): Promise<Response> {
         trial_period: null,
         custom_data: null,
         import_meta: null,
-      },
-      meta: {
-        request_id: authReq.id,
       },
     },
     { status: 201 },
