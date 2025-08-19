@@ -1,7 +1,7 @@
 import type * as sqlite from "bun:sqlite";
 import type { paths } from "@openapi/paddle.ts";
 import { db, type ResponseOf } from "@util/index";
-import { authenticate, generateId, getBody, invalidRequest } from "@util/paddle";
+import { authenticate, generateId, getBody } from "@util/paddle";
 
 type Path = paths["/products"]["post"];
 
@@ -36,28 +36,6 @@ export async function handle(req: Request): Promise<Response> {
   const [errorRes, reqBody] = await getBody(authReq, req);
   if (errorRes !== undefined) {
     return errorRes;
-  }
-
-  const knownTaxCategories = [
-    "digital-goods",
-    "ebooks",
-    "implementation-services",
-    "professional-services",
-    "saas",
-    "software-programming-services",
-    "standard",
-    "training-services",
-    "website-hosting",
-  ] as const;
-
-  if (!knownTaxCategories.includes(reqBody.tax_category)) {
-    const validCategories = knownTaxCategories.map((c) => `"${c}"`).join(", ");
-    return invalidRequest(authReq, [
-      {
-        field: "tax_category",
-        message: `must be one of the following: ${validCategories}`,
-      },
-    ]);
   }
 
   const enabledCategory = db
