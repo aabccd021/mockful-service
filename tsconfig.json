@@ -28,12 +28,11 @@
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
 
-    "baseUrl": "./src",
     // Paths
     "paths": {
-      "@util": ["./util.ts"],
-      "@test": ["./test.ts"],
-      "@paddle/*": ["./domain/api.paddle.com/*"]
+      "@util": ["./src/util.ts"],
+      "@test": ["./src/test.ts"],
+      "@paddle/*": ["./src/domain/api.paddle.com/*"]
     }
   }
 }
