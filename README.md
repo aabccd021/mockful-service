@@ -2,7 +2,6 @@
 
 - use readDir
 - move domains to top
-- separate auth post test
 - cleanup package.json
 - remove test.ts and from tsconfig
 - remove overlay

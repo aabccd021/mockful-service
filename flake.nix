@@ -51,10 +51,60 @@
         packages = import ./bun.nix;
       };
 
-      test = import ./test {
-        pkgs = pkgs;
-        nodeModules = nodeModules;
-      };
+      mkTest =
+        dir: filename:
+
+        let
+          name = "test-${builtins.baseNameOf dir}-" + (lib.strings.removeSuffix ".ts" filename);
+          src = lib.fileset.toSource {
+            root = dir;
+            fileset = dir + "/${filename}";
+          };
+          value = pkgs.runCommand name { } ''
+            mkfifo ./ready.fifo
+            ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001 --db ./mock.sqlite --wait-fifo ./ready.fifo &
+            cat ./ready.fifo
+
+            ln -s ${nodeModules}/node_modules ./node_modules
+            cp -L ${src}/${filename} .
+            timeout 5 ${pkgs.bun}/bin/bun ./${filename}
+
+            mkdir "$out"
+          '';
+
+        in
+        {
+          name = name;
+          value = value;
+        };
+
+      mapTests =
+        dir:
+        lib.pipe dir [
+          builtins.readDir
+          builtins.attrNames
+          (builtins.map (mkTest dir))
+          builtins.listToAttrs
+        ];
+
+      # test = lib.pipe ./test [
+      #   builtins.readDir
+      #   lib.attrNames
+      #   (builtins.map (dir: "${./test}/${dir}"))
+      #   (builtins.map mapTests)
+      #   lib.attrsets.mergeAttrsList
+      # ];
+
+      test = lib.attrsets.mergeAttrsList [
+        (mapTests ./test/google-auth)
+        (mapTests ./test/google-token)
+        (mapTests ./test/paddle-customer-create)
+        (mapTests ./test/paddle-customer-list)
+        (mapTests ./test/paddle-product-create)
+        (mapTests ./test/paddle-product-list)
+        (mapTests ./test/paddle-price-create)
+        (mapTests ./test/paddle-price-list)
+      ];
 
       treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
