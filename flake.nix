@@ -23,10 +23,6 @@
           ) is
         );
 
-      nodeModules = inputs.bun2nix.lib.x86_64-linux.mkBunNodeModules {
-        packages = import ./bun.nix;
-      };
-
       overlays.default = (
         final: prev: {
           netero-oauth-mock = final.runCommand "netero-oauth-mock" { } ''
@@ -47,9 +43,12 @@
       pkgs = import inputs.nixpkgs {
         system = "x86_64-linux";
         overlays = [
-          inputs.netero-test.overlays.default
           overlays.default
         ];
+      };
+
+      nodeModules = inputs.bun2nix.lib.x86_64-linux.mkBunNodeModules {
+        packages = import ./bun.nix;
       };
 
       test = import ./test {

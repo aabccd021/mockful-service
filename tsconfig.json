@@ -5,7 +5,7 @@
     "lib": ["esnext", "webworker"],
     "target": "esnext",
 
-    // Outputs
+    // Output
     "noEmit": true,
 
     // Strict
