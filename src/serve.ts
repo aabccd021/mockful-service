@@ -8,9 +8,9 @@ import migration from "./schema.sql" with { type: "text" };
 
 const domainHandlers: Record<string, Handle> = {
   "accounts.google.com": accountsGoogleCom,
-  "oauth2.googleapis.com": oauth2GoogleapisCom,
   "sandbox-api.paddle.com": apiPaddleCom,
   "api.paddle.com": apiPaddleCom,
+  "oauth2.googleapis.com": oauth2GoogleapisCom,
 };
 
 const domains = Object.keys(domainHandlers);
