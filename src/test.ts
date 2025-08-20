@@ -3,7 +3,6 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 
 export function initServer() {
-  // tmp
   const dbfile = `${os.tmpdir()}/${Math.random()}.sqlite`;
 
   const executable = `${import.meta.dir}/../dist/netero-oauth-mock`;
