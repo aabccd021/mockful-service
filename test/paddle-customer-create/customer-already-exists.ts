@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 
 new sqlite.Database("./mock.sqlite").exec(`
 INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -33,7 +32,8 @@ if (response.status !== 409) throw new Error();
 const responseBody = await response.json();
 if (responseBody.error.type !== "request_error") throw new Error();
 if (responseBody.error.code !== "customer_already_exists") throw new Error();
-expect(responseBody.error.detail).toStartWith("customer email conflicts with customer of id ctm_");
+if (!responseBody.error.detail.startsWith("customer email conflicts with customer of id ctm_"))
+  throw new Error();
 if (
   responseBody.error.documentation_url !==
   "https://developer.paddle.com/v1/errors/customers/customer_already_exists"
