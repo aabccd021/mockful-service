@@ -74,11 +74,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const serverMetadata = {
     issuer: "https://accounts.google.com",
@@ -171,11 +171,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const serverMetadata = {
     issuer: "https://accounts.google.com",
@@ -311,11 +311,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -373,10 +373,10 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -440,11 +440,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -531,10 +531,10 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -620,11 +620,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -678,11 +678,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -736,11 +736,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -795,11 +795,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email, email_verified) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com', 'true');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email, email_verified) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com', 'true');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -857,11 +857,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email, email_verified) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com', 'false');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email, email_verified) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com', 'false');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -919,11 +919,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const config = new oauth.Configuration(
     {
@@ -979,11 +979,11 @@ import * as util from "./util.ts";
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
-  INSERT INTO google_project (id) VALUES ('mock_project_id');
-  INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
-  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-`);
+      INSERT INTO google_project (id) VALUES ('mock_project_id');
+      INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
+      INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+      INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+    `);
 
   const config = new oauth.Configuration(
     {
