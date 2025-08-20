@@ -32,8 +32,8 @@ const invalidConfig = new client.Configuration(
 client.allowInsecureRequests(config);
 client.allowInsecureRequests(invalidConfig);
 
-const code_verifier = client.randomPKCECodeVerifier();
-const code_challenge = await client.calculatePKCECodeChallenge(code_verifier);
+const pkceCodeVerifier = client.randomPKCECodeVerifier();
+const code_challenge = await client.calculatePKCECodeChallenge(pkceCodeVerifier);
 const state = client.randomState();
 
 const parameters: Record<string, string> = {
@@ -58,7 +58,7 @@ const location = new URL(loginResponse.headers.get("Location") ?? "");
 
 const tokenResponse = await client
   .authorizationCodeGrant(invalidConfig, location, {
-    pkceCodeVerifier: code_verifier,
+    pkceCodeVerifier,
     expectedState: state,
     idTokenExpected: true,
   })

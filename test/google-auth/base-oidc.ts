@@ -21,8 +21,8 @@ const config = new client.Configuration(
 
 client.allowInsecureRequests(config);
 
-const code_verifier = client.randomPKCECodeVerifier();
-const code_challenge = await client.calculatePKCECodeChallenge(code_verifier);
+const pkceCodeVerifier = client.randomPKCECodeVerifier();
+const code_challenge = await client.calculatePKCECodeChallenge(pkceCodeVerifier);
 const state = client.randomState();
 
 const parameters: Record<string, string> = {

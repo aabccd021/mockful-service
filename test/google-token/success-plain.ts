@@ -22,13 +22,13 @@ const config = new client.Configuration(
 
 client.allowInsecureRequests(config);
 
-const code_verifier = client.randomNonce();
+const pkceCodeVerifier = client.randomNonce();
 const state = client.randomState();
 
 const parameters: Record<string, string> = {
   redirect_uri: "https://localhost:3000/login-callback",
   scope: "openid",
-  code_challenge: code_verifier,
+  code_challenge: pkceCodeVerifier,
   code_challenge_method: "plain",
   state,
 };
@@ -47,7 +47,7 @@ const location = new URL(loginResponse.headers.get("Location") ?? "");
 
 const tokenResponse = await client
   .authorizationCodeGrant(config, location, {
-    pkceCodeVerifier: code_verifier,
+    pkceCodeVerifier,
     expectedState: state,
     idTokenExpected: true,
   })
