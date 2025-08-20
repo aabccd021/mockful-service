@@ -56,16 +56,14 @@ const loginResponse = await fetch(authUrl, {
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 
-const getToken = () =>
-  client
-    .authorizationCodeGrant(invalidConfig, location, {
-      pkceCodeVerifier,
-      expectedState: state,
-      idTokenExpected: true,
-    })
-    .catch((error) => error);
+const tokenResponse = await client
+  .authorizationCodeGrant(invalidConfig, location, {
+    pkceCodeVerifier,
+    expectedState: state,
+    idTokenExpected: true,
+  })
+  .catch((error) => error);
 
-const tokenResponse = await getToken();
 expect(tokenResponse).toBeInstanceOf(client.ResponseBodyError);
 expect(tokenResponse.status).toEqual(401);
 expect(tokenResponse.cause).toEqual({
