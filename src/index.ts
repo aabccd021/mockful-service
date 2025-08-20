@@ -5,6 +5,8 @@ import type { Context, Handle } from "@util";
 import { handle as accountsGoogleCom } from "./accounts.google.com/route.ts";
 import { handle as apiPaddleCom } from "./api.paddle.com/route.ts";
 import { handle as oauth2GoogleapisCom } from "./oauth2.googleapis.com/route.ts";
+
+// @ts-ignore
 import migration from "./schema.sql" with { type: "text" };
 
 const domainHandlers: Record<string, Handle> = {
