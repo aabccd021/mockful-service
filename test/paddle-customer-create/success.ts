@@ -19,7 +19,7 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
   }),
 });
 
-expect(response.status).toEqual(201);
+if (response.status !== 201) throw new Error();
 const responseBody = await response.json();
 expect(responseBody.data.id).toBeDefined();
-expect(responseBody.data.email).toEqual("nijika@example.com");
+if (responseBody.data.email !== "nijika@example.com") throw new Error();

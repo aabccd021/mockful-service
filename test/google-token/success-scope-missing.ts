@@ -53,5 +53,5 @@ const tokenResponse = await client
   })
   .catch((error) => error);
 expect(tokenResponse["access_token"]).toBeDefined();
-expect(tokenResponse["scope"]).toEqual("");
-expect(tokenResponse["token_type"]).toEqual("bearer");
+if (tokenResponse["scope"] !== "") throw new Error();
+if (tokenResponse["token_type"] !== "bearer") throw new Error();

@@ -22,12 +22,12 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
   }),
 });
 
-expect(response.status).toEqual(201);
+if (response.status !== 201) throw new Error();
 const responseBody = await response.json();
 expect(responseBody.data.id).toBeDefined();
-expect(responseBody.data.name).toEqual("Mock Product");
-expect(responseBody.data.tax_category).toEqual("saas");
-expect(responseBody.data.status).toEqual("active");
-expect(responseBody.data.image_url).toEqual(null);
+if (responseBody.data.name !== "Mock Product") throw new Error();
+if (responseBody.data.tax_category !== "saas") throw new Error();
+if (responseBody.data.status !== "active") throw new Error();
+if (responseBody.data.image_url !== null) throw new Error();
 expect(responseBody.data.created_at).toBeDefined();
 expect(responseBody.data.updated_at).toBeDefined();

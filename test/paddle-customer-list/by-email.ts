@@ -35,9 +35,9 @@ const response = await fetch(listUrl, {
   },
 });
 
-expect(response.status).toEqual(200);
+if (response.status !== 200) throw new Error();
 const responseBody = await response.json();
 const customers = responseBody.data;
 expect(customers).toBeArrayOfSize(1);
-expect(customers[0]?.email).toEqual("nijika@example.com");
-expect(customers[0]?.id).toEqual(customerId);
+if (customers[0]?.email !== "nijika@example.com") throw new Error();
+if (customers[0]?.id !== customerId) throw new Error();

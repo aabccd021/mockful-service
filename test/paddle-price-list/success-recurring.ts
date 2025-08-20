@@ -115,8 +115,8 @@ const listProduct2Recurring = await fetch(listUrl, {
   },
 });
 
-expect(listProduct2Recurring.status).toEqual(200);
+if (listProduct2Recurring.status !== 200) throw new Error();
 const listProduct2RecurringBody = await listProduct2Recurring.json();
 expect(listProduct2RecurringBody.data).toBeArrayOfSize(2);
-expect(listProduct2RecurringBody.data[0].description).toEqual("product1-recurring");
-expect(listProduct2RecurringBody.data[1].description).toEqual("product2-recurring");
+if (listProduct2RecurringBody.data[0].description !== "product1-recurring") throw new Error();
+if (listProduct2RecurringBody.data[1].description !== "product2-recurring") throw new Error();

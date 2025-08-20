@@ -32,12 +32,12 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
   },
 });
 
-expect(response.status).toEqual(200);
+if (response.status !== 200) throw new Error();
 const responseBody = await response.json();
 const customers = responseBody.data;
 expect(customers).toBeArrayOfSize(1);
-expect(customers[0]?.email).toEqual("nijika@example.com");
-expect(customers[0]?.id).toEqual(customerId);
-expect(customers[0]?.status).toEqual("active");
-expect(customers[0]?.marketing_consent).toEqual(false);
-expect(customers[0]?.locale).toEqual("en");
+if (customers[0]?.email !== "nijika@example.com") throw new Error();
+if (customers[0]?.id !== customerId) throw new Error();
+if (customers[0]?.status !== "active") throw new Error();
+if (customers[0]?.marketing_consent !== false) throw new Error();
+if (customers[0]?.locale !== "en") throw new Error();

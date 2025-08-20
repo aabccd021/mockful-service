@@ -51,10 +51,10 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
   },
 });
 
-expect(response.status).toEqual(200);
+if (response.status !== 200) throw new Error();
 const responseBody = await response.json();
 const products = responseBody.data;
 expect(products).toBeArrayOfSize(3);
-expect(products[0]?.name).toEqual("Product 1");
-expect(products[1]?.name).toEqual("Product 2");
-expect(products[2]?.name).toEqual("Product 3");
+if (products[0]?.name !== "Product 1") throw new Error();
+if (products[1]?.name !== "Product 2") throw new Error();
+if (products[2]?.name !== "Product 3") throw new Error();

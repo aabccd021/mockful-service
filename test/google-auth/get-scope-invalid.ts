@@ -13,6 +13,6 @@ const body = await loginResponse.text();
 expect(body).toInclude("Access blocked: Authorization Error");
 expect(body).toInclude("Error 400: invalid_scope");
 expect(body).toInclude("Some requested scopes were invalid. {invalid=[foo]}");
-expect(loginResponse.status).toEqual(200);
+if (loginResponse.status !== 200) throw new Error();
 
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow

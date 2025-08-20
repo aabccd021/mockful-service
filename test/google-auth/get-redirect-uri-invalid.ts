@@ -25,6 +25,6 @@ expect(body).toInclude(
 expect(body).toInclude(
   "You can let the app developer know that this app doesn't comply with one or more Google validation rules.",
 );
-expect(loginResponse.status).toEqual(200);
+if (loginResponse.status !== 200) throw new Error();
 
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow

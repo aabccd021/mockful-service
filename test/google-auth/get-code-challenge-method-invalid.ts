@@ -16,5 +16,5 @@ expect(body).toInclude("Error 400: invalid_request");
 expect(body).toInclude(
   "Invalid parameter value for code_challenge_method: 'foo' is not a valid CodeChallengeMethod",
 );
-expect(loginResponse.status).toEqual(200);
+if (loginResponse.status !== 200) throw new Error();
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow

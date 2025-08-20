@@ -51,11 +51,11 @@ const response = await fetch(listUrl, {
   },
 });
 
-expect(response.status).toEqual(200);
+if (response.status !== 200) throw new Error();
 const responseBody = await response.json();
 const customers = responseBody.data;
 expect(customers).toBeArrayOfSize(2);
-expect(customers[0]?.email).toEqual("kita@example.com");
-expect(customers[0]?.id).toEqual(kitaId);
-expect(customers[1]?.email).toEqual("yamada@example.com");
-expect(customers[1]?.id).toEqual(yamadaId);
+if (customers[0]?.email !== "kita@example.com") throw new Error();
+if (customers[0]?.id !== kitaId) throw new Error();
+if (customers[1]?.email !== "yamada@example.com") throw new Error();
+if (customers[1]?.id !== yamadaId) throw new Error();

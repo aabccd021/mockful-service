@@ -56,11 +56,11 @@ const response = await fetch(listUrl, {
   },
 });
 
-expect(response.status).toEqual(200);
+if (response.status !== 200) throw new Error();
 const responseBody = await response.json();
 const products = responseBody.data;
 expect(products).toBeArrayOfSize(2);
-expect(products[0]?.id).toEqual(product2Id);
-expect(products[0]?.name).toEqual("Product 2");
-expect(products[1]?.id).toEqual(product3Id);
-expect(products[1]?.name).toEqual("Product 3");
+if (products[0]?.id !== product2Id) throw new Error();
+if (products[0]?.name !== "Product 2") throw new Error();
+if (products[1]?.id !== product3Id) throw new Error();
+if (products[1]?.name !== "Product 3") throw new Error();

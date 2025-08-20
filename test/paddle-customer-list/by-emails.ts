@@ -49,9 +49,9 @@ const response = await fetch(listUrl, {
   },
 });
 
-expect(response.status).toEqual(200);
+if (response.status !== 200) throw new Error();
 const responseBody = await response.json();
 const customers = responseBody.data;
 expect(customers).toBeArrayOfSize(2);
-expect(customers[0]?.email).toEqual("nijika@example.com");
-expect(customers[1]?.email).toEqual("yamada@example.com");
+if (customers[0]?.email !== "nijika@example.com") throw new Error();
+if (customers[1]?.email !== "yamada@example.com") throw new Error();

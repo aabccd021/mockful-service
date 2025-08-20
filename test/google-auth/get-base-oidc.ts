@@ -38,4 +38,4 @@ const authUrl = client.buildAuthorizationUrl(config, parameters);
 const loginResponse = await fetch(authUrl);
 
 expect(loginResponse.text()).resolves.toInclude("</form>");
-expect(loginResponse.status).toEqual(200);
+if (loginResponse.status !== 200) throw new Error();
