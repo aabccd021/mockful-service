@@ -1,9 +1,7 @@
 import * as sqlite from "bun:sqlite";
 import { expect } from "bun:test";
 
-const neteroState = process.env["NETERO_STATE"];
-
-new sqlite.Database(`${neteroState}/mock.sqlite`).exec(`
+new sqlite.Database(`${process.env["NETERO_STATE"]}/mock.sqlite`).exec(`
   INSERT INTO google_project (id) VALUES ('mock_project_id');
   INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
 `);
