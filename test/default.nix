@@ -13,7 +13,7 @@ let
       };
       value = pkgs.runCommand name { } ''
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-prepare
-        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001 --db ./mock.sqlite &
+        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock serve --port 3001 --db ./mock.sqlite &
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-wait
 
         ln -s ${nodeModules}/node_modules ./node_modules
