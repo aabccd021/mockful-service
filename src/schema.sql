@@ -83,9 +83,8 @@ CREATE TABLE paddle_customer (
 
 CREATE TABLE paddle_product (
   id TEXT NOT NULL,
-  name TEXT,
+  name TEXT NOT NULL,
   tax_category TEXT NOT NULL,
-  description TEXT,
   type TEXT NOT NULL DEFAULT 'standard',
   status TEXT NOT NULL DEFAULT 'active',
   image_url TEXT,

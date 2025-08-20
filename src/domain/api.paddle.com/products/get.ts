@@ -6,7 +6,6 @@ type Row = {
   id: string;
   account_id: string;
   name: string;
-  description: string | null;
   type: "standard" | "custom";
   tax_category:
     | "digital-goods"
@@ -60,7 +59,6 @@ export async function handle(ctx: Context): Promise<Response> {
   const data = products.map((product) => ({
     id: product.id,
     name: product.name,
-    description: product.description,
     type: product.type,
     tax_category: product.tax_category,
     image_url: product.image_url,

@@ -18,7 +18,6 @@ type Row = {
   created_at: number;
   updated_at: number;
   name: string;
-  description?: string;
   type: "standard" | "custom";
   image_url?: string;
   status: "active" | "archived";
@@ -72,7 +71,6 @@ export async function handle(ctx: Context): Promise<Response> {
         id, 
         name,
         tax_category,
-        description,
         type,
         image_url,
         created_at,
@@ -83,7 +81,6 @@ export async function handle(ctx: Context): Promise<Response> {
         $id, 
         $name,
         $taxCategory,
-        $description,
         $type,
         $imageUrl,
         $createdAt,
@@ -96,7 +93,6 @@ export async function handle(ctx: Context): Promise<Response> {
       id,
       name: reqBody.name,
       taxCategory: reqBody.tax_category,
-      description: reqBody.description ?? null,
       type: reqBody.type ?? "standard",
       imageUrl: reqBody.image_url ?? null,
       createdAt: Date.now(),
@@ -119,7 +115,6 @@ export async function handle(ctx: Context): Promise<Response> {
         created_at: new Date(product.created_at).toISOString(),
         updated_at: new Date(product.updated_at).toISOString(),
         name: product.name,
-        description: product.description ?? null,
         type: product.type,
         image_url: product.image_url ?? null,
         status: product.status,
