@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { db } from "@util/index.ts";
+import type { Context } from "@util/index.ts";
 
 const knownScopes = ["openid", "email"];
 
@@ -28,8 +28,8 @@ function page(body: string): Response {
 
 // TODO: errors should be redirected to https://accounts.google.com/signin/oauth/error/v2 and pass
 // each errors id with authError=xxx_error_id
-export function handle(req: Request): Response {
-  const searchParams = new URL(req.url).searchParams;
+export function handle(ctx: Context): Response {
+  const searchParams = new URL(ctx.req.url).searchParams;
 
   const reqScope = searchParams.get("scope");
   if (reqScope === null) {
@@ -86,7 +86,7 @@ export function handle(req: Request): Response {
     `);
   }
 
-  const client = db
+  const client = ctx.db
     .query("SELECT id FROM google_auth_client WHERE id = $id")
     .get({ id: reqClientId });
   if (client === null) {
@@ -106,7 +106,7 @@ export function handle(req: Request): Response {
     `);
   }
 
-  const redirectUris = db
+  const redirectUris = ctx.db
     .query<{ value: string }, sqlite.SQLQueryBindings>(
       "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
     )
@@ -122,7 +122,7 @@ export function handle(req: Request): Response {
     `);
   }
 
-  const userSubmitButton = db
+  const userSubmitButton = ctx.db
     .query<{ sub: string; email: string }, []>(`SELECT sub,email FROM google_auth_user`)
     .all()
     .map(

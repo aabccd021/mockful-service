@@ -1,0 +1,67 @@
+import * as sqlite from "bun:sqlite";
+import { expect } from "bun:test";
+import * as child_process from "node:child_process";
+import * as fs from "node:fs";
+import * as os from "node:os";
+
+function initServer() {
+  const tmpdir = os.tmpdir();
+
+  const server = child_process.spawn(`netero-oauth-mock --unix ${tmpdir}/socket.sock`);
+
+  return {
+    tmpdir,
+    [Symbol.dispose]() {
+      server.kill();
+      fs.rmdirSync(tmpdir, { recursive: true });
+    },
+  };
+}
+
+{
+  const { tmpdir } = initServer();
+  await Bun.sleep(1000);
+
+  new sqlite.Database(`${tmpdir}/mock.sqlite`, { create: true }).exec(`
+    INSERT INTO paddle_account (id) VALUES ('mock_account_id');
+    INSERT INTO paddle_api_key (account_id, key) VALUES (
+      'mock_account_id', 
+      'pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO'
+    );
+`);
+
+  const createResponse = await fetch(
+    "http://localhost:3001/https://sandbox-api.paddle.com/customers",
+    {
+      method: "POST",
+      unix: "",
+      headers: {
+        Authorization:
+          "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
+      },
+      body: JSON.stringify({
+        email: "nijika@example.com",
+      }),
+    },
+  );
+
+  const createResponseBody: any = await createResponse.json();
+  const customerId = createResponseBody.data.id;
+
+  const listUrl = new URL("http://localhost:3001/https://sandbox-api.paddle.com/customers");
+  listUrl.searchParams.set("email", "nijika@example.com");
+
+  const response = await fetch(listUrl, {
+    method: "GET",
+    headers: {
+      Authorization: "Bearer pdl_live_apikey_01gtgztp8f4kek3yd4g1wrksa3_q6TGTJyvoIz7LDtXT65bX7_AQO",
+    },
+  });
+
+  expect(response.status).toEqual(200);
+  const responseBody: any = await response.json();
+  const customers = responseBody.data;
+  expect(customers).toBeArrayOfSize(1);
+  expect(customers[0]?.email).toEqual("nijika@example.com");
+  expect(customers[0]?.id).toEqual(customerId);
+}

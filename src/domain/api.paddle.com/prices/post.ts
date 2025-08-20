@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { db } from "@util/index";
+import type { Context } from "@util/index.ts";
 import * as paddle from "@util/paddle";
 
 type Row = {
@@ -51,18 +51,19 @@ type Row = {
   quantity_maximum: number;
 };
 
-export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes] = paddle.authenticate(req);
+export async function handle(ctx: Context): Promise<Response> {
+  const [authErrorRes] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
 
-  const reqBody = await req.json();
+  const reqBody = await ctx.req.json();
 
   const id = `pri_${paddle.generateId()}`;
 
-  db.query(
-    `
+  ctx.db
+    .query(
+      `
       INSERT INTO paddle_price (
         id,
         description,
@@ -96,24 +97,25 @@ export async function handle(req: Request): Promise<Response> {
         $updatedAt
       )
     `,
-  ).run({
-    id,
-    description: reqBody.description,
-    productId: reqBody.product_id,
-    unitPriceAmount: reqBody.unit_price.amount,
-    unitPriceCurrencyCode: reqBody.unit_price.currency_code,
-    type: reqBody.type ?? "standard",
-    name: reqBody.name ?? null,
-    billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
-    billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
-    taxMode: reqBody.tax_mode ?? "account_setting",
-    quantityMinimum: reqBody.quantity?.minimum ?? 1,
-    quantityMaximum: reqBody.quantity?.maximum ?? 100,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  });
+    )
+    .run({
+      id,
+      description: reqBody.description,
+      productId: reqBody.product_id,
+      unitPriceAmount: reqBody.unit_price.amount,
+      unitPriceCurrencyCode: reqBody.unit_price.currency_code,
+      type: reqBody.type ?? "standard",
+      name: reqBody.name ?? null,
+      billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
+      billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
+      taxMode: reqBody.tax_mode ?? "account_setting",
+      quantityMinimum: reqBody.quantity?.minimum ?? 1,
+      quantityMaximum: reqBody.quantity?.maximum ?? 100,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
 
-  const price = db
+  const price = ctx.db
     .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_price WHERE id = $id")
     .get({ id });
 

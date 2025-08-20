@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { db } from "@util/index";
+import type { Context } from "@util/index.ts";
 import * as paddle from "@util/paddle";
 
 type Row = {
@@ -24,15 +24,15 @@ type Row = {
   status: "active" | "archived";
 };
 
-export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, accountId] = paddle.authenticate(req);
+export async function handle(ctx: Context): Promise<Response> {
+  const [authErrorRes, accountId] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
 
-  const reqBody = await req.json();
+  const reqBody = await ctx.req.json();
 
-  const enabledCategory = db
+  const enabledCategory = ctx.db
     .query(
       `
         SELECT * 
@@ -64,8 +64,9 @@ export async function handle(req: Request): Promise<Response> {
   const id = `pro_${paddle.generateId()}`;
 
   // try {
-  db.query(
-    `
+  ctx.db
+    .query(
+      `
       INSERT INTO paddle_product (
         account_id, 
         id, 
@@ -89,19 +90,20 @@ export async function handle(req: Request): Promise<Response> {
         $updatedAt
       )
     `,
-  ).run({
-    accountId: accountId,
-    id,
-    name: reqBody.name,
-    taxCategory: reqBody.tax_category,
-    description: reqBody.description ?? null,
-    type: reqBody.type ?? "standard",
-    imageUrl: reqBody.image_url ?? null,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  });
+    )
+    .run({
+      accountId: accountId,
+      id,
+      name: reqBody.name,
+      taxCategory: reqBody.tax_category,
+      description: reqBody.description ?? null,
+      type: reqBody.type ?? "standard",
+      imageUrl: reqBody.image_url ?? null,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
 
-  const product = db
+  const product = ctx.db
     .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_product WHERE id = $id")
     .get({ id });
 

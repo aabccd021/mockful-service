@@ -1,5 +1,6 @@
 import type * as sqlite from "bun:sqlite";
-import { db, getStringFormData } from "@util/index.ts";
+import type { Context } from "@util/index.ts";
+import { getStringFormData } from "@util/index.ts";
 
 type AuthSession = {
   client_id: string;
@@ -75,8 +76,8 @@ function createIdToken(authSession: AuthSession, accessToken: string): string | 
   return `${headerStr}.${payloadStr}.${signatureStr}`;
 }
 
-export async function handle(req: Request): Promise<Response> {
-  const formData = await getStringFormData(req);
+export async function handle(ctx: Context): Promise<Response> {
+  const formData = await getStringFormData(ctx);
 
   const grantType = formData.get("grant_type") ?? "";
   if (grantType !== "authorization_code") {
@@ -100,7 +101,7 @@ export async function handle(req: Request): Promise<Response> {
     );
   }
 
-  const authHeader = req.headers.get("Authorization");
+  const authHeader = ctx.req.headers.get("Authorization");
   if (authHeader === null) {
     return Response.json(
       {
@@ -180,7 +181,7 @@ export async function handle(req: Request): Promise<Response> {
     );
   }
 
-  const authSession = db
+  const authSession = ctx.db
     .query<AuthSession, sqlite.SQLQueryBindings>(
       `
         SELECT 
@@ -198,7 +199,7 @@ export async function handle(req: Request): Promise<Response> {
       `,
     )
     .get({ code });
-  db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
+  ctx.db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
   if (authSession === null) {
     return Response.json(
@@ -265,7 +266,7 @@ export async function handle(req: Request): Promise<Response> {
     );
   }
 
-  const redirectUris = db
+  const redirectUris = ctx.db
     .query<{ value: string }, sqlite.SQLQueryBindings>(
       "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
     )
@@ -282,7 +283,7 @@ export async function handle(req: Request): Promise<Response> {
     );
   }
 
-  const clients = db
+  const clients = ctx.db
     .query<{ secret: string }, sqlite.SQLQueryBindings>(
       "SELECT secret FROM google_auth_client WHERE id = $id",
     )

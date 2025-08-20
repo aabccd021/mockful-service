@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { db } from "@util/index";
+import type { Context } from "@util/index.ts";
 import * as paddle from "@util/paddle";
 
 type TransactionRow = {
@@ -11,19 +11,20 @@ type TransactionRow = {
   updated_at: number;
 };
 
-export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes] = paddle.authenticate(req);
+export async function handle(ctx: Context): Promise<Response> {
+  const [authErrorRes] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
 
-  const reqBody = await req.json();
+  const reqBody = await ctx.req.json();
 
   const id = `txn_${paddle.generateId()}`;
 
-  const insertTransaction = db.transaction(() => {
-    db.query(
-      `
+  const insertTransaction = ctx.db.transaction(() => {
+    ctx.db
+      .query(
+        `
         INSERT INTO paddle_transaction (
           id,
           status,
@@ -40,17 +41,19 @@ export async function handle(req: Request): Promise<Response> {
           $updated_at
         )
       `,
-    ).run({
-      id,
-      status: "draft",
-      customer_id: reqBody.customer_id ?? null,
-      collection_method: reqBody.collection_method ?? "automatic",
-      created_at: Date.now(),
-      updated_at: Date.now(),
-    });
+      )
+      .run({
+        id,
+        status: "draft",
+        customer_id: reqBody.customer_id ?? null,
+        collection_method: reqBody.collection_method ?? "automatic",
+        created_at: Date.now(),
+        updated_at: Date.now(),
+      });
     for (const item of reqBody.items) {
-      db.query(
-        `
+      ctx.db
+        .query(
+          `
           INSERT INTO paddle_transaction_item (
             transaction_id,
             price_id,
@@ -61,16 +64,17 @@ export async function handle(req: Request): Promise<Response> {
             $quantity
           )
         `,
-      ).run({
-        transactionId: id,
-        priceId: item.price_id,
-        quantity: item.quantity,
-      });
+        )
+        .run({
+          transactionId: id,
+          priceId: item.price_id,
+          quantity: item.quantity,
+        });
     }
   });
   insertTransaction();
 
-  const transaction = db
+  const transaction = ctx.db
     .query<TransactionRow, sqlite.SQLQueryBindings>(
       "SELECT * FROM paddle_transaction WHERE id = $id",
     )

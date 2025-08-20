@@ -1,5 +1,5 @@
 import * as sqlite from "bun:sqlite";
-import { db } from "@util/index";
+import type { Context } from "@util/index.ts";
 import * as paddle from "@util/paddle";
 
 type Row = {
@@ -14,19 +14,20 @@ type Row = {
   updated_at: number;
 };
 
-export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, accountId] = paddle.authenticate(req);
+export async function handle(ctx: Context): Promise<Response> {
+  const [authErrorRes, accountId] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
 
-  const reqBody = await req.json();
+  const reqBody = await ctx.req.json();
 
   const id = `ctm_${paddle.generateId()}`;
 
   try {
-    db.query(
-      `
+    ctx.db
+      .query(
+        `
         INSERT INTO paddle_customer (
           account_id, 
           id, 
@@ -44,14 +45,15 @@ export async function handle(req: Request): Promise<Response> {
           $updatedAt
         )
       `,
-    ).run({
-      id,
-      accountId: accountId,
-      email: reqBody.email,
-      locale: reqBody.locale ?? "en",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
+      )
+      .run({
+        id,
+        accountId: accountId,
+        email: reqBody.email,
+        locale: reqBody.locale ?? "en",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
   } catch (err) {
     if (
       err instanceof sqlite.SQLiteError &&
@@ -72,7 +74,7 @@ export async function handle(req: Request): Promise<Response> {
     throw err;
   }
 
-  const customer = db
+  const customer = ctx.db
     .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
     .get({ id });
 

@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { db } from "@util/index";
+import type { Context } from "@util/index.ts";
 import * as paddle from "@util/paddle.ts";
 
 type Row = {
@@ -51,13 +51,13 @@ type Row = {
   quantity_maximum: number;
 };
 
-export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, accountId] = paddle.authenticate(req);
+export async function handle(ctx: Context): Promise<Response> {
+  const [authErrorRes, accountId] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
 
-  const rawQuery = new URL(req.url).searchParams;
+  const rawQuery = new URL(ctx.req.url).searchParams;
 
   const reqQuery = {
     recurring: rawQuery.get("recurring") ?? null,
@@ -67,7 +67,7 @@ export async function handle(req: Request): Promise<Response> {
   let prices = null;
   if (reqQuery.productId !== null) {
     prices = reqQuery.productId.flatMap((productId) =>
-      db
+      ctx.db
         .query<Row, sqlite.SQLQueryBindings>(
           `
             SELECT * 
@@ -83,7 +83,7 @@ export async function handle(req: Request): Promise<Response> {
         .all({ productId: productId, recurring: reqQuery.recurring }),
     );
   } else {
-    prices = db
+    prices = ctx.db
       .query<Row, sqlite.SQLQueryBindings>(
         `
           SELECT paddle_price.*

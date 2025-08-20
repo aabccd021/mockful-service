@@ -15,22 +15,6 @@ let
     mv server "$out/bin/netero-oauth-mock"
   '';
 
-  netero-oauth-mock-init = pkgs.writeShellApplication {
-    name = "netero-oauth-mock-init";
-    runtimeInputs = [
-      pkgs.bun
-      pkgs.sqlite
-    ];
-    text = ''
-      if [ -z "$NETERO_STATE" ]; then
-        echo "NETERO_STATE environment variable is not set."
-        exit 1
-      fi
-      mkdir -p "$NETERO_STATE"
-      sqlite3 "$NETERO_STATE/mock.sqlite" < ${./schema.sql}
-    '';
-  };
-
   netero-oauth-mock-prepare = pkgs.writeShellApplication {
     name = "netero-oauth-mock-prepare";
     text = ''
@@ -51,7 +35,6 @@ pkgs.symlinkJoin {
   name = "netero-oauth-mock";
   paths = [
     netero-oauth-mock
-    netero-oauth-mock-init
     netero-oauth-mock-prepare
     netero-oauth-mock-wait
   ];

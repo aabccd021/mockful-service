@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { db } from "@util/index";
+import type { Context } from "@util/index.ts";
 import * as paddle from "@util/paddle.ts";
 
 type Row = {
@@ -14,13 +14,13 @@ type Row = {
   updated_at: number;
 };
 
-export async function handle(req: Request): Promise<Response> {
-  const [authErrorRes, accountId] = paddle.authenticate(req);
+export async function handle(ctx: Context): Promise<Response> {
+  const [authErrorRes, accountId] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
 
-  const rawQuery = new URL(req.url).searchParams;
+  const rawQuery = new URL(ctx.req.url).searchParams;
 
   const reqQuery = {
     email: rawQuery.get("email")?.split(","),
@@ -31,7 +31,7 @@ export async function handle(req: Request): Promise<Response> {
   if (reqQuery.email !== undefined) {
     customers = reqQuery.email
       .map((email) =>
-        db
+        ctx.db
           .query<Row, sqlite.SQLQueryBindings>(
             "SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId",
           )
@@ -41,13 +41,13 @@ export async function handle(req: Request): Promise<Response> {
   } else if (reqQuery.id !== undefined) {
     customers = reqQuery.id
       .map((id) =>
-        db
+        ctx.db
           .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
           .get({ id, accountId: accountId }),
       )
       .filter((val) => val !== null);
   } else {
-    customers = db
+    customers = ctx.db
       .query<Row, sqlite.SQLQueryBindings>(
         "SELECT * FROM paddle_customer WHERE account_id = $accountId",
       )

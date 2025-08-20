@@ -1,6 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import type { ResponseOr } from "@util/index.ts";
-import { db } from "@util/index.ts";
+import type { Context, ResponseOr } from "@util/index.ts";
 
 function forbiddenResponse(): Response {
   return Response.json(
@@ -30,8 +29,8 @@ function authenticationMalformedResponse(): Response {
   );
 }
 
-export function authenticate(req: Request): ResponseOr<string> {
-  const authHeader = req.headers.get("Authorization");
+export function authenticate(ctx: Context): ResponseOr<string> {
+  const authHeader = ctx.req.headers.get("Authorization");
   if (authHeader === null) {
     return [forbiddenResponse()];
   }
@@ -45,7 +44,7 @@ export function authenticate(req: Request): ResponseOr<string> {
     return [authenticationMalformedResponse()];
   }
 
-  const apiKey = db
+  const apiKey = ctx.db
     .query<{ account_id: string }, sqlite.SQLQueryBindings>(
       "SELECT account_id FROM paddle_api_key WHERE key = $key",
     )

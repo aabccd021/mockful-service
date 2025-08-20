@@ -13,7 +13,7 @@ let
       };
       value = pkgs.runCommand name { } ''
         export NETERO_STATE="./var/lib/netero"
-        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-init
+        mkdir --parents "$NETERO_STATE"
 
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-prepare
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001 &

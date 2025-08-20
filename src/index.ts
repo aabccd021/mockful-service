@@ -1,9 +1,13 @@
+import * as sqlite from "bun:sqlite";
 import * as fs from "node:fs";
 import * as util from "node:util";
-import type { Handle } from "util/index.ts";
+import type { Context, Handle } from "util/index.ts";
 import { handle as accountsGoogleCom } from "./domain/accounts.google.com/route.ts";
 import { handle as apiPaddleCom } from "./domain/api.paddle.com/route.ts";
 import { handle as oauth2GoogleapisCom } from "./domain/oauth2.googleapis.com/route.ts";
+
+// @ts-ignore
+import migration from "./schema.sql" with { type: "text" };
 
 const domainHandlers: Record<string, Handle> = {
   "accounts.google.com": accountsGoogleCom,
@@ -46,7 +50,7 @@ function translateReqUrl(req: Request): URL | undefined {
   return url;
 }
 
-async function handle(originalReq: Request): Promise<Response> {
+async function handle(originalReq: Request, db: sqlite.Database): Promise<Response> {
   const url = translateReqUrl(originalReq);
   if (url === undefined) {
     return new Response(null, { status: 404 });
@@ -61,7 +65,11 @@ async function handle(originalReq: Request): Promise<Response> {
 
   const paths = url.pathname.split("/").filter((p) => p !== "");
 
-  const response = await subHandle(req, paths);
+  const neteroOrigin = new URL(originalReq.url).origin;
+
+  const ctx: Context = { req, db, neteroOrigin };
+
+  const response = await subHandle(ctx, paths);
 
   const redirectUrl = response.headers.get("Location");
   if (redirectUrl !== null && domains.includes(new URL(redirectUrl).hostname)) {
@@ -83,10 +91,21 @@ const args = util.parseArgs({
   },
 });
 
+const neteroState = process.env["NETERO_STATE"];
+if (neteroState === undefined) {
+  throw new Error("Environment variable NETERO_STATE is required.");
+}
+
+const db = new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true, create: true });
+db.exec("PRAGMA journal_mode = WAL;");
+db.exec("PRAGMA synchronous = NORMAL;");
+db.exec("PRAGMA foreign_keys = ON;");
+db.exec(migration);
+
 Bun.serve({
   port: parseInt(args.values.port, 10),
   development: false,
-  fetch: handle,
+  fetch: (req) => handle(req, db),
 });
 
 if (fs.existsSync(`/tmp/${process.ppid}-netero-oauth-mock.fifo`)) {

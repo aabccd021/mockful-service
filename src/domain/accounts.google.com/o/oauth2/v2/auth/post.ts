@@ -1,19 +1,21 @@
-import { db, getStringFormData } from "@util/index.ts";
+import type { Context } from "@util/index.ts";
+import { getStringFormData } from "@util/index.ts";
 
-export async function handle(req: Request): Promise<Response> {
-  const searchParams = new URL(req.url).searchParams;
+export async function handle(ctx: Context): Promise<Response> {
+  const searchParams = new URL(ctx.req.url).searchParams;
 
   const redirectUri = searchParams.get("redirect_uri");
   if (redirectUri === null) {
     throw new Error("Missing required parameter: redirect_uri");
   }
 
-  const formData = await getStringFormData(req);
+  const formData = await getStringFormData(ctx);
 
   const code = crypto.randomUUID();
 
-  db.query(
-    `
+  ctx.db
+    .query(
+      `
       INSERT INTO google_auth_session (
         code,
         user_sub,
@@ -31,14 +33,15 @@ export async function handle(req: Request): Promise<Response> {
         $codeChallengeValue
       )
     `,
-  ).run({
-    code,
-    userSub: formData.get("user_sub") ?? null,
-    clientId: searchParams.get("client_id") ?? null,
-    scope: searchParams.get("scope") ?? null,
-    codeChallengeMethod: searchParams.get("code_challenge_method") ?? null,
-    codeChallengeValue: searchParams.get("code_challenge") ?? null,
-  });
+    )
+    .run({
+      code,
+      userSub: formData.get("user_sub") ?? null,
+      clientId: searchParams.get("client_id") ?? null,
+      scope: searchParams.get("scope") ?? null,
+      codeChallengeMethod: searchParams.get("code_challenge_method") ?? null,
+      codeChallengeValue: searchParams.get("code_challenge") ?? null,
+    });
 
   const redirectUrl = new URL(redirectUri);
   redirectUrl.searchParams.set("code", code);

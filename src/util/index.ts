@@ -1,8 +1,7 @@
 import type { Database } from "bun:sqlite";
-import * as sqlite from "bun:sqlite";
 
-export async function getStringFormData(req: Request): Promise<ReadonlyMap<string, string>> {
-  const formDataRaw = await req.formData();
+export async function getStringFormData(ctx: Context): Promise<ReadonlyMap<string, string>> {
+  const formDataRaw = await ctx.req.formData();
   const data = new Map<string, string>();
   for (const [key, value] of formDataRaw.entries()) {
     if (typeof value === "string") {
@@ -18,7 +17,7 @@ export type Context = {
   neteroOrigin: string;
 };
 
-export type Handle = (req: Request, paths: string[]) => Promise<Response>;
+export type Handle = (ctx: Context, paths: string[]) => Promise<Response>;
 
 export type ResponseOr<T> = [undefined, T] | [Response];
 
@@ -26,10 +25,3 @@ const neteroState = process.env["NETERO_STATE"];
 if (neteroState === undefined) {
   throw new Error("Environment variable NETERO_STATE is required.");
 }
-
-const _db = new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true });
-
-_db.exec("PRAGMA journal_mode = WAL;");
-_db.exec("PRAGMA foreign_keys = ON;");
-
-export const db = _db;
