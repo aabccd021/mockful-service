@@ -1,6 +1,5 @@
 # TODO
 
-- not null, remove constrain name
 - use readDir
 - move domains to top
 - separate auth post test
