@@ -11,7 +11,8 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
   }),
 });
 
-expect(tokenResponse.json()).resolves.toEqual({
+const tokenResponseBody = await tokenResponse.json();
+expect(tokenResponseBody).toEqual({
   error: "invalid_request",
   error_description: "Missing parameter: redirect_uri",
 });
