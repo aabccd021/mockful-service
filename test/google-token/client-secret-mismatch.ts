@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 import * as client from "openid-client";
 
 new sqlite.Database("./mock.sqlite").exec(`
@@ -64,7 +63,7 @@ const tokenResponse = await client
   })
   .catch((error) => error);
 
-expect(tokenResponse).toBeInstanceOf(client.ResponseBodyError);
+if (!(tokenResponse instanceof client.ResponseBodyError)) throw new Error();
 if (tokenResponse.status !== 401) throw new Error();
 if (tokenResponse.cause.error !== "invalid_client") throw new Error();
 if (tokenResponse.cause.error_description !== "Unauthorized") throw new Error();
