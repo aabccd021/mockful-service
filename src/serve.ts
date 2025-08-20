@@ -13,8 +13,6 @@ const domainHandlers: Record<string, Handle> = {
   "oauth2.googleapis.com": oauth2GoogleapisCom,
 };
 
-const domains = Object.keys(domainHandlers);
-
 function translateUrl(originalUrlStr: string): URL | undefined {
   const originalUrl = new URL(originalUrlStr);
   try {
@@ -66,15 +64,7 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
 
   const ctx: Context = { req, db, neteroOrigin };
 
-  const response = await subHandle(ctx, paths);
-
-  const redirectUrl = response.headers.get("Location");
-  if (redirectUrl !== null && domains.includes(new URL(redirectUrl).hostname)) {
-    const originalOrigin = new URL(originalReq.url).origin;
-    response.headers.set("Location", `${originalOrigin}/${redirectUrl}`);
-  }
-
-  return response;
+  return await subHandle(ctx, paths);
 }
 
 export function serve(argsStr: string[]): void {
