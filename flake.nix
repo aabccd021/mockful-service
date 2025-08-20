@@ -82,13 +82,15 @@
           };
           value = pkgs.runCommand name { } ''
             mkfifo ./ready.fifo
-            ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001 --db ./mock.sqlite --wait-fifo ./ready.fifo &
+            ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock \
+              --port 3001 \
+              --db ./mock.sqlite \
+              --wait-fifo ./ready.fifo \
+              &
             cat ./ready.fifo
-
             ln -s ${nodeModules}/node_modules ./node_modules
             cp -L ${src}/${filename} .
             timeout 5 ${pkgs.bun}/bin/bun ./${filename}
-
             mkdir "$out"
           '';
         in
