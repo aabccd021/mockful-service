@@ -122,10 +122,6 @@ export function handle(req: Request): Response {
     `);
   }
 
-  // const paramInputs = searchParams
-  //   .entries()
-  //   .map(([name, value]) => `<input type="hidden" name="${name}" value="${value}" />`);
-
   const userSubmitButton = db
     .query<{ sub: string; email: string }, []>(`SELECT sub,email FROM google_auth_user`)
     .all()
