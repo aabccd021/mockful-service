@@ -1,9 +1,5 @@
 # TODO
 
-- merge into single binary
-
-- --unix
-
 - transaction create
 - hosted checkout
 - coverage Test with https://github.com/panva/openid-client
