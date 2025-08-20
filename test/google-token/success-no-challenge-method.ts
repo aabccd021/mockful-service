@@ -1,5 +1,5 @@
 import * as sqlite from "bun:sqlite";
-import * as client from "openid-client";
+import * as oauth from "openid-client";
 
 new sqlite.Database("./mock.sqlite").exec(`
   INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -8,7 +8,7 @@ new sqlite.Database("./mock.sqlite").exec(`
   INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
 `);
 
-const config = new client.Configuration(
+const config = new oauth.Configuration(
   {
     issuer: "https://accounts.google.com",
     token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
@@ -16,13 +16,13 @@ const config = new client.Configuration(
   },
   "mock_client_id",
   {},
-  client.ClientSecretBasic("mock_client_secret"),
+  oauth.ClientSecretBasic("mock_client_secret"),
 );
 
-client.allowInsecureRequests(config);
+oauth.allowInsecureRequests(config);
 
-const pkceCodeVerifier = client.randomNonce();
-const state = client.randomState();
+const pkceCodeVerifier = oauth.randomNonce();
+const state = oauth.randomState();
 
 const parameters: Record<string, string> = {
   redirect_uri: "https://localhost:3000/login-callback",
@@ -31,7 +31,7 @@ const parameters: Record<string, string> = {
   state,
 };
 
-const authUrl = client.buildAuthorizationUrl(config, parameters);
+const authUrl = oauth.buildAuthorizationUrl(config, parameters);
 
 const loginResponse = await fetch(authUrl, {
   method: "POST",
@@ -43,7 +43,7 @@ const loginResponse = await fetch(authUrl, {
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 
-const tokenResponse = await client
+const tokenResponse = await oauth
   .authorizationCodeGrant(config, location, {
     pkceCodeVerifier,
     expectedState: state,

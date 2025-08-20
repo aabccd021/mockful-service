@@ -1,5 +1,5 @@
 import * as sqlite from "bun:sqlite";
-import * as client from "openid-client";
+import * as oauth from "openid-client";
 
 new sqlite.Database("./mock.sqlite").exec(`
   INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -14,26 +14,26 @@ const serverMetadata = {
   authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
 };
 
-const config = new client.Configuration(
+const config = new oauth.Configuration(
   serverMetadata,
   "mock_client_id",
   {},
-  client.ClientSecretBasic("mock_client_secret"),
+  oauth.ClientSecretBasic("mock_client_secret"),
 );
 
-const invalidConfig = new client.Configuration(
+const invalidConfig = new oauth.Configuration(
   serverMetadata,
   "mock_client_id",
   {},
-  client.ClientSecretBasic("invalid_client_secret"),
+  oauth.ClientSecretBasic("invalid_client_secret"),
 );
 
-client.allowInsecureRequests(config);
-client.allowInsecureRequests(invalidConfig);
+oauth.allowInsecureRequests(config);
+oauth.allowInsecureRequests(invalidConfig);
 
-const pkceCodeVerifier = client.randomPKCECodeVerifier();
-const code_challenge = await client.calculatePKCECodeChallenge(pkceCodeVerifier);
-const state = client.randomState();
+const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
+const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
+const state = oauth.randomState();
 
 const parameters: Record<string, string> = {
   redirect_uri: "https://localhost:3000/login-callback",
@@ -43,7 +43,7 @@ const parameters: Record<string, string> = {
   state,
 };
 
-const authUrl = client.buildAuthorizationUrl(config, parameters);
+const authUrl = oauth.buildAuthorizationUrl(config, parameters);
 
 const loginResponse = await fetch(authUrl, {
   method: "POST",
@@ -55,7 +55,7 @@ const loginResponse = await fetch(authUrl, {
 
 const location = new URL(loginResponse.headers.get("Location") ?? "");
 
-const tokenResponse = await client
+const tokenResponse = await oauth
   .authorizationCodeGrant(invalidConfig, location, {
     pkceCodeVerifier,
     expectedState: state,
@@ -63,7 +63,7 @@ const tokenResponse = await client
   })
   .catch((error) => error);
 
-if (!(tokenResponse instanceof client.ResponseBodyError)) throw new Error();
+if (!(tokenResponse instanceof oauth.ResponseBodyError)) throw new Error();
 if (tokenResponse.status !== 401) throw new Error();
 if (tokenResponse.cause.error !== "invalid_client") throw new Error();
 if (tokenResponse.cause.error_description !== "Unauthorized") throw new Error();
