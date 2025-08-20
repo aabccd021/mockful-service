@@ -100,18 +100,6 @@ export async function handle(req: Request): Promise<Response> {
     createdAt: Date.now(),
     updatedAt: Date.now(),
   });
-  // } catch (err) {
-  // const errRes = mapConstraint(authReq, err, {
-  //   paddle_price_unit_price_amount_not_negative: {
-  //     field: "unit_price.amount",
-  //     message: "The amount cannot be negative",
-  //   },
-  // });
-  // if (errRes !== undefined) {
-  //   return errRes;
-  // }
-  //   throw err;
-  // }
 
   const product = db
     .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_product WHERE id = $id")
