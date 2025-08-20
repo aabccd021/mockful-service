@@ -97,8 +97,8 @@ async function main() {
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA synchronous = NORMAL;");
   db.exec("PRAGMA foreign_keys = ON;");
-
   db.exec(migration);
+
   Bun.serve({
     port: parseInt(args.values.port, 10),
     development: false,

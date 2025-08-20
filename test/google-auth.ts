@@ -1,0 +1,350 @@
+import * as sqlite from "bun:sqlite";
+import * as oauth from "openid-client";
+import * as util from "./util.ts";
+
+{
+  console.info("get base oidc.ts");
+
+  const ctx = util.init();
+
+  console.info("initialized");
+
+  new sqlite.Database(ctx.dbPath).exec(`
+  INSERT INTO google_project (id) VALUES ('mock_project_id');
+  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+`);
+
+  const config = new oauth.Configuration(
+    {
+      issuer: "https://accounts.google.com",
+      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
+      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
+    },
+    "mock_client_id",
+    {},
+    oauth.ClientSecretBasic("mock_client_secret"),
+  );
+
+  oauth.allowInsecureRequests(config);
+
+  const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
+  const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
+  const state = oauth.randomState();
+
+  const parameters: Record<string, string> = {
+    redirect_uri: "https://localhost:3000/login-callback",
+    scope: "openid",
+    code_challenge,
+    code_challenge_method: "S256",
+    state,
+  };
+
+  const authUrl = oauth.buildAuthorizationUrl(config, parameters);
+
+  const loginResponse = await fetch(authUrl);
+
+  const loginResponseBody = await loginResponse.text();
+  if (!loginResponseBody.includes("</form>")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get base.ts");
+
+  const ctx = util.init();
+
+  new sqlite.Database(ctx.dbPath).exec(`
+  INSERT INTO google_project (id) VALUES ('mock_project_id');
+  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+`);
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "openid");
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("client_id", "mock_client_id");
+  authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+
+  const loginResponse = await fetch(authUrl);
+
+  const loginResponseBody = await loginResponse.text();
+  if (!loginResponseBody.includes("</form>")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get client id invalid.ts");
+
+  const ctx = util.init();
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "openid");
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("client_id", "foo"); // changed
+  authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+
+  const loginResponse = await fetch(authUrl);
+
+  const body = await loginResponse.text();
+  if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+  if (!body.includes("Error 401: invalid_client")) throw new Error();
+  if (!body.includes("The OAuth client was not found.")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+
+  // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=foo&flowName=GeneralOAuthFlow
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get client id missing.ts");
+
+  const ctx = util.init();
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "openid");
+  authUrl.searchParams.set("response_type", "code");
+  // authUrl.searchParams.set("client_id", "mock_client_id");
+  authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+
+  const loginResponse = await fetch(authUrl);
+
+  const body = await loginResponse.text();
+  if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+  if (!body.includes("Error 400: invalid_request")) throw new Error();
+  if (!body.includes("Missing required parameter: client_id")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+  // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&flowName=GeneralOAuthFlow
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get code challenge method invalid.ts");
+
+  const ctx = util.init();
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "openid");
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("client_id", "mock_client_id");
+  authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+  authUrl.searchParams.set("code_challenge_method", "foo"); // changed
+
+  const loginResponse = await fetch(authUrl);
+
+  const body = await loginResponse.text();
+  if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+  if (!body.includes("Error 400: invalid_request")) throw new Error();
+  if (!body.includes)
+    throw new Error()(
+      "Invalid parameter value for code_challenge_method: 'foo' is not a valid CodeChallengeMethod",
+    );
+  if (loginResponse.status !== 200) throw new Error();
+  // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get redirect uri invalid.ts");
+
+  const ctx = util.init();
+
+  new sqlite.Database(ctx.dbPath).exec(`
+  INSERT INTO google_project (id) VALUES ('mock_project_id');
+  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+`);
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "openid");
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("client_id", "mock_client_id");
+  authUrl.searchParams.set("redirect_uri", "foo"); // changed
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+
+  const loginResponse = await fetch(authUrl);
+
+  const body = await loginResponse.text();
+  if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+  if (!body.includes("Error 400: invalid_request")) throw new Error();
+  if (!body.includes)
+    throw new Error()(
+      "You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy for keeping apps secure.",
+    );
+  if (!body.includes)
+    throw new Error()(
+      "You can let the app developer know that this app doesn't comply with one or more Google validation rules.",
+    );
+  if (loginResponse.status !== 200) throw new Error();
+
+  // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get redirect uri missing.ts");
+
+  const ctx = util.init();
+
+  new sqlite.Database(ctx.dbPath).exec(`
+  INSERT INTO google_project (id) VALUES ('mock_project_id');
+  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+`);
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "openid");
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("client_id", "mock_client_id");
+  // authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+
+  const loginResponse = await fetch(authUrl);
+
+  const body = await loginResponse.text();
+  if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+  if (!body.includes("Error 400: invalid_request")) throw new Error();
+  if (!body.includes("Missing required parameter: redirect_uri")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+  // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get response type invalid.ts");
+
+  const ctx = util.init();
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "openid");
+  authUrl.searchParams.set("response_type", "foo"); // changed
+  authUrl.searchParams.set("client_id", "mock_client_id");
+  authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+
+  const loginResponse = await fetch(authUrl);
+
+  const body = await loginResponse.text();
+  if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+  if (!body.includes("Error 400: invalid_request")) throw new Error();
+  if (!body.includes("Invalid response_type: foo")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+  // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get response type missing.ts");
+
+  const ctx = util.init();
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "openid");
+  // authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("client_id", "mock_client_id");
+  authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+
+  const loginResponse = await fetch(authUrl);
+
+  const body = await loginResponse.text();
+  if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+  if (!body.includes("Error 400: invalid_request")) throw new Error();
+  if (!body.includes("Required parameter is missing: response_type")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+  // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get scope invalid.ts");
+
+  const ctx = util.init();
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "foo"); // changed
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("client_id", "mock_client_id");
+  authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+
+  const loginResponse = await fetch(authUrl);
+
+  const body = await loginResponse.text();
+  if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+  if (!body.includes("Error 400: invalid_scope")) throw new Error();
+  if (!body.includes("Some requested scopes were invalid. {invalid=[foo]}")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+
+  // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get scope missing.ts");
+
+  const ctx = util.init();
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  // authUrl.searchParams.set("scope", "openid");
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("client_id", "mock_client_id");
+  authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4");
+
+  const loginResponse = await fetch(authUrl);
+
+  const body = await loginResponse.text();
+  if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+  if (!body.includes("Error 400: invalid_request")) throw new Error();
+  if (!body.includes("Missing required parameter: scope")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+  // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
+
+  util.deinit(ctx);
+}
+
+{
+  console.info("get state missing.ts");
+
+  const ctx = util.init();
+
+  new sqlite.Database(ctx.dbPath).exec(`
+  INSERT INTO google_project (id) VALUES ('mock_project_id');
+  INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+  INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
+`);
+
+  const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
+  authUrl.searchParams.set("scope", "openid");
+  authUrl.searchParams.set("response_type", "code");
+  authUrl.searchParams.set("client_id", "mock_client_id");
+  authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback");
+  // authUrl.searchParams.set(
+  //   "state",
+  //   "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4",
+  // );
+
+  const loginResponse = await fetch(authUrl);
+
+  const loginResponseBody = await loginResponse.text();
+  if (!loginResponseBody.includes("</form>")) throw new Error();
+  if (loginResponse.status !== 200) throw new Error();
+
+  util.deinit(ctx);
+}

@@ -73,47 +73,39 @@
       '';
 
       mkTest =
-        dir: filename:
+        filename:
         let
-          name = "test-${builtins.baseNameOf dir}-" + (lib.strings.removeSuffix ".ts" filename);
+          name = "test-" + (lib.strings.removeSuffix ".ts" filename);
           src = lib.fileset.toSource {
-            root = dir;
-            fileset = dir + "/${filename}";
+            root = ./test;
+            fileset = ./test + "/${filename}";
           };
-          value = pkgs.runCommand name { } ''
-            mkfifo ./ready.fifo
-            ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock \
-              --port 3001 \
-              --db ./mock.sqlite \
-              --ready-fifo ./ready.fifo \
-              &
-            cat ./ready.fifo
-            ln -s ${nodeModules}/node_modules ./node_modules
-            cp -L ${src}/${filename} .
-            timeout 5 ${pkgs.bun}/bin/bun ./${filename}
-            mkdir "$out"
-          '';
+          value =
+            pkgs.runCommand name
+              {
+                buildInputs = [
+                  pkgs.netero-oauth-mock
+                ];
+              }
+              ''
+                ln -s ${nodeModules}/node_modules ./node_modules
+                cp -L ${./test/util.ts} ./util.ts
+                cp -L ${src}/${filename} .
+                timeout 5 ${pkgs.bun}/bin/bun ./${filename}
+                mkdir "$out"
+              '';
         in
         {
           name = name;
           value = value;
         };
 
-      mapTests =
-        dir:
-        lib.pipe dir [
-          builtins.readDir
-          builtins.attrNames
-          (builtins.map (mkTest dir))
-          builtins.listToAttrs
-        ];
-
       test = lib.pipe ./test [
         builtins.readDir
-        lib.attrNames
-        (builtins.map (dir: ./test + "/${dir}"))
-        (builtins.map mapTests)
-        lib.attrsets.mergeAttrsList
+        builtins.attrNames
+        (builtins.filter (filename: filename != "util.ts"))
+        (builtins.map mkTest)
+        builtins.listToAttrs
       ];
 
       packages = test // {
