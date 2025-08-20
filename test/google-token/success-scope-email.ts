@@ -4,7 +4,7 @@ import * as client from "openid-client";
 
 const neteroState = process.env["NETERO_STATE"];
 
-new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
+new sqlite.Database(`${neteroState}/mock.sqlite`).exec(`
   INSERT INTO google_project (id) VALUES ('mock_project_id');
   INSERT INTO google_auth_user (project_id, sub, email, email_verified) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com', 'true');
   INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');

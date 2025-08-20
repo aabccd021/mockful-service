@@ -3,7 +3,7 @@ import { expect } from "bun:test";
 
 const neteroState = process.env["NETERO_STATE"];
 
-new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true }).exec(`
+new sqlite.Database(`${neteroState}/mock.sqlite`).exec(`
 INSERT INTO paddle_account (id) VALUES ('mock_account_id');
 INSERT INTO paddle_api_key (account_id, key) VALUES (
   'mock_account_id',
