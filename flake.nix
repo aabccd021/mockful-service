@@ -77,6 +77,7 @@
         cp -Lr ${nodeModules}/node_modules ./node_modules
         cp -Lr ${./src} ./src
         cp -L ${./tsconfig.json} ./tsconfig.json
+        cp -L ${./declarations.d.ts} ./declarations.d.ts
         ${pkgs.typescript}/bin/tsc
         touch "$out"
       '';
