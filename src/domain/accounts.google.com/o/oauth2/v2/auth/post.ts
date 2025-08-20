@@ -1,11 +1,11 @@
-import { db, errorMessage, getStringFormData } from "@util/index.ts";
+import { db, getStringFormData } from "@util/index.ts";
 
 export async function handle(req: Request): Promise<Response> {
   const searchParams = new URL(req.url).searchParams;
 
-  const formRedirectUrl = searchParams.get("redirect_uri") ?? null;
-  if (formRedirectUrl === null) {
-    return errorMessage("Parameter redirect_uri is required.");
+  const redirectUri = searchParams.get("redirect_uri");
+  if (redirectUri === null) {
+    throw new Error("Missing required parameter: redirect_uri");
   }
 
   const formData = await getStringFormData(req);
@@ -40,7 +40,7 @@ export async function handle(req: Request): Promise<Response> {
     codeChallengeValue: searchParams.get("code_challenge") ?? null,
   });
 
-  const redirectUrl = new URL(formRedirectUrl);
+  const redirectUrl = new URL(redirectUri);
   redirectUrl.searchParams.set("code", code);
 
   for (const key of ["state", "scope", "prompt"]) {
