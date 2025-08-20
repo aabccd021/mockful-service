@@ -85,7 +85,7 @@
             ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock \
               --port 3001 \
               --db ./mock.sqlite \
-              --wait-fifo ./ready.fifo \
+              --ready-fifo ./ready.fifo \
               &
             cat ./ready.fifo
             ln -s ${nodeModules}/node_modules ./node_modules

@@ -82,7 +82,7 @@ async function main() {
       db: {
         type: "string",
       },
-      "wait-fifo": {
+      "ready-fifo": {
         type: "string",
       },
     },
@@ -105,7 +105,7 @@ async function main() {
     fetch: (req) => handle(req, db),
   });
 
-  const waitFifo = args.values["wait-fifo"];
+  const waitFifo = args.values["ready-fifo"];
   if (waitFifo !== undefined && fs.existsSync(waitFifo)) {
     await fs.promises.writeFile(waitFifo, "");
   }
