@@ -5,13 +5,13 @@ import * as os from "node:os";
 export function initServer() {
   const dbfile = `${os.tmpdir()}/${Math.random()}.sqlite`;
 
-  const executable = `${import.meta.dir}/../dist/netero-oauth-mock`;
+  const cmd = `${import.meta.dir}/../dist/netero-oauth-mock`;
 
-  child_process.execSync(`${executable} prepare`, { stdio: "inherit" });
-  const server = child_process.spawn(executable, ["serve", "--port", "3001", "--db", dbfile], {
+  child_process.execSync(`${cmd} prepare`, { stdio: "inherit" });
+  const server = child_process.spawn(cmd, ["serve", "--port", "3001", "--db", dbfile], {
     stdio: "inherit",
   });
-  child_process.execSync(`${executable} wait-ready`, { stdio: "inherit" });
+  child_process.execSync(`${cmd} wait-ready`, { stdio: "inherit" });
 
   return {
     dbfile,
