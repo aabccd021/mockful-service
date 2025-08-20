@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import * as fs from "node:fs";
 import * as util from "node:util";
 import type { Context, Handle } from "util/index.ts";
 import { handle as accountsGoogleCom } from "./domain/accounts.google.com/route.ts";
@@ -108,8 +107,4 @@ export function serve(argsStr: string[]): void {
     development: false,
     fetch: (req) => handle(req, db),
   });
-
-  if (fs.existsSync(`/tmp/${process.ppid}-netero-oauth-mock.fifo`)) {
-    fs.writeFileSync(`/tmp/${process.ppid}-netero-oauth-mock.fifo`, "");
-  }
 }

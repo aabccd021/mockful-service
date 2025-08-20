@@ -12,13 +12,13 @@ let
         fileset = dir + "/${filename}";
       };
       value = pkgs.runCommand name { } ''
-        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-prepare
+        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock prepare
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock serve --port 3001 --db ./mock.sqlite &
-        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-wait
+        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock wait-ready
 
         ln -s ${nodeModules}/node_modules ./node_modules
         cp -L ${src}/${filename} .
-        ${pkgs.bun}/bin/bun ./${filename}
+        timeout 5 ${pkgs.bun}/bin/bun ./${filename}
 
         mkdir "$out"
       '';
