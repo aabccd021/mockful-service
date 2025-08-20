@@ -12,15 +12,11 @@ let
         fileset = dir + "/${filename}";
       };
       value = pkgs.runCommand name { } ''
-        green=$(printf "\033[32m")
-        reset=$(printf "\033[0m")
-
         export NETERO_STATE="./var/lib/netero"
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-init
 
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-prepare
-        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001  2>&1 | 
-          sed "s/^/''${green}[mock]''${reset} /" &
+        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001 &
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-wait
 
         ln -s ${nodeModules}/node_modules ./node_modules
