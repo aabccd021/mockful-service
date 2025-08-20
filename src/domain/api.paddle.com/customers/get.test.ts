@@ -1,28 +1,12 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
-import * as child_process from "node:child_process";
-import * as fs from "node:fs";
-import * as os from "node:os";
+import { expect, test } from "bun:test";
+import { initServer } from "@test";
 
-function initServer() {
-  const tmpdir = os.tmpdir();
-
-  const server = child_process.spawn(`netero-oauth-mock --unix ${tmpdir}/socket.sock`);
-
-  return {
-    tmpdir,
-    [Symbol.dispose]() {
-      server.kill();
-      fs.rmdirSync(tmpdir, { recursive: true });
-    },
-  };
-}
-
-{
-  const { tmpdir } = initServer();
+test("GET /customers by email", async () => {
+  const { dbfile } = initServer();
   await Bun.sleep(1000);
 
-  new sqlite.Database(`${tmpdir}/mock.sqlite`, { create: true }).exec(`
+  new sqlite.Database(dbfile, { create: true }).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
     INSERT INTO paddle_api_key (account_id, key) VALUES (
       'mock_account_id', 
@@ -64,4 +48,4 @@ function initServer() {
   expect(customers).toBeArrayOfSize(1);
   expect(customers[0]?.email).toEqual("nijika@example.com");
   expect(customers[0]?.id).toEqual(customerId);
-}
+});

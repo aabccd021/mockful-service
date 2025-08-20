@@ -97,11 +97,12 @@ export function serve(argsStr: string[]): void {
   }
 
   const db = new sqlite.Database(args.values.db, { strict: true, create: true });
+
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA synchronous = NORMAL;");
   db.exec("PRAGMA foreign_keys = ON;");
-  db.exec(migration);
 
+  db.exec(migration);
   Bun.serve({
     port: parseInt(args.values.port, 10),
     development: false,
