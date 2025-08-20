@@ -11,18 +11,6 @@
     let
       lib = inputs.nixpkgs.lib;
 
-      collectInputs =
-        is:
-        pkgs.linkFarm "inputs" (
-          builtins.mapAttrs (
-            name: i:
-            pkgs.linkFarm name {
-              self = i.outPath;
-              deps = collectInputs (lib.attrByPath [ "inputs" ] { } i);
-            }
-          ) is
-        );
-
       overlays.default = (
         final: prev: {
           netero-oauth-mock = final.runCommand "netero-oauth-mock" { } ''
@@ -42,8 +30,33 @@
 
       pkgs = import inputs.nixpkgs {
         system = "x86_64-linux";
-        overlays = [
-          overlays.default
+        overlays = [ overlays.default ];
+      };
+
+      treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
+        projectRootFile = "flake.nix";
+        programs.nixfmt.enable = true;
+        programs.biome.enable = true;
+        programs.biome.settings.formatter.indentStyle = "space";
+        programs.biome.settings.formatter.lineWidth = 100;
+        programs.biome.settings.linter.rules.complexity.useLiteralKeys = "off";
+        programs.biome.settings.linter.rules.suspicious.noConsole.level = "error";
+        programs.biome.settings.linter.rules.suspicious.noConsole.options.allow = [
+          "error"
+          "warning"
+          "info"
+          "assert"
+        ];
+        programs.biome.formatUnsafe = true;
+        programs.shfmt.enable = true;
+        programs.shellcheck.enable = true;
+        settings.formatter.shellcheck.options = [
+          "-s"
+          "sh"
+        ];
+        settings.global.excludes = [
+          "LICENSE"
+          "*.sql"
         ];
       };
 
@@ -95,35 +108,6 @@
         lib.attrsets.mergeAttrsList
       ];
 
-      treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
-        projectRootFile = "flake.nix";
-        programs.nixfmt.enable = true;
-        programs.biome.enable = true;
-        programs.biome.settings.formatter.indentStyle = "space";
-        programs.biome.settings.formatter.lineWidth = 100;
-        programs.biome.settings.linter.rules.complexity.useLiteralKeys = "off";
-        programs.biome.settings.linter.rules.suspicious.noConsole.level = "error";
-        programs.biome.settings.linter.rules.suspicious.noConsole.options.allow = [
-          "error"
-          "warning"
-          "info"
-          "assert"
-        ];
-        programs.biome.formatUnsafe = true;
-        programs.shfmt.enable = true;
-        programs.shellcheck.enable = true;
-        settings.formatter.shellcheck.options = [
-          "-s"
-          "sh"
-        ];
-        settings.global.excludes = [
-          "LICENSE"
-          "*.sql"
-        ];
-      };
-
-      formatter = treefmtEval.config.build.wrapper;
-
       tsc = pkgs.runCommand "tsc" { } ''
         cp -Lr ${nodeModules}/node_modules ./node_modules
         cp -Lr ${./src} ./src
@@ -133,20 +117,27 @@
         touch "$out"
       '';
 
-      packages =
-        devShells
-        // test
-        // {
-          tests = pkgs.linkFarm "tests" test;
-          formatting = treefmtEval.config.build.check self;
-          formatter = formatter;
-          allInputs = collectInputs inputs;
-          tsc = tsc;
-          default = pkgs.netero-oauth-mock;
-          netero-oauth-mock = pkgs.netero-oauth-mock;
-        };
+      packages = test // {
+        tests = pkgs.linkFarm "tests" test;
+        formatting = treefmtEval.config.build.check self;
+        tsc = tsc;
+        default = pkgs.netero-oauth-mock;
+        netero-oauth-mock = pkgs.netero-oauth-mock;
+      };
 
-      devShells.default = pkgs.mkShellNoCC {
+    in
+
+    {
+
+      packages.x86_64-linux = packages;
+
+      checks.x86_64-linux = packages;
+
+      formatter.x86_64-linux = treefmtEval.config.build.wrapper;
+
+      overlays = overlays;
+
+      devShells.x86_64-linux.default = pkgs.mkShellNoCC {
         buildInputs = [
           pkgs.nixd
           pkgs.bun
@@ -155,20 +146,6 @@
           pkgs.vscode-langservers-extracted
         ];
       };
-
-    in
-
-    {
-
-      packages.x86_64-linux = packages // {
-        gcroot = pkgs.linkFarm "gcroot" packages;
-      };
-
-      checks.x86_64-linux = packages;
-      formatter.x86_64-linux = formatter;
-      devShells.x86_64-linux = devShells;
-
-      overlays = overlays;
 
     };
 }
