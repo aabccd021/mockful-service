@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 
 new sqlite.Database("./mock.sqlite").exec(`
 INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -117,6 +116,6 @@ const listProduct2Recurring = await fetch(listUrl, {
 
 if (listProduct2Recurring.status !== 200) throw new Error();
 const listProduct2RecurringBody = await listProduct2Recurring.json();
-expect(listProduct2RecurringBody.data).toBeArrayOfSize(2);
+if (listProduct2RecurringBody.data.length !== 2) throw new Error();
 if (listProduct2RecurringBody.data[0].description !== "product2-recurring") throw new Error();
 if (listProduct2RecurringBody.data[1].description !== "product2-onetime") throw new Error();

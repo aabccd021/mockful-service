@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 
 new sqlite.Database("./mock.sqlite").exec(`
 INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -38,6 +37,6 @@ const response = await fetch(listUrl, {
 if (response.status !== 200) throw new Error();
 const responseBody = await response.json();
 const customers = responseBody.data;
-expect(customers).toBeArrayOfSize(1);
+if (customers.length !== 1) throw new Error();
 if (customers[0]?.email !== "nijika@example.com") throw new Error();
 if (customers[0]?.id !== customerId) throw new Error();

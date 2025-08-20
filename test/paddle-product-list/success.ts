@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 
 new sqlite.Database("./mock.sqlite").exec(`
 INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -54,7 +53,7 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
 if (response.status !== 200) throw new Error();
 const responseBody = await response.json();
 const products = responseBody.data;
-expect(products).toBeArrayOfSize(3);
+if (products.length !== 3) throw new Error();
 if (products[0]?.name !== "Product 1") throw new Error();
 if (products[1]?.name !== "Product 2") throw new Error();
 if (products[2]?.name !== "Product 3") throw new Error();
