@@ -30,7 +30,6 @@ CREATE TABLE google_auth_client (
   id TEXT NOT NULL,
   secret TEXT NOT NULL,
   project_id TEXT NOT NULL,
-  redirect_uri TEXT,
   CONSTRAINT google_auth_client_id_pk PRIMARY KEY (id)
 ) STRICT;
 
