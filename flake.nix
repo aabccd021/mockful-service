@@ -81,17 +81,9 @@
         touch "$out"
       '';
 
-      inputPackages = {
-        nixd = pkgs.nixd;
-        typescript = pkgs.typescript;
-        typescript-language-server = pkgs.typescript-language-server;
-        vscode-langservers-extracted = pkgs.vscode-langservers-extracted;
-      };
-
       packages =
         devShells
         // test
-        // inputPackages
         // {
           tests = pkgs.linkFarm "tests" test;
           formatting = treefmtEval.config.build.check self;
@@ -103,7 +95,13 @@
         };
 
       devShells.default = pkgs.mkShellNoCC {
-        buildInputs = builtins.attrValues inputPackages;
+        buildInputs = [
+          pkgs.nixd
+          pkgs.bun
+          pkgs.typescript
+          pkgs.typescript-language-server
+          pkgs.vscode-langservers-extracted
+        ];
       };
 
     in
