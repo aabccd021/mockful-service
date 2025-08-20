@@ -74,7 +74,6 @@
 
       mkTest =
         dir: filename:
-
         let
           name = "test-${builtins.baseNameOf dir}-" + (lib.strings.removeSuffix ".ts" filename);
           src = lib.fileset.toSource {
@@ -92,7 +91,6 @@
 
             mkdir "$out"
           '';
-
         in
         {
           name = name;
