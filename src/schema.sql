@@ -66,7 +66,6 @@ CREATE TABLE paddle_customer (
   id TEXT NOT NULL,
   email TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'active',
-  name TEXT,
   marketing_consent TEXT NOT NULL DEFAULT 'false',
   locale TEXT NOT NULL,
   created_at INTEGER NOT NULL,

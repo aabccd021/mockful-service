@@ -40,5 +40,4 @@ expect(customers[0]?.email).toEqual("nijika@example.com");
 expect(customers[0]?.id).toEqual(customerId);
 expect(customers[0]?.status).toEqual("active");
 expect(customers[0]?.marketing_consent).toEqual(false);
-expect(customers[0]?.name).toEqual(null);
 expect(customers[0]?.locale).toEqual("en");

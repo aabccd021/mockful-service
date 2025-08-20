@@ -7,7 +7,6 @@ type Row = {
   account_id: string;
   email: string;
   status: "active" | "archived";
-  name: string | null;
   marketing_consent: "true" | "false";
   locale: string;
   created_at: number;
@@ -88,7 +87,6 @@ export async function handle(ctx: Context): Promise<Response> {
         id: customer.id,
         email: customer.email,
         status: customer.status,
-        name: customer.name,
         marketing_consent: customer.marketing_consent === "true",
         created_at: new Date(customer.created_at).toISOString(),
         updated_at: new Date(customer.updated_at).toISOString(),
