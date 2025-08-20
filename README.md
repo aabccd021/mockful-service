@@ -1,7 +1,5 @@
 # TODO
 
-- migration
-
 - --db
 - merge into single binary
 
