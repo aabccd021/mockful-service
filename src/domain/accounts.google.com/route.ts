@@ -1,4 +1,4 @@
-import type { Context } from "@util/index.ts";
+import type { Context } from "@util";
 import * as faviconIco from "./favicon.ico/route.ts";
 import * as o from "./o/route.ts";
 import * as signin from "./signin/route.ts";

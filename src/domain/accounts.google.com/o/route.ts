@@ -1,4 +1,4 @@
-import type { Context } from "@util/index.ts";
+import type { Context } from "@util";
 import * as oauth2 from "./oauth2/route.ts";
 
 export async function handle(ctx: Context, paths: string[]): Promise<Response> {

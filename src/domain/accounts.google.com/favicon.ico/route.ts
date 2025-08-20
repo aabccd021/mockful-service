@@ -1,4 +1,4 @@
-import type { Context } from "@util/index.ts";
+import type { Context } from "@util";
 import * as get from "./get.ts";
 
 // https://www.google.com/favicon.ico

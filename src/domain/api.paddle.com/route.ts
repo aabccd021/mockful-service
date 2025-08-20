@@ -1,4 +1,4 @@
-import type { Context } from "@util/index.ts";
+import type { Context } from "@util";
 import * as customers from "./customers/route.ts";
 import * as prices from "./prices/route.ts";
 import * as products from "./products/route.ts";

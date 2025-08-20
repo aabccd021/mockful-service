@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
-import type { Context } from "@util/index.ts";
-import { getStringFormData } from "@util/index.ts";
+import type { Context } from "@util";
+import { getStringFormData } from "@util";
 
 type AuthSession = {
   client_id: string;

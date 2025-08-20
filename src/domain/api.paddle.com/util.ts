@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import type { Context, ResponseOr } from "@util/index.ts";
+import type { Context, ResponseOr } from "@util";
 
 function forbiddenResponse(): Response {
   return Response.json(

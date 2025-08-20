@@ -1,5 +1,5 @@
-import type { Context } from "@util/index.ts";
-import { getStringFormData } from "@util/index.ts";
+import type { Context } from "@util";
+import { getStringFormData } from "@util";
 
 export async function handle(ctx: Context): Promise<Response> {
   const searchParams = new URL(ctx.req.url).searchParams;

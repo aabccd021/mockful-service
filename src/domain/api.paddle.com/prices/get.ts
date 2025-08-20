@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
-import type { Context } from "@util/index.ts";
-import * as paddle from "@util/paddle.ts";
+import * as paddle from "@paddle/util.ts";
+import type { Context } from "@util";
 
 type Row = {
   id: string;
