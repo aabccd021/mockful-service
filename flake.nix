@@ -64,6 +64,14 @@
         packages = import ./bun.nix;
       };
 
+      tsc = pkgs.runCommand "tsc" { } ''
+        cp -Lr ${nodeModules}/node_modules ./node_modules
+        cp -Lr ${./src} ./src
+        cp -L ${./tsconfig.json} ./tsconfig.json
+        ${pkgs.typescript}/bin/tsc
+        touch "$out"
+      '';
+
       mkTest =
         dir: filename:
 
@@ -107,14 +115,6 @@
         (builtins.map mapTests)
         lib.attrsets.mergeAttrsList
       ];
-
-      tsc = pkgs.runCommand "tsc" { } ''
-        cp -Lr ${nodeModules}/node_modules ./node_modules
-        cp -Lr ${./src} ./src
-        cp -L ${./tsconfig.json} ./tsconfig.json
-        ${pkgs.typescript}/bin/tsc
-        touch "$out"
-      '';
 
       packages = test // {
         tests = pkgs.linkFarm "tests" test;
