@@ -64,7 +64,12 @@
         programs.biome.settings.formatter.lineWidth = 100;
         programs.biome.settings.linter.rules.complexity.useLiteralKeys = "off";
         programs.biome.settings.linter.rules.suspicious.noConsole.level = "error";
-        programs.biome.settings.linter.rules.suspicious.noConsole.options.allow = [ "error" ];
+        programs.biome.settings.linter.rules.suspicious.noConsole.options.allow = [
+          "error"
+          "warning"
+          "info"
+          "assert"
+        ];
         programs.biome.formatUnsafe = true;
         programs.shfmt.enable = true;
         programs.shellcheck.enable = true;
