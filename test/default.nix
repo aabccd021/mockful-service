@@ -12,9 +12,9 @@ let
         fileset = dir + "/${filename}";
       };
       value = pkgs.runCommand name { } ''
-        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock prepare
-        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock serve --port 3001 --db ./mock.sqlite &
-        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock wait-ready
+        mkfifo ./ready.fifo
+        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001 --db ./mock.sqlite --wait-fifo ./ready.fifo &
+        cat ./ready.fifo
 
         ln -s ${nodeModules}/node_modules ./node_modules
         cp -L ${src}/${filename} .

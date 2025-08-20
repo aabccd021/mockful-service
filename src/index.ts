@@ -1,25 +1,112 @@
-import * as child_process from "node:child_process";
+import * as sqlite from "bun:sqlite";
 import * as fs from "node:fs";
-import * as os from "node:os";
-import { serve } from "./serve.ts";
+import * as util from "node:util";
+import type { Context, Handle } from "@util";
+import { handle as accountsGoogleCom } from "./domain/accounts.google.com/route.ts";
+import { handle as apiPaddleCom } from "./domain/api.paddle.com/route.ts";
+import { handle as oauth2GoogleapisCom } from "./domain/oauth2.googleapis.com/route.ts";
+import migration from "./schema.sql" with { type: "text" };
 
-export const readyFifo = `${os.tmpdir()}/${process.ppid}.fifo`;
+const domainHandlers: Record<string, Handle> = {
+  "accounts.google.com": accountsGoogleCom,
+  "sandbox-api.paddle.com": apiPaddleCom,
+  "api.paddle.com": apiPaddleCom,
+  "oauth2.googleapis.com": oauth2GoogleapisCom,
+};
 
-const [subcommand, ...argsStr] = process.argv.slice(2);
-
-if (subcommand === "prepare") {
-  child_process.execSync(`mkfifo ${readyFifo}`);
-  process.exit(0);
-}
-
-if (subcommand === "wait-ready") {
-  fs.readFileSync(readyFifo);
-  process.exit(0);
-}
-
-if (subcommand === "serve") {
-  serve(argsStr);
-  if (fs.existsSync(readyFifo)) {
-    fs.writeFileSync(readyFifo, "");
+function translateUrl(originalUrlStr: string): URL | undefined {
+  const originalUrl = new URL(originalUrlStr);
+  try {
+    return new URL(originalUrl.pathname.slice(1) + originalUrl.search + originalUrl.hash);
+  } catch (_) {
+    return undefined;
   }
 }
+
+function translateReqUrl(req: Request): URL | undefined {
+  const originalTl = translateUrl(req.url);
+  if (originalTl !== undefined) {
+    return originalTl;
+  }
+
+  const referrer = req.headers.get("Referer");
+  if (referrer === null) {
+    return undefined;
+  }
+
+  const referrerTl = translateUrl(referrer);
+  if (referrerTl === undefined) {
+    return undefined;
+  }
+
+  const url = new URL(req.url);
+  url.protocol = referrerTl.protocol;
+  url.hostname = referrerTl.hostname;
+  url.port = referrerTl.port;
+  return url;
+}
+
+async function handle(originalReq: Request, db: sqlite.Database): Promise<Response> {
+  const url = translateReqUrl(originalReq);
+  if (url === undefined) {
+    return new Response(null, { status: 404 });
+  }
+
+  const req = new Request(url, originalReq);
+
+  const subHandle = domainHandlers[url.hostname];
+  if (subHandle === undefined) {
+    return new Response(null, { status: 404 });
+  }
+
+  const paths = url.pathname.split("/").filter((p) => p !== "");
+
+  const neteroOrigin = new URL(originalReq.url).origin;
+
+  const ctx: Context = { req, db, neteroOrigin };
+
+  return await subHandle(ctx, paths);
+}
+
+async function main() {
+  const args = util.parseArgs({
+    args: process.argv.slice(2),
+    options: {
+      port: {
+        type: "string",
+        default: "3000",
+        short: "p",
+      },
+      db: {
+        type: "string",
+      },
+      "wait-fifo": {
+        type: "string",
+      },
+    },
+  });
+
+  if (args.values.db === undefined) {
+    throw new Error("Argument --db is required.");
+  }
+
+  const db = new sqlite.Database(args.values.db, { strict: true, create: true });
+
+  db.exec("PRAGMA journal_mode = WAL;");
+  db.exec("PRAGMA synchronous = NORMAL;");
+  db.exec("PRAGMA foreign_keys = ON;");
+
+  db.exec(migration);
+  Bun.serve({
+    port: parseInt(args.values.port, 10),
+    development: false,
+    fetch: (req) => handle(req, db),
+  });
+
+  const waitFifo = args.values["wait-fifo"];
+  if (waitFifo !== undefined && fs.existsSync(waitFifo)) {
+    await fs.promises.writeFile(waitFifo, "");
+  }
+}
+
+main();
