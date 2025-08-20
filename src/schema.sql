@@ -107,7 +107,6 @@ CREATE TABLE paddle_price (
   unit_price_amount INTEGER NOT NULL,
   unit_price_currency_code TEXT NOT NULL,
   type TEXT NOT NULL DEFAULT 'standard',
-  name TEXT,  
   billing_cycle_frequency INTEGER,
   billing_cycle_interval TEXT,
   tax_mode TEXT NOT NULL DEFAULT 'account_setting',

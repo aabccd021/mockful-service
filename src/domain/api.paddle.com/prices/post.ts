@@ -40,7 +40,6 @@ type Row = {
     | "VND"
     | "ZAR";
   type: "standard" | "custom";
-  name: string | null;
   billing_cycle_frequency: number | null;
   billing_cycle_interval: null | "day" | "week" | "month" | "year";
   tax_mode: "account_setting" | "external" | "internal";
@@ -71,7 +70,6 @@ export async function handle(ctx: Context): Promise<Response> {
         unit_price_amount,
         unit_price_currency_code,
         type,
-        name,
         billing_cycle_frequency,
         billing_cycle_interval,
         tax_mode,
@@ -87,7 +85,6 @@ export async function handle(ctx: Context): Promise<Response> {
         $unitPriceAmount,
         $unitPriceCurrencyCode,
         $type,
-        $name,
         $billingCycleFrequency,
         $billingCycleInterval,
         $taxMode,
@@ -105,7 +102,6 @@ export async function handle(ctx: Context): Promise<Response> {
       unitPriceAmount: reqBody.unit_price.amount,
       unitPriceCurrencyCode: reqBody.unit_price.currency_code,
       type: reqBody.type ?? "standard",
-      name: reqBody.name ?? null,
       billingCycleFrequency: reqBody.billing_cycle?.frequency ?? null,
       billingCycleInterval: reqBody.billing_cycle?.interval ?? null,
       taxMode: reqBody.tax_mode ?? "account_setting",
@@ -152,7 +148,6 @@ export async function handle(ctx: Context): Promise<Response> {
           currency_code: price.unit_price_currency_code,
         },
         type: price.type,
-        name: price.name,
         tax_mode: price.tax_mode,
         created_at: new Date(price.created_at).toISOString(),
         updated_at: new Date(price.updated_at).toISOString(),
