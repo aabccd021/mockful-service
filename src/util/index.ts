@@ -20,8 +20,3 @@ export type Context = {
 export type Handle = (ctx: Context, paths: string[]) => Promise<Response>;
 
 export type ResponseOr<T> = [undefined, T] | [Response];
-
-const neteroState = process.env["NETERO_STATE"];
-if (neteroState === undefined) {
-  throw new Error("Environment variable NETERO_STATE is required.");
-}

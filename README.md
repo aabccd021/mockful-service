@@ -1,6 +1,5 @@
 # TODO
 
-- --db
 - merge into single binary
 
 - --unix

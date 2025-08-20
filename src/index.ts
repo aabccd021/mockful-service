@@ -86,15 +86,17 @@ const args = util.parseArgs({
       default: "3000",
       short: "p",
     },
+    db: {
+      type: "string",
+    },
   },
 });
 
-const neteroState = process.env["NETERO_STATE"];
-if (neteroState === undefined) {
-  throw new Error("Environment variable NETERO_STATE is required.");
+if (args.values.db === undefined) {
+  throw new Error("Argument --db is required.");
 }
 
-const db = new sqlite.Database(`${neteroState}/mock.sqlite`, { strict: true, create: true });
+const db = new sqlite.Database(args.values.db, { strict: true, create: true });
 db.exec("PRAGMA journal_mode = WAL;");
 db.exec("PRAGMA synchronous = NORMAL;");
 db.exec("PRAGMA foreign_keys = ON;");

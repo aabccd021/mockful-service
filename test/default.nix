@@ -12,11 +12,8 @@ let
         fileset = dir + "/${filename}";
       };
       value = pkgs.runCommand name { } ''
-        export NETERO_STATE="./var/lib/netero"
-        mkdir --parents "$NETERO_STATE"
-
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-prepare
-        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001 &
+        ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock --port 3001 --db ./mock.sqlite &
         ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock-wait
 
         ln -s ${nodeModules}/node_modules ./node_modules
