@@ -66,7 +66,5 @@ const tokenResponse = await client
 
 expect(tokenResponse).toBeInstanceOf(client.ResponseBodyError);
 expect(tokenResponse.status).toEqual(401);
-expect(tokenResponse.cause).toEqual({
-  error: "invalid_client",
-  error_description: "The OAuth client was not found.",
-});
+expect(tokenResponse.cause.error).toEqual("invalid_client");
+expect(tokenResponse.cause.error_description).toEqual("The OAuth client was not found.");

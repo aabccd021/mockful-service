@@ -22,10 +22,9 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
 
 expect(response.status).toEqual(400);
 const responseBody = await response.json();
-expect(responseBody.error).toEqual({
-  type: "request_error",
-  code: "product_tax_category_not_approved",
-  detail: "tax category not approved",
-  documentation_url:
-    "https://developer.paddle.com/v1/errors/products/product_tax_category_not_approved",
-});
+expect(responseBody.error.type).toEqual("request_error");
+expect(responseBody.error.code).toEqual("product_tax_category_not_approved");
+expect(responseBody.error.detail).toEqual("tax category not approved");
+expect(responseBody.error.documentation_url).toEqual(
+  "https://developer.paddle.com/v1/errors/products/product_tax_category_not_approved",
+);

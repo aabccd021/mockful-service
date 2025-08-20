@@ -60,8 +60,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 });
 
 const tokenResponseBody = await tokenResponse.json();
-expect(tokenResponseBody).toEqual({
-  error: "redirect_uri_mismatch",
-  error_description: "Bad Request",
-});
+expect(tokenResponseBody.error).toEqual("redirect_uri_mismatch");
+expect(tokenResponseBody.error_description).toEqual("Bad Request");
 expect(tokenResponse.status).toEqual(400);

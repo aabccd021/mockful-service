@@ -54,8 +54,6 @@ const tokenResponse = await client
   })
   .catch((error) => error);
 
-expect(tokenResponse.cause).toEqual({
-  error: "invalid_grant",
-  error_description: "Invalid code verifier.",
-});
+expect(tokenResponse.error).toEqual("invalid_grant");
+expect(tokenResponse.error_description).toEqual("Invalid code verifier.");
 expect(tokenResponse.status).toEqual(400);

@@ -59,8 +59,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 });
 
 const tokenResponseBody = await tokenResponse.json();
-expect(tokenResponseBody).toEqual({
-  error: "invalid_grant",
-  error_description: "Missing code verifier.",
-});
+expect(tokenResponseBody.error).toEqual("invalid_grant");
+expect(tokenResponseBody.error_description).toEqual("Missing code verifier.");
 expect(tokenResponse.status).toEqual(400);

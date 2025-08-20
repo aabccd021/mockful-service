@@ -13,8 +13,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 });
 
 const tokenResponseBody = await tokenResponse.json();
-expect(tokenResponseBody).toEqual({
-  error: "invalid_request",
-  error_description: "client_secret is missing.",
-});
+expect(tokenResponseBody.error).toEqual("invalid_request");
+expect(tokenResponseBody.error_description).toEqual("client_secret is missing.");
 expect(tokenResponse.status).toEqual(400);

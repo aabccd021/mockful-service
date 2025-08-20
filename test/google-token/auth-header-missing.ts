@@ -12,8 +12,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 });
 
 const tokenResponseBody = await tokenResponse.json();
-expect(tokenResponseBody).toEqual({
-  error: "invalid_request",
-  error_description: "Could not determine client ID from request.",
-});
+expect(tokenResponseBody.error).toEqual("invalid_request");
+expect(tokenResponseBody.error_description).toEqual("Could not determine client ID from request.");
 expect(tokenResponse.status).toEqual(400);

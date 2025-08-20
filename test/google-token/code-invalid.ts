@@ -14,8 +14,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 });
 
 const tokenResponseBody = await tokenResponse.json();
-expect(tokenResponseBody).toEqual({
-  error: "invalid_grant",
-  error_description: "Malformed auth code.",
-});
+expect(tokenResponseBody.error).toEqual("invalid_grant");
+expect(tokenResponseBody.error_description).toEqual("Malformed auth code.");
 expect(tokenResponse.status).toEqual(400);

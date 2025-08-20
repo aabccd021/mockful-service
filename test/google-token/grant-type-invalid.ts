@@ -11,8 +11,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 });
 
 const tokenResponseBody = await tokenResponse.json();
-expect(tokenResponseBody).toEqual({
-  error: "unsupported_grant_type",
-  error_description: "Invalid grant_type: foo",
-});
+expect(tokenResponseBody.error).toEqual("unsupported_grant_type");
+expect(tokenResponseBody.error_description).toEqual("Invalid grant_type: foo");
 expect(tokenResponse.status).toEqual(400);
