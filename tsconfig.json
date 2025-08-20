@@ -31,7 +31,6 @@
     // Paths
     "paths": {
       "@util": ["./src/util.ts"],
-      "@test": ["./src/test.ts"],
       "@paddle/*": ["./src/domain/api.paddle.com/*"]
     }
   }
