@@ -13,7 +13,7 @@ import * as util from "./util.ts";
       INSERT INTO google_project (id) VALUES ('mock_project_id');
       INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
       INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-    `);
+  `);
 
   const config = new oauth.Configuration(
     {
@@ -60,7 +60,7 @@ import * as util from "./util.ts";
       INSERT INTO google_project (id) VALUES ('mock_project_id');
       INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
       INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-    `);
+  `);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -164,7 +164,7 @@ import * as util from "./util.ts";
       INSERT INTO google_project (id) VALUES ('mock_project_id');
       INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
       INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-    `);
+  `);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -201,7 +201,7 @@ import * as util from "./util.ts";
   new sqlite.Database(ctx.dbPath).exec(`
       INSERT INTO google_project (id) VALUES ('mock_project_id');
       INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
-    `);
+  `);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -328,7 +328,7 @@ import * as util from "./util.ts";
       INSERT INTO google_project (id) VALUES ('mock_project_id');
       INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
       INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
-    `);
+  `);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");

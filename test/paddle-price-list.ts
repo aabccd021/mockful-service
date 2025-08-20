@@ -14,7 +14,7 @@ import * as util from "./util.ts";
     );
     INSERT INTO paddle_account_tax_category_enabled (account_id, tax_category) 
       VALUES ('mock_account_id', 'saas');
-    `);
+  `);
 
   const product1Res = await fetch("http://localhost:3001/https://sandbox-api.paddle.com/products", {
     method: "POST",
@@ -142,7 +142,7 @@ import * as util from "./util.ts";
     );
     INSERT INTO paddle_account_tax_category_enabled (account_id, tax_category) 
       VALUES ('mock_account_id', 'saas');
-    `);
+  `);
 
   const product1Res = await fetch("http://localhost:3001/https://sandbox-api.paddle.com/products", {
     method: "POST",
@@ -270,7 +270,7 @@ import * as util from "./util.ts";
     );
     INSERT INTO paddle_account_tax_category_enabled (account_id, tax_category) 
       VALUES ('mock_account_id', 'saas');
-    `);
+  `);
 
   const product1Res = await fetch("http://localhost:3001/https://sandbox-api.paddle.com/products", {
     method: "POST",
@@ -398,7 +398,7 @@ import * as util from "./util.ts";
     );
     INSERT INTO paddle_account_tax_category_enabled (account_id, tax_category) 
       VALUES ('mock_account_id', 'saas');
-    `);
+  `);
 
   const product1Res = await fetch("http://localhost:3001/https://sandbox-api.paddle.com/products", {
     method: "POST",
