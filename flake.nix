@@ -31,7 +31,6 @@
         final: prev: {
           netero-oauth-mock = import ./package.nix {
             pkgs = final;
-            nodeModules = nodeModules;
           };
         }
       );

@@ -1,8 +1,7 @@
-{ nodeModules, pkgs }:
+{ pkgs }:
 let
 
   netero-oauth-mock = pkgs.runCommand "netero-oauth-mock" { } ''
-    cp -Lr ${nodeModules}/node_modules ./node_modules
     cp -Lr ${./src} ./src
     cp -L ${./tsconfig.json} ./tsconfig.json
     ${pkgs.bun}/bin/bun build ./src/index.ts \
