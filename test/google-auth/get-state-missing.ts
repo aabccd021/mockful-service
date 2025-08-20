@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 
 new sqlite.Database("./mock.sqlite").exec(`
   INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -19,5 +18,6 @@ authUrl.searchParams.set("redirect_uri", "https://localhost:3000/login-callback"
 
 const loginResponse = await fetch(authUrl);
 
-expect(loginResponse.text()).resolves.toInclude("</form>");
+const loginResponseBody = await loginResponse.text();
+if (!loginResponseBody.includes("</form>")) throw new Error();
 if (loginResponse.status !== 200) throw new Error();

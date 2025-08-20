@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 
 new sqlite.Database("./mock.sqlite").exec(`
   INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -17,14 +16,16 @@ authUrl.searchParams.set("state", "sfZavFFyK5PDKdkEtHoOZ5GdXZtY1SwCTsHzlh6gHm4")
 const loginResponse = await fetch(authUrl);
 
 const body = await loginResponse.text();
-expect(body).toInclude("Access blocked: Authorization Error");
-expect(body).toInclude("Error 400: invalid_request");
-expect(body).toInclude(
-  "You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy for keeping apps secure.",
-);
-expect(body).toInclude(
-  "You can let the app developer know that this app doesn't comply with one or more Google validation rules.",
-);
+if (!body.includes("Access blocked: Authorization Error")) throw new Error();
+if (!body.includes("Error 400: invalid_request")) throw new Error();
+if (!body.includes)
+  throw new Error()(
+    "You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy for keeping apps secure.",
+  );
+if (!body.includes)
+  throw new Error()(
+    "You can let the app developer know that this app doesn't comply with one or more Google validation rules.",
+  );
 if (loginResponse.status !== 200) throw new Error();
 
 // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow

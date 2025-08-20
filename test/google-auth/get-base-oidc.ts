@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 import * as client from "openid-client";
 
 new sqlite.Database("./mock.sqlite").exec(`
@@ -37,5 +36,6 @@ const authUrl = client.buildAuthorizationUrl(config, parameters);
 
 const loginResponse = await fetch(authUrl);
 
-expect(loginResponse.text()).resolves.toInclude("</form>");
+const loginResponseBody = await loginResponse.text();
+if (!loginResponseBody.includes("</form>")) throw new Error();
 if (loginResponse.status !== 200) throw new Error();
