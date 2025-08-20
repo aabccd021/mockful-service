@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 import * as client from "openid-client";
 
 new sqlite.Database("./mock.sqlite").exec(`
@@ -60,6 +59,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 });
 
 const tokenResponseBody = await tokenResponse.json();
-expect(tokenResponseBody.error).toEqual("redirect_uri_mismatch");
-expect(tokenResponseBody.error_description).toEqual("Bad Request");
-expect(tokenResponse.status).toEqual(400);
+if (tokenResponseBody.error !== "redirect_uri_mismatch") throw new Error();
+if (tokenResponseBody.error_description !== "Bad Request") throw new Error();
+if (tokenResponse.status !== 400) throw new Error();

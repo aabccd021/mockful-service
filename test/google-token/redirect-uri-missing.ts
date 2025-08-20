@@ -1,5 +1,3 @@
-import { expect } from "bun:test";
-
 const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
   method: "POST",
   headers: {
@@ -12,6 +10,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 });
 
 const tokenResponseBody = await tokenResponse.json();
-expect(tokenResponseBody.error).toEqual("invalid_request");
-expect(tokenResponseBody.error_description).toEqual("Missing parameter: redirect_uri");
-expect(tokenResponse.status).toEqual(400);
+if (tokenResponseBody.error !== "invalid_request") throw new Error();
+if (tokenResponseBody.error_description !== "Missing parameter: redirect_uri") throw new Error();
+if (tokenResponse.status !== 400) throw new Error();

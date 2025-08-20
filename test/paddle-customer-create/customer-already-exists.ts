@@ -29,11 +29,13 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
   }),
 });
 
-expect(response.status).toEqual(409);
+if (response.status !== 409) throw new Error();
 const responseBody = await response.json();
-expect(responseBody.error.type).toEqual("request_error");
-expect(responseBody.error.code).toEqual("customer_already_exists");
+if (responseBody.error.type !== "request_error") throw new Error();
+if (responseBody.error.code !== "customer_already_exists") throw new Error();
 expect(responseBody.error.detail).toStartWith("customer email conflicts with customer of id ctm_");
-expect(responseBody.error.documentation_url).toEqual(
-  "https://developer.paddle.com/v1/errors/customers/customer_already_exists",
-);
+if (
+  responseBody.error.documentation_url !==
+  "https://developer.paddle.com/v1/errors/customers/customer_already_exists"
+)
+  throw new Error();

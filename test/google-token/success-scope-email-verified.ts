@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 import * as client from "openid-client";
 
 new sqlite.Database("./mock.sqlite").exec(`
@@ -54,6 +53,6 @@ const tokenResponse = await client
   })
   .catch((error) => error);
 
-expect(tokenResponse.claims()?.sub).toEqual("kita-sub");
-expect(tokenResponse.claims()["email"]).toEqual("kita@example.com");
-expect(tokenResponse.claims()["email_verified"]).toEqual(false);
+if (tokenResponse.claims().sub !== "kita-sub") throw new Error();
+if (tokenResponse.claims().email !== "kita@example.com") throw new Error();
+if (tokenResponse.claims().email_verified !== false) throw new Error();

@@ -1,5 +1,3 @@
-import { expect } from "bun:test";
-
 const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
   method: "POST",
   headers: {
@@ -11,6 +9,6 @@ const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleap
 });
 
 const tokenResponseBody = await tokenResponse.json();
-expect(tokenResponseBody.error).toEqual("unsupported_grant_type");
-expect(tokenResponseBody.error_description).toEqual("Invalid grant_type: foo");
-expect(tokenResponse.status).toEqual(400);
+if (tokenResponseBody.error !== "unsupported_grant_type") throw new Error();
+if (tokenResponseBody.error_description !== "Invalid grant_type: foo") throw new Error();
+if (tokenResponse.status !== 400) throw new Error();

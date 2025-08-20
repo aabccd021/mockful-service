@@ -65,6 +65,6 @@ const tokenResponse = await client
   .catch((error) => error);
 
 expect(tokenResponse).toBeInstanceOf(client.ResponseBodyError);
-expect(tokenResponse.status).toEqual(401);
-expect(tokenResponse.cause.error).toEqual("invalid_client");
-expect(tokenResponse.cause.error_description).toEqual("Unauthorized");
+if (tokenResponse.status !== 401) throw new Error();
+if (tokenResponse.cause.error !== "invalid_client") throw new Error();
+if (tokenResponse.cause.error_description !== "Unauthorized") throw new Error();

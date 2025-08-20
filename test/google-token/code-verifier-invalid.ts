@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 import * as client from "openid-client";
 
 new sqlite.Database("./mock.sqlite").exec(`
@@ -54,6 +53,6 @@ const tokenResponse = await client
   })
   .catch((error) => error);
 
-expect(tokenResponse.cause.error).toEqual("invalid_grant");
-expect(tokenResponse.cause.error_description).toEqual("Invalid code verifier."),
-  expect(tokenResponse.status).toEqual(400);
+if (tokenResponse.cause.error !== "invalid_grant") throw new Error();
+if (tokenResponse.cause.error_description !== "Invalid code verifier.") throw new Error();
+if (tokenResponse.status !== 400) throw new Error();

@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 
 new sqlite.Database("./mock.sqlite").exec(`
 INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -20,11 +19,13 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
   }),
 });
 
-expect(response.status).toEqual(400);
+if (response.status !== 400) throw new Error();
 const responseBody = await response.json();
-expect(responseBody.error.type).toEqual("request_error");
-expect(responseBody.error.code).toEqual("product_tax_category_not_approved");
-expect(responseBody.error.detail).toEqual("tax category not approved");
-expect(responseBody.error.documentation_url).toEqual(
-  "https://developer.paddle.com/v1/errors/products/product_tax_category_not_approved",
-);
+if (responseBody.error.type !== "request_error") throw new Error();
+if (responseBody.error.code !== "product_tax_category_not_approved") throw new Error();
+if (responseBody.error.detail !== "tax category not approved") throw new Error();
+if (
+  responseBody.error.documentation_url !==
+  "https://developer.paddle.com/v1/errors/products/product_tax_category_not_approved"
+)
+  throw new Error();
