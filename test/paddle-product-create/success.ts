@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 
 new sqlite.Database("./mock.sqlite").exec(`
 INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -24,10 +23,10 @@ const response = await fetch("http://localhost:3001/https://sandbox-api.paddle.c
 
 if (response.status !== 201) throw new Error();
 const responseBody = await response.json();
-expect(responseBody.data.id).toBeDefined();
+if (responseBody.data.id === undefined) throw new Error();
 if (responseBody.data.name !== "Mock Product") throw new Error();
 if (responseBody.data.tax_category !== "saas") throw new Error();
 if (responseBody.data.status !== "active") throw new Error();
 if (responseBody.data.image_url !== null) throw new Error();
-expect(responseBody.data.created_at).toBeDefined();
-expect(responseBody.data.updated_at).toBeDefined();
+if (responseBody.data.created_at === undefined) throw new Error();
+if (responseBody.data.updated_at === undefined) throw new Error();

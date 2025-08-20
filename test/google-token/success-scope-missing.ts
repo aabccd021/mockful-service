@@ -1,5 +1,4 @@
 import * as sqlite from "bun:sqlite";
-import { expect } from "bun:test";
 import * as client from "openid-client";
 
 new sqlite.Database("./mock.sqlite").exec(`
@@ -52,6 +51,6 @@ const tokenResponse = await client
     expectedState: state,
   })
   .catch((error) => error);
-expect(tokenResponse["access_token"]).toBeDefined();
+if (tokenResponse["access_token"] === undefined) throw new Error();
 if (tokenResponse["scope"] !== "") throw new Error();
 if (tokenResponse["token_type"] !== "bearer") throw new Error();
