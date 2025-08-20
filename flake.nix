@@ -95,17 +95,6 @@
         lib.attrsets.mergeAttrsList
       ];
 
-      # test = lib.attrsets.mergeAttrsList [
-      #   (mapTests ./test/google-auth)
-      #   (mapTests ./test/google-token)
-      #   (mapTests ./test/paddle-customer-create)
-      #   (mapTests ./test/paddle-customer-list)
-      #   (mapTests ./test/paddle-product-create)
-      #   (mapTests ./test/paddle-product-list)
-      #   (mapTests ./test/paddle-price-create)
-      #   (mapTests ./test/paddle-price-list)
-      # ];
-
       treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
         projectRootFile = "flake.nix";
         programs.nixfmt.enable = true;
