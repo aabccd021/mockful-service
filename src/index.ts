@@ -1,6 +1,5 @@
 import * as sqlite from "bun:sqlite";
 import * as fs from "node:fs";
-import * as util from "node:util";
 import type { Context, Handle } from "@util";
 import { handle as accountsGoogleCom } from "./accounts.google.com/route.ts";
 import { handle as apiPaddleCom } from "./api.paddle.com/route.ts";
@@ -69,59 +68,72 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
 }
 
 async function serve(argList: string[]) {
-  const args = util.parseArgs({
-    args: argList,
-    options: {
-      port: {
-        type: "string",
-        default: "3000",
-        short: "p",
-      },
-      db: {
-        type: "string",
-      },
-      "ready-fifo": {
-        type: "string",
-      },
-    },
-  });
+  let port = "3000";
+  let dbPath: string | undefined;
+  let readyFifo: string | undefined;
 
-  if (args.values.db === undefined) {
+  while (argList.length > 0) {
+    const arg = argList.shift();
+    if (arg === "--port") {
+      const argPort = argList.shift();
+      if (argPort === undefined) {
+        throw new Error("Argument --port requires a value.");
+      }
+      port = argPort;
+      continue;
+    } 
+
+    if (arg === "--db") {
+      dbPath = argList.shift();
+      continue;
+    } 
+
+    if (arg === "--ready-fifo") {
+      readyFifo = argList.shift();
+      continue;
+    }
+
+    throw new Error(`Unknown argument: ${arg}`);
+  }
+
+  if (dbPath === undefined) {
     throw new Error("Argument --db is required.");
   }
 
-  const db = new sqlite.Database(args.values.db, { strict: true });
+  const db = new sqlite.Database(dbPath, { strict: true });
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA synchronous = NORMAL;");
   db.exec("PRAGMA foreign_keys = ON;");
 
   Bun.serve({
-    port: Number.parseInt(args.values.port, 10),
+    port: Number.parseInt(port, 10),
     development: false,
     fetch: (req) => handle(req, db),
   });
 
-  const waitFifo = args.values["ready-fifo"];
-  if (waitFifo !== undefined && fs.existsSync(waitFifo)) {
-    await fs.promises.writeFile(waitFifo, "");
+  if (readyFifo !== undefined && fs.existsSync(readyFifo)) {
+    await fs.promises.writeFile(readyFifo, "");
   }
 }
 
 async function migrate(argList: string[]) {
-  const args = util.parseArgs({
-    args: argList,
-    options: {
-      db: {
-        type: "string",
-      },
-    },
-  });
+  let dbPath: string | undefined;
 
-  if (args.values.db === undefined) {
+  while (argList.length > 0) {
+    const arg = argList.shift();
+    if (arg === "--db") {
+      dbPath = argList.shift();
+      continue;
+    }
+
+    throw new Error(`Unknown argument: ${arg}`);
+  }
+
+  if (dbPath === undefined) {
     throw new Error("Argument --db is required.");
   }
 
-  const db = new sqlite.Database(args.values.db, { create: true });
+  const db = new sqlite.Database(dbPath, { create: true });
   db.exec(migration);
 }
 
