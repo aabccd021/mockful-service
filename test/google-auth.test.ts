@@ -7,8 +7,6 @@ import * as util from "./util.ts";
 
   const ctx = util.init();
 
-  console.info("initialized");
-
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
