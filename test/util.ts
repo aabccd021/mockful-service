@@ -11,7 +11,7 @@ export function init() {
   child_process.execSync(`mkfifo ${readyFifoPath}`, { stdio: "ignore" });
   const server = child_process.spawn(
     cmd,
-    ["--port", "3001", "--db", dbPath, "--ready-fifo", readyFifoPath],
+    ["serve", "--port", "3001", "--db", dbPath, "--ready-fifo", readyFifoPath],
     {
       stdio: "inherit",
     },

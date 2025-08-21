@@ -68,9 +68,18 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
   return await subHandle(ctx, paths);
 }
 
-async function main() {
+function migrate(dbPath: string): sqlite.Database {
+  const db = new sqlite.Database(dbPath, { strict: true, create: true });
+  db.exec("PRAGMA journal_mode = WAL;");
+  db.exec("PRAGMA synchronous = NORMAL;");
+  db.exec("PRAGMA foreign_keys = ON;");
+  db.exec(migration);
+  return db;
+}
+
+async function serveCommand(argList: string[]) {
   const args = util.parseArgs({
-    args: process.argv.slice(2),
+    args: argList,
     options: {
       port: {
         type: "string",
@@ -90,12 +99,7 @@ async function main() {
     throw new Error("Argument --db is required.");
   }
 
-  const db = new sqlite.Database(args.values.db, { strict: true, create: true });
-
-  db.exec("PRAGMA journal_mode = WAL;");
-  db.exec("PRAGMA synchronous = NORMAL;");
-  db.exec("PRAGMA foreign_keys = ON;");
-  db.exec(migration);
+  const db = migrate(args.values.db);
 
   Bun.serve({
     port: Number.parseInt(args.values.port, 10),
@@ -107,6 +111,40 @@ async function main() {
   if (waitFifo !== undefined && fs.existsSync(waitFifo)) {
     await fs.promises.writeFile(waitFifo, "");
   }
+}
+
+async function migrateCommand(argList: string[]) {
+  const args = util.parseArgs({
+    args: argList,
+    options: {
+      db: {
+        type: "string",
+      },
+    },
+  });
+
+  if (args.values.db === undefined) {
+    throw new Error("Argument --db is required.");
+  }
+
+  migrate(args.values.db);
+}
+
+async function main() {
+
+  const [subCommand, ...argList] = process.argv.slice(2);
+
+  if (subCommand === "serve") {
+    await serveCommand(argList);
+    return;
+  }
+
+  if (subCommand === "migrate") {
+    await migrateCommand(argList);
+    return;
+  }
+
+  throw new Error("Usage: mockful-service <subcommand> [options]\n")
 }
 
 main();
