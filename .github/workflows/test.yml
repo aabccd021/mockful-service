@@ -7,10 +7,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
-      - run: nix shell nixpkgs#bun --command bun install
+      - run: nix run nixpkgs#bun install
       - run: nix run nixpkgs#typescript
       - run: nix run nixpkgs#prettier -- README.md .github --print-width 100 --check
       - run: nix shell nixpkgs#bun --command bun run format
       - run: nix shell nixpkgs#bun --command bun run lint
       - run: nix shell nixpkgs#bun --command bun run build
-      - run: nix shell nixpkgs#bun --command bun test
+      - run: nix run nixpkgs#bun test
