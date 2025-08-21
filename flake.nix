@@ -4,32 +4,14 @@
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.treefmt-nix.url = "github:numtide/treefmt-nix";
   inputs.netero-test.url = "github:aabccd021/netero-test";
-  inputs.bun2nix.url = "github:baileyluTCD/bun2nix";
 
   outputs =
     { self, ... }@inputs:
     let
-      lib = inputs.nixpkgs.lib;
 
-      overlays.default = (
-        final: prev: {
-          netero-oauth-mock = final.runCommand "netero-oauth-mock" { } ''
-            cp -Lr ${./src} ./src
-            cp -L ${./tsconfig.json} ./tsconfig.json
-            ${final.bun}/bin/bun build ./src/index.ts --compile --bytecode --sourcemap --outfile server
-            mkdir -p "$out/bin"
-            mv server "$out/bin/netero-oauth-mock"
-          '';
-        }
-      );
-
-      pkgs = import inputs.nixpkgs {
-        system = "x86_64-linux";
-        overlays = [ overlays.default ];
-      };
+      pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
 
       treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
-        projectRootFile = "flake.nix";
         programs.nixfmt.enable = true;
         programs.biome.enable = true;
         programs.biome.formatUnsafe = true;
@@ -49,55 +31,7 @@
         ];
       };
 
-      nodeModules = inputs.bun2nix.lib.x86_64-linux.mkBunNodeModules {
-        packages = import ./bun.nix;
-      };
-
-      tsc = pkgs.runCommand "tsc" { } ''
-        cp -Lr ${nodeModules}/node_modules ./node_modules
-        cp -Lr ${./src} ./src
-        cp -L ${./tsconfig.json} ./tsconfig.json
-        ${pkgs.typescript}/bin/tsc
-        touch "$out"
-      '';
-
-      mkTest =
-        filename:
-        let
-          name = "test-" + (lib.strings.removeSuffix ".test.ts" filename);
-          src = lib.fileset.toSource {
-            root = ./test;
-            fileset = ./test + "/${filename}";
-          };
-          buildInputs = [ pkgs.netero-oauth-mock ];
-          value = pkgs.runCommand name { buildInputs = buildInputs; } ''
-            ln -s ${nodeModules}/node_modules ./node_modules
-            cp -L ${./test/util.ts} ./util.ts
-            cp -L ${src}/${filename} ./${filename}
-            timeout 5 ${pkgs.bun}/bin/bun ./${filename}
-            mkdir "$out"
-          '';
-        in
-        {
-          name = name;
-          value = value;
-        };
-
-      test = lib.pipe ./test [
-        builtins.readDir
-        builtins.attrNames
-        (builtins.filter (filename: filename != "util.ts"))
-        (builtins.map mkTest)
-        builtins.listToAttrs
-      ];
-
-      packages = test // {
-        tests = pkgs.linkFarm "tests" test;
-        formatting = treefmtEval.config.build.check self;
-        tsc = tsc;
-        default = pkgs.netero-oauth-mock;
-        netero-oauth-mock = pkgs.netero-oauth-mock;
-      };
+      packages.formatting = treefmtEval.config.build.check self;
 
     in
 
@@ -108,8 +42,6 @@
       checks.x86_64-linux = packages;
 
       formatter.x86_64-linux = treefmtEval.config.build.wrapper;
-
-      overlays = overlays;
 
       devShells.x86_64-linux.default = pkgs.mkShellNoCC {
         buildInputs = [
