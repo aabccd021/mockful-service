@@ -8,6 +8,7 @@ export function init() {
   const readyFifoPath = `${tmpdir}/ready.fifo`;
   const cmd = `${import.meta.dir}/../dist/mockful-service`;
 
+  child_process.execSync(`${cmd} migrate --db ${dbPath}`);
   child_process.execSync(`mkfifo ${readyFifoPath}`, { stdio: "ignore" });
   const server = child_process.spawn(
     cmd,

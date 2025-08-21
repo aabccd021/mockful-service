@@ -68,16 +68,7 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
   return await subHandle(ctx, paths);
 }
 
-function migrate(dbPath: string): sqlite.Database {
-  const db = new sqlite.Database(dbPath, { strict: true, create: true });
-  db.exec("PRAGMA journal_mode = WAL;");
-  db.exec("PRAGMA synchronous = NORMAL;");
-  db.exec("PRAGMA foreign_keys = ON;");
-  db.exec(migration);
-  return db;
-}
-
-async function serveCommand(argList: string[]) {
+async function serve(argList: string[]) {
   const args = util.parseArgs({
     args: argList,
     options: {
@@ -99,7 +90,11 @@ async function serveCommand(argList: string[]) {
     throw new Error("Argument --db is required.");
   }
 
-  const db = migrate(args.values.db);
+
+  const db = new sqlite.Database(args.values.db, { strict: true });
+  db.exec("PRAGMA journal_mode = WAL;");
+  db.exec("PRAGMA synchronous = NORMAL;");
+  db.exec("PRAGMA foreign_keys = ON;");
 
   Bun.serve({
     port: Number.parseInt(args.values.port, 10),
@@ -113,7 +108,7 @@ async function serveCommand(argList: string[]) {
   }
 }
 
-async function migrateCommand(argList: string[]) {
+async function migrate(argList: string[]) {
   const args = util.parseArgs({
     args: argList,
     options: {
@@ -127,7 +122,9 @@ async function migrateCommand(argList: string[]) {
     throw new Error("Argument --db is required.");
   }
 
-  migrate(args.values.db);
+  const db = new sqlite.Database(args.values.db, { create: true });
+  db.exec(migration);
+  db.close();
 }
 
 async function main() {
@@ -135,12 +132,12 @@ async function main() {
   const [subCommand, ...argList] = process.argv.slice(2);
 
   if (subCommand === "serve") {
-    await serveCommand(argList);
+    await serve(argList);
     return;
   }
 
   if (subCommand === "migrate") {
-    await migrateCommand(argList);
+    await migrate(argList);
     return;
   }
 
