@@ -5,8 +5,8 @@ on:
         required: true
         type: choice
         options:
-          - minor
           - major
+          - minor
           - patch
 
 jobs:
