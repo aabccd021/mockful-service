@@ -1,15 +1,16 @@
-CREATE TABLE global_response(
-  id TEXT PRIMARY KEY,
-  status INTEGER NOT NULL,
-  body TEXT NOT NULL
-) STRICT;
+CREATE TABLE global_static_route(
+  url TEXT NOT NULL,
+  resposne_status INTEGER NOT NULL,
+  resposne_body TEXT NOT NULL
+) STRICT; 
 
-CREATE TABLE global_response_header(
-  global_response_id TEXT,
+CREATE TABLE global_static_route_response_header(
+  global_static_route_id TEXT,
   name TEXT NOT NULL,
   value TEXT NOT NULL,
-  FOREIGN KEY (global_response_id) REFERENCES global_response(id) ON UPDATE CASCADE ON DELETE CASCADE
+  FOREIGN KEY (global_static_route_id) REFERENCES global_static_route(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
+
 
 CREATE TABLE google_project (
   id TEXT PRIMARY KEY
