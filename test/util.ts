@@ -8,9 +8,10 @@ export type Context = {
 };
 
 export function init(): Context {
-  const testId = Math.random();
-  const dbPath = `${os.tmpdir()}/${testId}.sqlite`;
-  const readyFifoPath = `${os.tmpdir()}/${testId}.ready.fifo`;
+  const testPrefix = `${os.tmpdir()}/netero-oauth-mock-test-${Date.now()}`;
+  const dbPath = `${testPrefix}.sqlite`;
+  const readyFifoPath = `${testPrefix}.ready.fifo`;
+
   child_process.execSync(`mkfifo ${readyFifoPath}`, { stdio: "ignore" });
   const server = child_process.spawn(
     "netero-oauth-mock",
