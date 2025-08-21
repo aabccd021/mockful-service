@@ -1,8 +1,8 @@
 import * as sqlite from "bun:sqlite";
-import * as util from "./util.ts";
+import * as util from "./util";
 
 {
-  console.info("success billing cycle.ts");
+  console.info("success billing cycle");
 
   const ctx = util.init();
 
@@ -66,7 +66,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success.ts");
+  console.info("success");
 
   const ctx = util.init();
 

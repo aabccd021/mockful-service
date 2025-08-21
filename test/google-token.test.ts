@@ -1,9 +1,9 @@
 import * as sqlite from "bun:sqlite";
 import * as oauth from "openid-client";
-import * as util from "./util.ts";
+import * as util from "./util";
 
 {
-  console.info("auth header credential missing.ts");
+  console.info("auth header credential missing");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -25,7 +25,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("auth header missing.ts");
+  console.info("auth header missing");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -47,7 +47,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("auth header prefix invalid.ts");
+  console.info("auth header prefix invalid");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -70,7 +70,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("client id mismatch.ts");
+  console.info("client id mismatch");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -144,7 +144,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("client id missing.ts");
+  console.info("client id missing");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -167,7 +167,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("client secret mismatch.ts");
+  console.info("client secret mismatch");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -240,7 +240,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("client secret missing.ts");
+  console.info("client secret missing");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -262,7 +262,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("code invalid.ts");
+  console.info("code invalid");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -285,7 +285,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("code missing.ts");
+  console.info("code missing");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -307,7 +307,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("code verifier invalid.ts");
+  console.info("code verifier invalid");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -369,7 +369,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("code verifier missing.ts");
+  console.info("code verifier missing");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -436,7 +436,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("code verifier s256 invalid.ts");
+  console.info("code verifier s256 invalid");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -498,7 +498,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get.ts");
+  console.info("get");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token");
 
@@ -507,7 +507,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("grant type invalid.ts");
+  console.info("grant type invalid");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -527,7 +527,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("redirect uri mismatch.ts");
+  console.info("redirect uri mismatch");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -595,7 +595,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("redirect uri missing.ts");
+  console.info("redirect uri missing");
   const ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -616,7 +616,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success no challenge method.ts");
+  console.info("success no challenge method");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -674,7 +674,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success plain.ts");
+  console.info("success plain");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -732,7 +732,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success s256.ts");
+  console.info("success s256");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -791,7 +791,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success scope email.ts");
+  console.info("success scope email");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -853,7 +853,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success scope email verified.ts");
+  console.info("success scope email verified");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -915,7 +915,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success scope missing.ts");
+  console.info("success scope missing");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
@@ -975,7 +975,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success.ts");
+  console.info("success");
   const ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`

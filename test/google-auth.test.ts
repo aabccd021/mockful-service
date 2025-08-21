@@ -1,9 +1,9 @@
 import * as sqlite from "bun:sqlite";
 import * as oauth from "openid-client";
-import * as util from "./util.ts";
+import * as util from "./util";
 
 {
-  console.info("get base oidc.ts");
+  console.info("get base oidc");
 
   const ctx = util.init();
 
@@ -50,7 +50,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get base.ts");
+  console.info("get base");
 
   const ctx = util.init();
 
@@ -77,7 +77,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get client id invalid.ts");
+  console.info("get client id invalid");
 
   const ctx = util.init();
 
@@ -102,7 +102,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get client id missing.ts");
+  console.info("get client id missing");
 
   const ctx = util.init();
 
@@ -126,7 +126,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get code challenge method invalid.ts");
+  console.info("get code challenge method invalid");
 
   const ctx = util.init();
 
@@ -154,7 +154,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get redirect uri invalid.ts");
+  console.info("get redirect uri invalid");
 
   const ctx = util.init();
 
@@ -192,7 +192,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get redirect uri missing.ts");
+  console.info("get redirect uri missing");
 
   const ctx = util.init();
 
@@ -221,7 +221,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get response type invalid.ts");
+  console.info("get response type invalid");
 
   const ctx = util.init();
 
@@ -245,7 +245,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get response type missing.ts");
+  console.info("get response type missing");
 
   const ctx = util.init();
 
@@ -269,7 +269,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get scope invalid.ts");
+  console.info("get scope invalid");
 
   const ctx = util.init();
 
@@ -294,7 +294,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get scope missing.ts");
+  console.info("get scope missing");
 
   const ctx = util.init();
 
@@ -318,7 +318,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("get state missing.ts");
+  console.info("get state missing");
 
   const ctx = util.init();
 

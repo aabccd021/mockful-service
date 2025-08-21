@@ -1,8 +1,8 @@
 import * as sqlite from "bun:sqlite";
-import * as util from "./util.ts";
+import * as util from "./util";
 
 {
-  console.info("customer already exists.ts");
+  console.info("customer already exists");
 
   const ctx = util.init();
 
@@ -50,7 +50,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success.ts");
+  console.info("success");
 
   const ctx = util.init();
 

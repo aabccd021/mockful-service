@@ -1,8 +1,8 @@
 import * as sqlite from "bun:sqlite";
-import * as util from "./util.ts";
+import * as util from "./util";
 
 {
-  console.info("success productid recurring.ts");
+  console.info("success productid recurring");
 
   const ctx = util.init();
 
@@ -130,7 +130,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success productid.ts");
+  console.info("success productid");
 
   const ctx = util.init();
 
@@ -258,7 +258,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success recurring.ts");
+  console.info("success recurring");
 
   const ctx = util.init();
 
@@ -386,7 +386,7 @@ import * as util from "./util.ts";
 }
 
 {
-  console.info("success.ts");
+  console.info("success");
 
   const ctx = util.init();
 
