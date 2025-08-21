@@ -49,21 +49,21 @@ function translateReqUrl(req: Request): URL | undefined {
 }
 
 async function handle(originalReq: Request, db: sqlite.Database): Promise<Response> {
-  const url = translateReqUrl(originalReq);
-  if (url === undefined) {
+  const translatedUrl = translateReqUrl(originalReq);
+  if (translatedUrl === undefined) {
     return new Response(null, { status: 404 });
   }
 
-  const subHandle = domainHandlers[url.hostname];
+  const subHandle = domainHandlers[translatedUrl.hostname];
   if (subHandle === undefined) {
     return new Response(null, { status: 404 });
   }
 
-  const req = new Request(url, originalReq);
+  const req = new Request(translatedUrl, originalReq);
 
   const ctx: Context = { req, db };
 
-  const paths = url.pathname.split("/").filter((p) => p !== "");
+  const paths = translatedUrl.pathname.split("/").filter((p) => p !== "");
 
   return await subHandle(ctx, paths);
 }
