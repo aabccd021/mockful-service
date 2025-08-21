@@ -30,10 +30,9 @@ async function createIdToken(authSession: AuthSession, accessToken: string) {
   const scopes = authSession.scope.split(" ");
   if (!scopes.includes("openid")) {
     return undefined;
+  }
 
-  }  
-
-  const atHashRaw = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(accessToken));
+  const atHashRaw = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(accessToken));
   const atHash = new Uint8Array(atHashRaw)
     .slice(0, 16)
     .toBase64({ alphabet: "base64url", omitPadding: true });
@@ -67,7 +66,10 @@ async function createIdToken(authSession: AuthSession, accessToken: string) {
     .encode(JSON.stringify(payload))
     .toBase64({ alphabet: "base64url", omitPadding: true });
 
-  const signature = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${headerStr}.${payloadStr}`));
+  const signature = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`${headerStr}.${payloadStr}`),
+  );
 
   const signatureStr = new Uint8Array(signature).toBase64({
     alphabet: "base64url",
@@ -237,7 +239,10 @@ export async function handle(ctx: Context): Promise<Response> {
         );
       }
     } else if (codeChallengeMethod === "S256") {
-      const hashBinary = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier));
+      const hashBinary = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(codeVerifier),
+      );
       const codeVerifierHash = new Uint8Array(hashBinary).toBase64({
         alphabet: "base64url",
         omitPadding: true,

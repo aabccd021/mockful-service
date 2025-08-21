@@ -1,7 +1,7 @@
 CREATE TABLE global_static_route(
   url TEXT NOT NULL,
-  resposne_status INTEGER NOT NULL,
-  resposne_body TEXT NOT NULL
+  response_status INTEGER NOT NULL,
+  response_body TEXT NOT NULL
 ) STRICT; 
 
 CREATE TABLE global_static_route_response_header(

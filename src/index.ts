@@ -53,6 +53,19 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
     return new Response(null, { status: 404 });
   }
 
+  // TODO join header
+  const staticRoute = db
+    .query<{ response_body: string; response_status: BigInt }, sqlite.SQLQueryBindings>(
+      "SELECT response_status,response_body FROM global_static_route WHERE url = :url",
+    )
+    .get({ url: translatedUrl.toString() });
+
+  if (staticRoute !== null) {
+    return new Response(staticRoute.response_body, {
+      status: Number(staticRoute.response_status),
+    });
+  }
+
   const subHandle = domainHandlers[translatedUrl.hostname];
   if (subHandle === undefined) {
     return new Response(null, { status: 404 });
@@ -82,12 +95,12 @@ async function serve(argList: string[]) {
       }
       port = argPort;
       continue;
-    } 
+    }
 
     if (arg === "--db") {
       dbPath = argList.shift();
       continue;
-    } 
+    }
 
     if (arg === "--ready-fifo") {
       readyFifo = argList.shift();
@@ -140,7 +153,6 @@ async function migrate(argList: string[]) {
 }
 
 async function main() {
-
   const [subCommand, ...argList] = process.argv.slice(2);
 
   if (subCommand === "serve") {
@@ -153,7 +165,7 @@ async function main() {
     return;
   }
 
-  throw new Error("Usage: mockful-service <subcommand> [options]\n")
+  throw new Error("Usage: mockful-service <subcommand> [options]\n");
 }
 
 main();
