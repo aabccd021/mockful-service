@@ -134,8 +134,8 @@ import * as util from "./util";
 
   if (!(tokenResponse instanceof oauth.ResponseBodyError)) throw new Error();
   if (tokenResponse.status !== 401) throw new Error();
-  if (tokenResponse.cause["error"] !== "invalid_client") throw new Error();
-  if (tokenResponse.cause["error_description"] !== "The OAuth client was not found.")
+  if (tokenResponse.cause.error !== "invalid_client") throw new Error();
+  if (tokenResponse.cause.error_description !== "The OAuth client was not found.")
     throw new Error();
 }
 
@@ -229,8 +229,8 @@ import * as util from "./util";
 
   if (!(tokenResponse instanceof oauth.ResponseBodyError)) throw new Error();
   if (tokenResponse.status !== 401) throw new Error();
-  if (tokenResponse.cause["error"] !== "invalid_client") throw new Error();
-  if (tokenResponse.cause["error_description"] !== "Unauthorized") throw new Error();
+  if (tokenResponse.cause.error !== "invalid_client") throw new Error();
+  if (tokenResponse.cause.error_description !== "Unauthorized") throw new Error();
 }
 
 {
@@ -947,9 +947,9 @@ import * as util from "./util";
       expectedState: state,
     })
     .catch((error) => error);
-  if (tokenResponse["access_token"] === undefined) throw new Error();
-  if (tokenResponse["scope"] !== "") throw new Error();
-  if (tokenResponse["token_type"] !== "bearer") throw new Error();
+  if (tokenResponse.access_token === undefined) throw new Error();
+  if (tokenResponse.scope !== "") throw new Error();
+  if (tokenResponse.token_type !== "bearer") throw new Error();
 }
 
 {
