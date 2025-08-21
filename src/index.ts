@@ -90,7 +90,6 @@ async function serve(argList: string[]) {
     throw new Error("Argument --db is required.");
   }
 
-
   const db = new sqlite.Database(args.values.db, { strict: true });
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA synchronous = NORMAL;");
