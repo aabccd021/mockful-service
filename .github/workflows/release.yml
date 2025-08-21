@@ -21,6 +21,6 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - run: nix shell nixpkgs#bun --command bun install
       - run: nix shell nixpkgs#bun --command bun run build
-      - run: gh release create $(nix run nixpkgs#semver ${{ github.event.inputs.bump_type }}) --generate-notes ./dist/netero-oauth-mock
+      - run: gh release create $(nix run nixpkgs#semver ${{ github.event.inputs.bump_type }}) --generate-notes ./dist/mockful-service
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
