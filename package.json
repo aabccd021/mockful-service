@@ -2,11 +2,14 @@
   "name": "netero-oauth-mock",
   "scripts": {
     "build": "bun build ./src/index.ts --compile --bytecode --sourcemap --outfile ./dist/netero-oauth-mock",
-    "format": "bunx biome format --error-on-warnings --indent-style=space --line-width=100",
-    "lint": "bunx biome lint --error-on-warnings"
+    "format": "biome format --error-on-warnings --indent-style=space --line-width=100",
+    "lint": "biome lint --error-on-warnings",
+    "check": "tsc"
   },
-  "dependencies": {
+  "devDependencies": {
     "@types/bun": "latest",
-    "openid-client": "latest"
+    "biome": "latest",
+    "openid-client": "latest",
+    "typescript": "latest"
   }
 }
