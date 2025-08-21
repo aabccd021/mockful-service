@@ -21,12 +21,27 @@ export function init(): Context {
       stdio: "inherit",
     },
   );
+
+  if (server.pid === undefined) {
+    fs.rmdirSync(tmpdir, { recursive: true });
+    throw new Error("Failed to start netero-oauth-mock server");
+  }
+  const ctx = { dbPath, tmpdir, server };
+
+  process.on("exit", () => {
+    deinit({ dbPath, tmpdir, server });
+  });
+
   fs.readFileSync(readyFifoPath);
 
-  return { dbPath, tmpdir, server };
+  return ctx;
 }
 
 export function deinit(ctx: Context): void {
-  ctx.server.kill();
-  fs.rmdirSync(ctx.tmpdir, { recursive: true });
+  if (!ctx.server.killed) {
+    ctx.server.kill();
+  }
+  if (fs.existsSync(ctx.dbPath)) {
+    fs.rmdirSync(ctx.tmpdir, { recursive: true });
+  }
 }
