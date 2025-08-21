@@ -20,8 +20,6 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - run: nix shell nixpkgs#bun --command bun install
       - run: nix shell nixpkgs#bun --command bun run build
-      - run: git describe --tags --abbrev=0
-      - run: nix run nixpkgs#semver-tool bump ${{ github.event.inputs.bump_type }} $(git describe --tags --abbrev=0)
       - run: nix run nixpkgs#semver ${{ github.event.inputs.bump_type }}
       - run: gh release create $(nix run nixpkgs#semver ${{ github.event.inputs.bump_type }}) --generate-notes ./dist/netero-oauth-mock
         env:
