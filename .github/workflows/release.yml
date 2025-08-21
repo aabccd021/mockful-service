@@ -1,0 +1,17 @@
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        required: true
+        type: choice
+        options:
+          - minor
+          - major
+          - patch
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Bump type selected: ${{ github.event.inputs.bump_type }}"
