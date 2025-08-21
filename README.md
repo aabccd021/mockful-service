@@ -1,5 +1,7 @@
 # TODO
 
+- dont use bun test
+- replace bun cryptohasher with webcrypto
 - return static response
 - discord webhook
 - transaction create
