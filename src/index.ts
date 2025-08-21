@@ -123,7 +123,6 @@ async function migrate(argList: string[]) {
 
   const db = new sqlite.Database(args.values.db, { create: true });
   db.exec(migration);
-  db.close();
 }
 
 async function main() {
