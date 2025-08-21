@@ -61,8 +61,19 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
     .get({ url: translatedUrl.toString() });
 
   if (staticRoute !== null) {
+    const headers = db
+      .query<{ name: string; value: string }, sqlite.SQLQueryBindings>(
+        `
+        SELECT name,value 
+        FROM global_static_route_response_header 
+        WHERE global_static_route_url = :url
+        `,
+      )
+      .all({ url: translatedUrl.toString() });
+
     return new Response(staticRoute.response_body, {
       status: Number(staticRoute.response_status),
+      headers: Object.fromEntries(headers.map(({name, value}) => [name, value]))
     });
   }
 

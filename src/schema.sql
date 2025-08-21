@@ -5,10 +5,10 @@ CREATE TABLE global_static_route(
 ) STRICT; 
 
 CREATE TABLE global_static_route_response_header(
-  global_static_route_id TEXT NOT NULL,
+  global_static_route_url TEXT NOT NULL,
   name TEXT NOT NULL,
   value TEXT NOT NULL,
-  FOREIGN KEY (global_static_route_id) REFERENCES global_static_route(id) ON UPDATE CASCADE ON DELETE CASCADE
+  FOREIGN KEY (global_static_route_url) REFERENCES global_static_route(url) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_project (
