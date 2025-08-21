@@ -1,7 +1,14 @@
 CREATE TABLE global_response(
-  id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
   status INTEGER NOT NULL,
   body TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE global_response_header(
+  global_response_id TEXT,
+  name TEXT NOT NULL,
+  value TEXT NOT NULL,
+  FOREIGN KEY (global_response_id) REFERENCES global_response(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_project (
