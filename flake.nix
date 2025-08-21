@@ -16,12 +16,7 @@
           netero-oauth-mock = final.runCommand "netero-oauth-mock" { } ''
             cp -Lr ${./src} ./src
             cp -L ${./tsconfig.json} ./tsconfig.json
-            ${final.bun}/bin/bun build ./src/index.ts \
-              --compile \
-              --minify \
-              --sourcemap \
-              --bytecode \
-              --outfile server
+            ${final.bun}/bin/bun build ./src/index.ts --compile --bytecode --sourcemap --outfile server
             mkdir -p "$out/bin"
             mv server "$out/bin/netero-oauth-mock"
           '';
