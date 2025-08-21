@@ -10,9 +10,8 @@ export type Context = {
 
 export function init(): Context {
   const tmpdir = fs.mkdtempSync(`${os.tmpdir()}/netero-oauth-mock-test-`);
-  const testPrefix = `${os.tmpdir()}/netero-oauth-mock-test-${Date.now()}`;
-  const dbPath = `${testPrefix}.sqlite`;
-  const readyFifoPath = `${testPrefix}.ready.fifo`;
+  const dbPath = `${tmpdir}/db.sqlite`;
+  const readyFifoPath = `${tmpdir}/ready.fifo`;
 
   child_process.execSync(`mkfifo ${readyFifoPath}`, { stdio: "ignore" });
   const server = child_process.spawn(
