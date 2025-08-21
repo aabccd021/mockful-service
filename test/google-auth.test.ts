@@ -135,10 +135,7 @@ import * as util from "./util";
   const body = await loginResponse.text();
   if (!body.includes("Access blocked: Authorization Error")) throw new Error();
   if (!body.includes("Error 400: invalid_request")) throw new Error();
-  if (!body.includes)
-    throw new Error()(
-      "Invalid parameter value for code_challenge_method: 'foo' is not a valid CodeChallengeMethod",
-    );
+  if (!body.includes) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
 }
@@ -166,14 +163,7 @@ import * as util from "./util";
   const body = await loginResponse.text();
   if (!body.includes("Access blocked: Authorization Error")) throw new Error();
   if (!body.includes("Error 400: invalid_request")) throw new Error();
-  if (!body.includes)
-    throw new Error()(
-      "You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy for keeping apps secure.",
-    );
-  if (!body.includes)
-    throw new Error()(
-      "You can let the app developer know that this app doesn't comply with one or more Google validation rules.",
-    );
+  if (!body.includes) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
 
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow

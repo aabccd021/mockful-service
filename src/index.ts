@@ -98,7 +98,7 @@ async function main() {
   db.exec(migration);
 
   Bun.serve({
-    port: parseInt(args.values.port, 10),
+    port: Number.parseInt(args.values.port, 10),
     development: false,
     fetch: (req) => handle(req, db),
   });
