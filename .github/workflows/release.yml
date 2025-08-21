@@ -15,6 +15,7 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
       - run: nix shell nixpkgs#bun --command bun install
       - run: nix shell nixpkgs#bun --command bun run build
       - run: gh release create $(nix run nixpkgs#semver ${{ github.event.inputs.bump_type }}) --generate-notes ./hash-files
