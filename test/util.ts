@@ -27,7 +27,6 @@ export function init() {
 
   return {
     dbPath,
-    tmpdir,
     server,
     [Symbol.dispose]: () => {
       server.kill();
