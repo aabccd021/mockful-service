@@ -2,13 +2,7 @@ import * as child_process from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 
-export type Context = {
-  dbPath: string;
-  tmpdir: string;
-  server: child_process.ChildProcess;
-};
-
-export function init(): Context & Disposable {
+export function init() {
   const tmpdir = fs.mkdtempSync(`${os.tmpdir()}/netero-oauth-mock-test-`);
   const dbPath = `${tmpdir}/db.sqlite`;
   const readyFifoPath = `${tmpdir}/ready.fifo`;
