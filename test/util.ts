@@ -5,6 +5,7 @@ import * as os from "node:os";
 export type Context = {
   dbPath: string;
   server: child_process.ChildProcess;
+  readyFifoPath: string;
 };
 
 export function init(): Context {
@@ -22,10 +23,11 @@ export function init(): Context {
   );
   fs.readFileSync(readyFifoPath);
 
-  return { dbPath, server };
+  return { dbPath, readyFifoPath, server };
 }
 
 export function deinit(ctx: Context): void {
   ctx.server.kill();
   fs.unlinkSync(ctx.dbPath);
+  fs.unlinkSync(ctx.readyFifoPath);
 }
