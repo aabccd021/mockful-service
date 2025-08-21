@@ -37,6 +37,7 @@
         projectRootFile = "flake.nix";
         programs.nixfmt.enable = true;
         programs.biome.enable = true;
+        programs.biome.formatUnsafe = true;
         programs.biome.settings.formatter.indentStyle = "space";
         programs.biome.settings.formatter.lineWidth = 100;
         programs.biome.settings.linter.rules.complexity.useLiteralKeys = "off";
@@ -46,13 +47,6 @@
           "warning"
           "info"
           "assert"
-        ];
-        programs.biome.formatUnsafe = true;
-        programs.shfmt.enable = true;
-        programs.shellcheck.enable = true;
-        settings.formatter.shellcheck.options = [
-          "-s"
-          "sh"
         ];
         settings.global.excludes = [
           "LICENSE"
