@@ -69,14 +69,12 @@
             root = ./test;
             fileset = ./test + "/${filename}";
           };
-          value = pkgs.runCommand name { } ''
+          buildInputs = [ pkgs.netero-oauth-mock ];
+          value = pkgs.runCommand name { buildInputs = buildInputs; } ''
             ln -s ${nodeModules}/node_modules ./node_modules
-            mkdir -p dist
-            cp -Lr ${pkgs.netero-oauth-mock}/bin/netero-oauth-mock ./dist/netero-oauth-mock
-            mkdir -p test
-            cp -L ${./test/util.ts} ./test/util.ts
-            cp -L ${src}/${filename} ./test/${filename}
-            timeout 5 ${pkgs.bun}/bin/bun ./test/${filename}
+            cp -L ${./test/util.ts} ./util.ts
+            cp -L ${src}/${filename} ./${filename}
+            timeout 5 ${pkgs.bun}/bin/bun ./${filename}
             mkdir "$out"
           '';
         in

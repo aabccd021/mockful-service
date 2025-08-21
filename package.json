@@ -1,8 +1,7 @@
 {
   "name": "netero-oauth-mock",
   "scripts": {
-    "postinstall": "nix run --inputs-from . github:baileyluTCD/bun2nix -- --output-file ./bun.nix",
-    "build": "rm -rf dist && bun build ./src/index.ts --compile --bytecode --sourcemap --outfile ./dist/netero-oauth-mock"
+    "postinstall": "nix run --inputs-from . github:baileyluTCD/bun2nix -- --output-file ./bun.nix"
   },
   "dependencies": {
     "@types/bun": "latest",
