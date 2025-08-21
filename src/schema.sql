@@ -16,8 +16,8 @@ CREATE TABLE google_auth_session (
   user_sub TEXT NOT NULL,
   client_id TEXT NOT NULL,
   CHECK (code_challenge_method IN ('S256', 'plain')),
-  FOREIGN KEY (user_sub) REFERENCES google_auth_user(sub) ON DELETE CASCADE,
-  FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
+  FOREIGN KEY (user_sub) REFERENCES google_auth_user(sub) ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_auth_user (
@@ -26,7 +26,7 @@ CREATE TABLE google_auth_user (
   email_verified TEXT,
   project_id TEXT NOT NULL, 
   CHECK (email_verified IN ('true', 'false')),
-  FOREIGN KEY (project_id) REFERENCES google_project(id) ON DELETE CASCADE
+  FOREIGN KEY (project_id) REFERENCES google_project(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_auth_client (
@@ -38,7 +38,7 @@ CREATE TABLE google_auth_client (
 CREATE TABLE google_auth_redirect_uri (
   value TEXT NOT NULL,
   client_id TEXT NOT NULL,
-  FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
+  FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_account (
@@ -59,7 +59,7 @@ CREATE TABLE paddle_api_key (
   account_id TEXT NOT NULL,
   CHECK (key LIKE 'pdl_live_apikey_%' OR key LIKE 'pdl_sdbx_apikey_%'), -- https://developer.paddle.com/api-reference/about/api-keys#format
   CHECK (LENGTH(key) = 69),
-  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
+  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_customer (
@@ -77,7 +77,7 @@ CREATE TABLE paddle_customer (
   CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CHECK (status IN ('active', 'archived')),
   CHECK (marketing_consent IN ('true', 'false')),
-  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
+  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_product (
@@ -96,7 +96,7 @@ CREATE TABLE paddle_product (
   CHECK (tax_category IN ('digital-goods', 'ebooks', 'implementation-services', 'professional-services', 'saas', 'software-programming-services', 'standard', 'training-services', 'website-hosting')),
   CHECK (type IN ('standard', 'custom')),
   CHECK (status IN ('active', 'archived')),
-  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
+  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_price (
@@ -127,7 +127,7 @@ CREATE TABLE paddle_price (
   CHECK (quantity_minimum >= 1),
   CHECK (quantity_maximum >= quantity_minimum),
   CHECK (status IN ('active', 'archived')),
-  FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON DELETE CASCADE
+  FOREIGN KEY (product_id) REFERENCES paddle_product(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_transaction (
@@ -142,7 +142,7 @@ CREATE TABLE paddle_transaction (
   CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CHECK (status IN ('draft', 'ready', 'billed', 'paid', 'completed', 'canceled', 'past_due')),
   CHECK (collection_mode IN ('automatic', 'manual')),
-  FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON DELETE CASCADE
+  FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_transaction_item (
@@ -150,6 +150,6 @@ CREATE TABLE paddle_transaction_item (
   price_id TEXT NOT NULL,
   quantity INTEGER NOT NULL,
   PRIMARY KEY (transaction_id, price_id),
-  FOREIGN KEY (transaction_id) REFERENCES paddle_transaction(id) ON DELETE CASCADE,
-  FOREIGN KEY (price_id) REFERENCES paddle_price(id) ON DELETE CASCADE
+  FOREIGN KEY (transaction_id) REFERENCES paddle_transaction(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY (price_id) REFERENCES paddle_price(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
