@@ -2,8 +2,8 @@
   "name": "netero-oauth-mock",
   "scripts": {
     "build": "bun build ./src/index.ts --compile --bytecode --sourcemap --outfile ./dist/netero-oauth-mock",
-    "format": "bunx biome format --write --indent-style=space --line-width=100",
-    "lint": "bunx biome lint --write --skip complexity/noUselessLoneBlockStatements --skip lint/complexity/useLiteralKeys"
+    "format": "bunx biome format --error-on-warnings --indent-style=space --line-width=100",
+    "lint": "bunx biome lint --error-on-warnings --skip complexity/noUselessLoneBlockStatements --skip lint/complexity/useLiteralKeys"
   },
   "dependencies": {
     "@types/bun": "^1.2.20",

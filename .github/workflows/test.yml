@@ -8,8 +8,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
       - run: nix run nixpkgs#prettier -- README.md .github --print-width 100 --check
-      - run: nix run nixpkgs#biome -- format --error-on-warnings --indent-style=space --line-width=100
-      - run: nix run nixpkgs#biome -- lint --error-on-warnings --skip complexity/noUselessLoneBlockStatements --skip lint/complexity/useLiteralKeys
       - run: nix run nixpkgs#typescript
-      - run: nix run nixpkgs#bun -- run build
-      - run: nix run nixpkgs#bun -- test
+      - run: nix shell nixpkgs#bun --command bun install
+      - run: nix shell nixpkgs#bun --command bun run format
+      - run: nix shell nixpkgs#bun --command bun run lint
+      - run: nix shell nixpkgs#bun --command bun run build
+      - run: nix shell nixpkgs#bun --command bun test
