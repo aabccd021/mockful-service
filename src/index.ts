@@ -74,6 +74,7 @@ async function serve(argList: string[]) {
 
   while (argList.length > 0) {
     const arg = argList.shift();
+
     if (arg === "--port") {
       const argPort = argList.shift();
       if (argPort === undefined) {
@@ -121,6 +122,7 @@ async function migrate(argList: string[]) {
 
   while (argList.length > 0) {
     const arg = argList.shift();
+
     if (arg === "--db") {
       dbPath = argList.shift();
       continue;
