@@ -4,7 +4,7 @@ import * as util from "./util";
 {
   console.info("success productid recurring");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -125,14 +125,12 @@ import * as util from "./util";
   const listProduct2RecurringBody = await listProduct2Recurring.json();
   if (listProduct2RecurringBody.data.length !== 1) throw new Error();
   if (listProduct2RecurringBody.data[0].description !== "product2-recurring") throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("success productid");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -253,14 +251,12 @@ import * as util from "./util";
   if (listProduct2RecurringBody.data.length !== 2) throw new Error();
   if (listProduct2RecurringBody.data[0].description !== "product2-recurring") throw new Error();
   if (listProduct2RecurringBody.data[1].description !== "product2-onetime") throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("success recurring");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -381,14 +377,12 @@ import * as util from "./util";
   if (listProduct2RecurringBody.data.length !== 2) throw new Error();
   if (listProduct2RecurringBody.data[0].description !== "product1-recurring") throw new Error();
   if (listProduct2RecurringBody.data[1].description !== "product2-recurring") throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("success");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -510,6 +504,4 @@ import * as util from "./util";
   if (listProduct2RecurringBody.data[1].description !== "product1-onetime") throw new Error();
   if (listProduct2RecurringBody.data[2].description !== "product2-recurring") throw new Error();
   if (listProduct2RecurringBody.data[3].description !== "product2-onetime") throw new Error();
-
-  util.deinit(ctx);
 }

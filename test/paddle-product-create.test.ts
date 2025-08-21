@@ -4,7 +4,7 @@ import * as util from "./util";
 {
   console.info("product tax category not approved");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -35,14 +35,12 @@ import * as util from "./util";
     "https://developer.paddle.com/v1/errors/products/product_tax_category_not_approved"
   )
     throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("success");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -74,6 +72,4 @@ import * as util from "./util";
   if (responseBody.data.image_url !== null) throw new Error();
   if (responseBody.data.created_at === undefined) throw new Error();
   if (responseBody.data.updated_at === undefined) throw new Error();
-
-  util.deinit(ctx);
 }

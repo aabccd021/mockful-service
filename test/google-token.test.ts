@@ -4,7 +4,7 @@ import * as util from "./util";
 
 {
   console.info("auth header credential missing");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -21,12 +21,11 @@ import * as util from "./util";
   if (tokenResponseBody.error !== "invalid_request") throw new Error();
   if (tokenResponseBody.error_description !== "Bad Request") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("auth header missing");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -43,12 +42,11 @@ import * as util from "./util";
   if (tokenResponseBody.error_description !== "Could not determine client ID from request.")
     throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("auth header prefix invalid");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -66,12 +64,11 @@ import * as util from "./util";
   if (tokenResponseBody.error_description !== "Could not determine client ID from request.")
     throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("client id mismatch");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -140,12 +137,11 @@ import * as util from "./util";
   if (tokenResponse.cause["error"] !== "invalid_client") throw new Error();
   if (tokenResponse.cause["error_description"] !== "The OAuth client was not found.")
     throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("client id missing");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -163,12 +159,11 @@ import * as util from "./util";
   if (tokenResponseBody.error_description !== "Could not determine client ID from request.")
     throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("client secret mismatch");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -236,12 +231,11 @@ import * as util from "./util";
   if (tokenResponse.status !== 401) throw new Error();
   if (tokenResponse.cause["error"] !== "invalid_client") throw new Error();
   if (tokenResponse.cause["error_description"] !== "Unauthorized") throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("client secret missing");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -258,12 +252,11 @@ import * as util from "./util";
   if (tokenResponseBody.error !== "invalid_request") throw new Error();
   if (tokenResponseBody.error_description !== "client_secret is missing.") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("code invalid");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -281,12 +274,11 @@ import * as util from "./util";
   if (tokenResponseBody.error !== "invalid_grant") throw new Error();
   if (tokenResponseBody.error_description !== "Malformed auth code.") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("code missing");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -303,12 +295,11 @@ import * as util from "./util";
   if (tokenResponseBody.error !== "invalid_request") throw new Error();
   if (tokenResponseBody.error_description !== "Missing required parameter: code") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("code verifier invalid");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -365,12 +356,11 @@ import * as util from "./util";
   if (tokenResponse.cause.error !== "invalid_grant") throw new Error();
   if (tokenResponse.cause.error_description !== "Invalid code verifier.") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("code verifier missing");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -432,12 +422,11 @@ import * as util from "./util";
   if (tokenResponseBody.error !== "invalid_grant") throw new Error();
   if (tokenResponseBody.error_description !== "Missing code verifier.") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("code verifier s256 invalid");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -494,21 +483,19 @@ import * as util from "./util";
   if (tokenResponse.error !== "invalid_grant") throw new Error();
   if (tokenResponse.error_description !== "Invalid code verifier.") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("get");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token");
 
   if (tokenResponse.status !== 405) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("grant type invalid");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -523,12 +510,11 @@ import * as util from "./util";
   if (tokenResponseBody.error !== "unsupported_grant_type") throw new Error();
   if (tokenResponseBody.error_description !== "Invalid grant_type: foo") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("redirect uri mismatch");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -591,12 +577,11 @@ import * as util from "./util";
   if (tokenResponseBody.error !== "redirect_uri_mismatch") throw new Error();
   if (tokenResponseBody.error_description !== "Bad Request") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("redirect uri missing");
-  const ctx = util.init();
+  using _ctx = util.init();
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -612,12 +597,11 @@ import * as util from "./util";
   if (tokenResponseBody.error !== "invalid_request") throw new Error();
   if (tokenResponseBody.error_description !== "Missing parameter: redirect_uri") throw new Error();
   if (tokenResponse.status !== 400) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("success no challenge method");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -670,12 +654,11 @@ import * as util from "./util";
     .catch((error) => error);
 
   if (tokenResponse.claims().sub !== "kita-sub") throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("success plain");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -728,12 +711,11 @@ import * as util from "./util";
     })
     .catch((error) => error);
   if (tokenResponse.claims().sub !== "kita-sub") throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("success s256");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -787,12 +769,11 @@ import * as util from "./util";
     })
     .catch((error) => error);
   if (tokenResponse.claims().sub !== "kita-sub") throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("success scope email");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -849,12 +830,11 @@ import * as util from "./util";
   if (tokenResponse.claims().sub !== "kita-sub") throw new Error();
   if (tokenResponse.claims().email !== "kita@example.com") throw new Error();
   if (tokenResponse.claims().email_verified !== true) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("success scope email verified");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -911,12 +891,11 @@ import * as util from "./util";
   if (tokenResponse.claims().sub !== "kita-sub") throw new Error();
   if (tokenResponse.claims().email !== "kita@example.com") throw new Error();
   if (tokenResponse.claims().email_verified !== false) throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("success scope missing");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -971,12 +950,11 @@ import * as util from "./util";
   if (tokenResponse["access_token"] === undefined) throw new Error();
   if (tokenResponse["scope"] !== "") throw new Error();
   if (tokenResponse["token_type"] !== "bearer") throw new Error();
-  util.deinit(ctx);
 }
 
 {
   console.info("success");
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -1026,5 +1004,4 @@ import * as util from "./util";
     })
     .catch((error) => error);
   if (tokenResponse.claims().sub !== "kita-sub") throw new Error();
-  util.deinit(ctx);
 }

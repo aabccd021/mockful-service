@@ -4,7 +4,7 @@ import * as util from "./util";
 {
   console.info("by emails");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -60,14 +60,12 @@ import * as util from "./util";
   if (customers.length !== 2) throw new Error();
   if (customers[0]?.email !== "nijika@example.com") throw new Error();
   if (customers[1]?.email !== "yamada@example.com") throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("by email");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -110,14 +108,12 @@ import * as util from "./util";
   if (customers.length !== 1) throw new Error();
   if (customers[0]?.email !== "nijika@example.com") throw new Error();
   if (customers[0]?.id !== customerId) throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("by ids");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -177,14 +173,12 @@ import * as util from "./util";
   if (customers[0]?.id !== kitaId) throw new Error();
   if (customers[1]?.email !== "yamada@example.com") throw new Error();
   if (customers[1]?.id !== yamadaId) throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("success");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -227,6 +221,4 @@ import * as util from "./util";
   if (customers[0]?.status !== "active") throw new Error();
   if (customers[0]?.marketing_consent !== false) throw new Error();
   if (customers[0]?.locale !== "en") throw new Error();
-
-  util.deinit(ctx);
 }

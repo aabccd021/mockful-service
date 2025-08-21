@@ -5,7 +5,7 @@ import * as util from "./util";
 {
   console.info("get base oidc");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -45,14 +45,12 @@ import * as util from "./util";
   const loginResponseBody = await loginResponse.text();
   if (!loginResponseBody.includes("</form>")) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get base");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -72,14 +70,12 @@ import * as util from "./util";
   const loginResponseBody = await loginResponse.text();
   if (!loginResponseBody.includes("</form>")) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get client id invalid");
 
-  const ctx = util.init();
+  using _ctx = util.init();
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -97,14 +93,12 @@ import * as util from "./util";
   if (loginResponse.status !== 200) throw new Error();
 
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=foo&flowName=GeneralOAuthFlow
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get client id missing");
 
-  const ctx = util.init();
+  using _ctx = util.init();
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -121,14 +115,12 @@ import * as util from "./util";
   if (!body.includes("Missing required parameter: client_id")) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&flowName=GeneralOAuthFlow
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get code challenge method invalid");
 
-  const ctx = util.init();
+  using _ctx = util.init();
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -149,14 +141,12 @@ import * as util from "./util";
     );
   if (loginResponse.status !== 200) throw new Error();
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get redirect uri invalid");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -187,14 +177,12 @@ import * as util from "./util";
   if (loginResponse.status !== 200) throw new Error();
 
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get redirect uri missing");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -216,14 +204,12 @@ import * as util from "./util";
   if (!body.includes("Missing required parameter: redirect_uri")) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get response type invalid");
 
-  const ctx = util.init();
+  using _ctx = util.init();
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -240,14 +226,12 @@ import * as util from "./util";
   if (!body.includes("Invalid response_type: foo")) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get response type missing");
 
-  const ctx = util.init();
+  using _ctx = util.init();
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -264,14 +248,12 @@ import * as util from "./util";
   if (!body.includes("Required parameter is missing: response_type")) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get scope invalid");
 
-  const ctx = util.init();
+  using _ctx = util.init();
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "foo"); // changed
@@ -289,14 +271,12 @@ import * as util from "./util";
   if (loginResponse.status !== 200) throw new Error();
 
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get scope missing");
 
-  const ctx = util.init();
+  using _ctx = util.init();
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   // authUrl.searchParams.set("scope", "openid");
@@ -313,14 +293,12 @@ import * as util from "./util";
   if (!body.includes("Missing required parameter: scope")) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
   // https://accounts.google.com/signin/oauth/error/v2?authError=xxx&client_id=xxx.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-
-  util.deinit(ctx);
 }
 
 {
   console.info("get state missing");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -343,6 +321,4 @@ import * as util from "./util";
   const loginResponseBody = await loginResponse.text();
   if (!loginResponseBody.includes("</form>")) throw new Error();
   if (loginResponse.status !== 200) throw new Error();
-
-  util.deinit(ctx);
 }

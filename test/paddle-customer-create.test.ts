@@ -4,7 +4,7 @@ import * as util from "./util";
 {
   console.info("customer already exists");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -45,14 +45,12 @@ import * as util from "./util";
     "https://developer.paddle.com/v1/errors/customers/customer_already_exists"
   )
     throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("success");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -76,6 +74,4 @@ import * as util from "./util";
   const responseBody = await response.json();
   if (responseBody.data.id === undefined) throw new Error();
   if (responseBody.data.email !== "nijika@example.com") throw new Error();
-
-  util.deinit(ctx);
 }

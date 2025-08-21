@@ -4,7 +4,7 @@ import * as util from "./util";
 {
   console.info("by ids");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -69,14 +69,12 @@ import * as util from "./util";
   if (products[0]?.name !== "Product 2") throw new Error();
   if (products[1]?.id !== product3Id) throw new Error();
   if (products[1]?.name !== "Product 3") throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("success");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -135,6 +133,4 @@ import * as util from "./util";
   if (products[0]?.name !== "Product 1") throw new Error();
   if (products[1]?.name !== "Product 2") throw new Error();
   if (products[2]?.name !== "Product 3") throw new Error();
-
-  util.deinit(ctx);
 }

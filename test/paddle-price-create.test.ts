@@ -4,7 +4,7 @@ import * as util from "./util";
 {
   console.info("success billing cycle");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -61,14 +61,12 @@ import * as util from "./util";
   if (responseBody.data.unit_price.currency_code !== "USD") throw new Error();
   if (responseBody.data.billing_cycle.frequency !== 1) throw new Error();
   if (responseBody.data.billing_cycle.interval !== "year") throw new Error();
-
-  util.deinit(ctx);
 }
 
 {
   console.info("success");
 
-  const ctx = util.init();
+  using ctx = util.init();
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -119,6 +117,4 @@ import * as util from "./util";
   if (responseBody.data.description !== "One-time purchase of my saas") throw new Error();
   if (responseBody.data.unit_price.amount !== "500") throw new Error();
   if (responseBody.data.unit_price.currency_code !== "USD") throw new Error();
-
-  util.deinit(ctx);
 }

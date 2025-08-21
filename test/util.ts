@@ -8,7 +8,7 @@ export type Context = {
   server: child_process.ChildProcess;
 };
 
-export function init(): Context {
+export function init(): Context & Disposable {
   const tmpdir = fs.mkdtempSync(`${os.tmpdir()}/netero-oauth-mock-test-`);
   const dbPath = `${tmpdir}/db.sqlite`;
   const readyFifoPath = `${tmpdir}/ready.fifo`;
@@ -26,22 +26,16 @@ export function init(): Context {
     fs.rmdirSync(tmpdir, { recursive: true });
     throw new Error("Failed to start netero-oauth-mock server");
   }
-  const ctx = { dbPath, tmpdir, server };
-
-  process.on("exit", () => {
-    deinit({ dbPath, tmpdir, server });
-  });
 
   fs.readFileSync(readyFifoPath);
 
-  return ctx;
-}
-
-export function deinit(ctx: Context): void {
-  if (!ctx.server.killed) {
-    ctx.server.kill();
-  }
-  if (fs.existsSync(ctx.dbPath)) {
-    fs.rmdirSync(ctx.tmpdir, { recursive: true });
-  }
+  return {
+    dbPath,
+    tmpdir,
+    server,
+    [Symbol.dispose]: () => {
+      server.kill();
+      fs.rmdirSync(tmpdir, { recursive: true });
+    },
+  };
 }

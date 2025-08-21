@@ -1,6 +1,5 @@
 # TODO
 
-- use `using` with `dispose`
 - return static response
 - discord webhook
 - transaction create

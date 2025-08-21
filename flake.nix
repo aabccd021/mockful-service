@@ -64,7 +64,7 @@
       mkTest =
         filename:
         let
-          name = "test-" + (lib.strings.removeSuffix ".ts" filename);
+          name = "test-" + (lib.strings.removeSuffix ".test.ts" filename);
           src = lib.fileset.toSource {
             root = ./test;
             fileset = ./test + "/${filename}";
