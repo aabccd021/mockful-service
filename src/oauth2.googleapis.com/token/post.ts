@@ -26,13 +26,14 @@ function emailVerifiedToBoolean(value: "true" | "false" | null): boolean {
   throw new Error(`Unreachable email_verified value: ${value}`);
 }
 
-function createIdToken(authSession: AuthSession, accessToken: string): string | undefined {
+async function createIdToken(authSession: AuthSession, accessToken: string) {
   const scopes = authSession.scope.split(" ");
   if (!scopes.includes("openid")) {
     return undefined;
-  }
 
-  const atHashRaw = new Bun.CryptoHasher("sha256").update(accessToken).digest();
+  }  
+
+  const atHashRaw = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(accessToken));
   const atHash = new Uint8Array(atHashRaw)
     .slice(0, 16)
     .toBase64({ alphabet: "base64url", omitPadding: true });
@@ -66,7 +67,7 @@ function createIdToken(authSession: AuthSession, accessToken: string): string | 
     .encode(JSON.stringify(payload))
     .toBase64({ alphabet: "base64url", omitPadding: true });
 
-  const signature = new Bun.CryptoHasher("sha256").update(`${headerStr}.${payloadStr}`).digest();
+  const signature = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${headerStr}.${payloadStr}`));
 
   const signatureStr = new Uint8Array(signature).toBase64({
     alphabet: "base64url",
@@ -236,7 +237,7 @@ export async function handle(ctx: Context): Promise<Response> {
         );
       }
     } else if (codeChallengeMethod === "S256") {
-      const hashBinary = new Bun.CryptoHasher("sha256").update(codeVerifier).digest();
+      const hashBinary = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier));
       const codeVerifierHash = new Uint8Array(hashBinary).toBase64({
         alphabet: "base64url",
         omitPadding: true,
@@ -302,7 +303,7 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const accessToken = crypto.randomUUID();
 
-  const idToken = createIdToken(authSession, accessToken);
+  const idToken = await createIdToken(authSession, accessToken);
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,
