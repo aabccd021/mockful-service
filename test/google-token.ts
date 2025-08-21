@@ -137,8 +137,8 @@ import * as util from "./util.ts";
 
   if (!(tokenResponse instanceof oauth.ResponseBodyError)) throw new Error();
   if (tokenResponse.status !== 401) throw new Error();
-  if (tokenResponse.cause.error !== "invalid_client") throw new Error();
-  if (tokenResponse.cause.error_description !== "The OAuth client was not found.")
+  if (tokenResponse.cause["error"] !== "invalid_client") throw new Error();
+  if (tokenResponse.cause["error_description"] !== "The OAuth client was not found.")
     throw new Error();
   util.deinit(ctx);
 }
@@ -234,8 +234,8 @@ import * as util from "./util.ts";
 
   if (!(tokenResponse instanceof oauth.ResponseBodyError)) throw new Error();
   if (tokenResponse.status !== 401) throw new Error();
-  if (tokenResponse.cause.error !== "invalid_client") throw new Error();
-  if (tokenResponse.cause.error_description !== "Unauthorized") throw new Error();
+  if (tokenResponse.cause["error"] !== "invalid_client") throw new Error();
+  if (tokenResponse.cause["error_description"] !== "Unauthorized") throw new Error();
   util.deinit(ctx);
 }
 
