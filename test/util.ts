@@ -3,10 +3,10 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 
 export function init() {
-  const tmpdir = fs.mkdtempSync(`${os.tmpdir()}/netero-oauth-mock-test-`);
+  const tmpdir = fs.mkdtempSync(`${os.tmpdir()}/`);
   const dbPath = `${tmpdir}/db.sqlite`;
   const readyFifoPath = `${tmpdir}/ready.fifo`;
-  const cmd = `${import.meta.dir}/../dist/netero-oauth-mock`;
+  const cmd = `${import.meta.dir}/../dist/mockful-service`;
 
   child_process.execSync(`mkfifo ${readyFifoPath}`, { stdio: "ignore" });
   const server = child_process.spawn(
@@ -19,7 +19,7 @@ export function init() {
 
   if (server.pid === undefined) {
     fs.rmdirSync(tmpdir, { recursive: true });
-    throw new Error("Failed to start netero-oauth-mock server");
+    throw new Error("Failed to start mockful-service server");
   }
 
   fs.readFileSync(readyFifoPath);

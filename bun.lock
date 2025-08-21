@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "netero-oauth-mock",
+      "name": "mockful-service",
       "devDependencies": {
         "@types/bun": "latest",
         "biome": "latest",

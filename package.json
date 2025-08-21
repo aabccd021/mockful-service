@@ -1,7 +1,7 @@
 {
-  "name": "netero-oauth-mock",
+  "name": "mockful-service",
   "scripts": {
-    "build": "bun build ./src/index.ts --compile --bytecode --sourcemap --outfile ./dist/netero-oauth-mock",
+    "build": "bun build ./src/index.ts --compile --bytecode --sourcemap --outfile ./dist/mockful-service",
     "format": "biome format --error-on-warnings --indent-style=space --line-width=100",
     "lint": "biome lint --error-on-warnings",
     "check": "tsc"
