@@ -1,36 +1,37 @@
-CREATE TABLE google_project (
+CREATE TABLE global_response(
   id TEXT NOT NULL,
-  CONSTRAINT google_project_pk PRIMARY KEY (id)
+  status INTEGER NOT NULL,
+  body TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE google_project (
+  id TEXT PRIMARY KEY
 ) STRICT;
 
 CREATE TABLE google_auth_session (
-  code TEXT NOT NULL,
+  code TEXT PRIMARY KEY, 
   scope TEXT NOT NULL,
   code_challenge TEXT,
   code_challenge_method TEXT,
   user_sub TEXT NOT NULL,
   client_id TEXT NOT NULL,
-  CONSTRAINT google_auth_session_code_pk PRIMARY KEY (code),
   CONSTRAINT google_auth_session_challenge_method_enum CHECK (code_challenge_method IN ('S256', 'plain')),
   FOREIGN KEY (user_sub) REFERENCES google_auth_user(sub) ON DELETE CASCADE,
   FOREIGN KEY (client_id) REFERENCES google_auth_client(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_auth_user (
-  sub TEXT NOT NULL,
+  sub TEXT PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   email_verified TEXT,
-  project_id TEXT NOT NULL,
-  CONSTRAINT google_auth_user_sub_pk PRIMARY KEY (sub),
-  CONSTRAINT google_auth_user_email_verified_boolean CHECK (email_verified IN ('true', 'false')),
+  project_id TEXT NOT NULL, CONSTRAINT google_auth_user_email_verified_boolean CHECK (email_verified IN ('true', 'false')),
   FOREIGN KEY (project_id) REFERENCES google_project(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE google_auth_client (
-  id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
   secret TEXT NOT NULL,
-  project_id TEXT NOT NULL,
-  CONSTRAINT google_auth_client_id_pk PRIMARY KEY (id)
+  project_id TEXT NOT NULL
 ) STRICT;
 
 CREATE TABLE google_auth_redirect_uri (
@@ -40,9 +41,8 @@ CREATE TABLE google_auth_redirect_uri (
 ) STRICT;
 
 CREATE TABLE paddle_account (
-  id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
   tax_mode TEXT NOT NULL DEFAULT 'internal',
-  CONSTRAINT paddle_account_pk PRIMARY KEY (id),
   CONSTRAINT paddle_account_tax_mode_enum CHECK (tax_mode IN ('internal', 'external'))
 ) STRICT;
 
@@ -54,16 +54,15 @@ CREATE TABLE paddle_account_tax_category_enabled (
 ) STRICT;
 
 CREATE TABLE paddle_api_key (
+  key TEXT PRIMARY KEY,
   account_id TEXT NOT NULL,
-  key TEXT NOT NULL,
-  CONSTRAINT paddle_api_key_pk PRIMARY KEY (key),
   CONSTRAINT paddle_api_key_id_prefix CHECK (key LIKE 'pdl_live_apikey_%' OR key LIKE 'pdl_sdbx_apikey_%'), -- https://developer.paddle.com/api-reference/about/api-keys#format
   CONSTRAINT paddle_api_key_id_length CHECK (LENGTH(key) = 69),
   FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE paddle_customer (
-  id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
   email TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'active',
   marketing_consent TEXT NOT NULL DEFAULT 'false',
@@ -72,7 +71,6 @@ CREATE TABLE paddle_customer (
   updated_at INTEGER NOT NULL,
   account_id TEXT NOT NULL,
   UNIQUE (account_id, email),
-  CONSTRAINT paddle_customer_id_pk PRIMARY KEY (id),
   CONSTRAINT paddle_customer_id_prefix CHECK (id LIKE 'ctm_%'),
   CONSTRAINT paddle_customer_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_customer_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
@@ -82,7 +80,7 @@ CREATE TABLE paddle_customer (
 ) STRICT;
 
 CREATE TABLE paddle_product (
-  id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   tax_category TEXT NOT NULL,
   type TEXT NOT NULL DEFAULT 'standard',
@@ -91,7 +89,6 @@ CREATE TABLE paddle_product (
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
   account_id TEXT NOT NULL,
-  CONSTRAINT paddle_product_pk PRIMARY KEY (id),
   CONSTRAINT paddle_product_id_prefix CHECK (id LIKE 'pro_%'),
   CONSTRAINT paddle_product_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_product_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
@@ -102,6 +99,7 @@ CREATE TABLE paddle_product (
 ) STRICT;
 
 CREATE TABLE paddle_price (
+  id TEXT PRIMARY KEY,
   description TEXT NOT NULL,
   product_id TEXT NOT NULL,
   unit_price_amount INTEGER NOT NULL,
@@ -115,8 +113,6 @@ CREATE TABLE paddle_price (
   status TEXT NOT NULL DEFAULT 'active',
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
-  id TEXT NOT NULL,
-  CONSTRAINT paddle_price_pk PRIMARY KEY (id),
   CONSTRAINT paddle_price_id_prefix CHECK (id LIKE 'pri_%'),
   CONSTRAINT paddle_price_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_price_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
@@ -134,13 +130,12 @@ CREATE TABLE paddle_price (
 ) STRICT;
 
 CREATE TABLE paddle_transaction (
-  id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
   status TEXT NOT NULL DEFAULT 'draft',
   customer_id TEXT NOT NULL,
   collection_mode TEXT NOT NULL DEFAULT 'automatic',
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
-  CONSTRAINT paddle_transaction_pk PRIMARY KEY (id),
   CONSTRAINT paddle_transaction_id_prefix CHECK (id LIKE 'txn_%'),
   CONSTRAINT paddle_transaction_id_length CHECK (LENGTH(id) = 30),
   CONSTRAINT paddle_transaction_id_pattern CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
