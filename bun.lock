@@ -4,7 +4,7 @@
     "": {
       "name": "netero-oauth-mock",
       "dependencies": {
-        "@types/bun": "^1.2.20",
+        "@types/bun": "latest",
         "openid-client": "latest",
       },
     },

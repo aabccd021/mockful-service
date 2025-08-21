@@ -6,7 +6,7 @@
     "lint": "bunx biome lint --error-on-warnings"
   },
   "dependencies": {
-    "@types/bun": "^1.2.20",
+    "@types/bun": "latest",
     "openid-client": "latest"
   }
 }
