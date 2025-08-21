@@ -61,9 +61,7 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
 
   const req = new Request(url, originalReq);
 
-  const neteroOrigin = new URL(originalReq.url).origin;
-
-  const ctx: Context = { req, db, neteroOrigin };
+  const ctx: Context = { req, db };
 
   const paths = url.pathname.split("/").filter((p) => p !== "");
 
