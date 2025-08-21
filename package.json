@@ -6,7 +6,7 @@
     "format": "biome format --error-on-warnings --indent-style=space --line-width=100",
     "lint": "biome lint --error-on-warnings",
     "check": "tsc",
-    "test": "bun test --bail"
+    "test": "bun run test/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
