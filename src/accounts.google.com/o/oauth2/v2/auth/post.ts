@@ -16,7 +16,7 @@ export async function handle(ctx: Context): Promise<Response> {
   ctx.db
     .query(
       `
-      INSERT INTO google_auth_session (
+    INSERT INTO google_auth_session (
         code,
         user_sub,
         client_id,
