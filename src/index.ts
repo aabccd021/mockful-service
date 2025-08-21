@@ -54,18 +54,18 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
     return new Response(null, { status: 404 });
   }
 
-  const req = new Request(url, originalReq);
-
   const subHandle = domainHandlers[url.hostname];
   if (subHandle === undefined) {
     return new Response(null, { status: 404 });
   }
 
-  const paths = url.pathname.split("/").filter((p) => p !== "");
+  const req = new Request(url, originalReq);
 
   const neteroOrigin = new URL(originalReq.url).origin;
 
   const ctx: Context = { req, db, neteroOrigin };
+
+  const paths = url.pathname.split("/").filter((p) => p !== "");
 
   return await subHandle(ctx, paths);
 }

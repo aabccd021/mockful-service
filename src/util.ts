@@ -4,9 +4,7 @@ export async function getStringFormData(ctx: Context): Promise<ReadonlyMap<strin
   const formDataRaw = await ctx.req.formData();
   const data = new Map<string, string>();
   for (const [key, value] of formDataRaw.entries()) {
-    if (typeof value === "string") {
-      data.set(key, value);
-    }
+    data.set(key, value);
   }
   return data;
 }
