@@ -11,7 +11,6 @@ CREATE TABLE global_static_route_response_header(
   FOREIGN KEY (global_static_route_id) REFERENCES global_static_route(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
-
 CREATE TABLE google_project (
   id TEXT PRIMARY KEY
 ) STRICT;
