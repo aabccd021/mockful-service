@@ -4,11 +4,12 @@ import * as os from "node:os";
 
 export type Context = {
   dbPath: string;
+  tmpdir: string;
   server: child_process.ChildProcess;
-  readyFifoPath: string;
 };
 
 export function init(): Context {
+  const tmpdir = fs.mkdtempSync(`${os.tmpdir()}/netero-oauth-mock-test-`);
   const testPrefix = `${os.tmpdir()}/netero-oauth-mock-test-${Date.now()}`;
   const dbPath = `${testPrefix}.sqlite`;
   const readyFifoPath = `${testPrefix}.ready.fifo`;
@@ -23,11 +24,10 @@ export function init(): Context {
   );
   fs.readFileSync(readyFifoPath);
 
-  return { dbPath, readyFifoPath, server };
+  return { dbPath, tmpdir, server };
 }
 
 export function deinit(ctx: Context): void {
   ctx.server.kill();
-  fs.unlinkSync(ctx.dbPath);
-  fs.unlinkSync(ctx.readyFifoPath);
+  fs.rmdirSync(ctx.tmpdir, { recursive: true });
 }
