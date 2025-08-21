@@ -5,9 +5,9 @@
       "name": "netero-oauth-mock",
       "devDependencies": {
         "@types/bun": "latest",
-        "biome": "^0.3.3",
+        "biome": "latest",
         "openid-client": "latest",
-        "typescript": "^5.9.2",
+        "typescript": "latest",
       },
     },
   },
