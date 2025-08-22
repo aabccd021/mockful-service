@@ -1,5 +1,5 @@
 CREATE TABLE global_static_route(
-  url TEXT NOT NULL,
+  url TEXT PRIMARY KEY,
   response_status INTEGER NOT NULL,
   response_body TEXT NOT NULL
 ) STRICT; 
@@ -10,6 +10,21 @@ CREATE TABLE global_static_route_response_header(
   value TEXT NOT NULL,
   FOREIGN KEY (global_static_route_url) REFERENCES global_static_route(url) ON UPDATE CASCADE ON DELETE CASCADE,
   unique (global_static_route_url, name)
+) STRICT;
+
+CREATE TABLE global_captured_response(
+  id TEXT PRIMARY KEY,
+  url TEXT NOT NULL,
+  method TEXT NOT NULL,
+  body TEXT NOT NULL
+) STRICT;
+
+CREATE TABLE global_captured_response_header(
+  global_captured_response_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  value TEXT NOT NULL,
+  FOREIGN KEY (global_captured_response_id) REFERENCES global_captured_response(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  unique (global_captured_response_id, name)
 ) STRICT;
 
 CREATE TABLE google_project (

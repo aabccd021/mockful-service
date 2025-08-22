@@ -3,6 +3,7 @@ import * as fs from "node:fs";
 import type { Context } from "@util";
 import { handle as accountsGoogleCom } from "./accounts.google.com/route.ts";
 import { handle as apiPaddleCom } from "./api.paddle.com/route.ts";
+import { handle as discordCom } from "./discord.com/route.ts";
 import { handle as oauth2GoogleapisCom } from "./oauth2.googleapis.com/route.ts";
 
 // @ts-ignore
@@ -15,6 +16,7 @@ const domainHandlers: Record<string, Handler> = {
   "sandbox-api.paddle.com": apiPaddleCom,
   "api.paddle.com": apiPaddleCom,
   "oauth2.googleapis.com": oauth2GoogleapisCom,
+  "discord.com": discordCom,
 };
 
 async function handle(originalReq: Request, dbPath: string): Promise<Response> {

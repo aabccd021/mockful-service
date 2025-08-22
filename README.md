@@ -1,10 +1,9 @@
 # TODO
 
-- dont use bun test
-- return static response
-- discord webhook
-- transaction create
-- hosted checkout
+- rename static route table name
+- use .test.ts of each file
+- authenticate discord webhook
+- paddle hosted checkout
 - Mock all authentication endpoint from OIDC discovery URL
 
 ## LICENCE
