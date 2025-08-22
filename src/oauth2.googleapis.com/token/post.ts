@@ -229,6 +229,16 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
+  if (client.id !== authSession.client_id) {
+    return Response.json(
+      {
+        error: "invalid_client",
+        error_description: "The OAuth client was not found.",
+      },
+      { status: 401 },
+    );
+  }
+
   if (authSession.code_challenge !== null) {
     const codeVerifier = formData.get("code_verifier");
     if (codeVerifier === undefined) {
@@ -275,16 +285,6 @@ export async function handle(ctx: Context): Promise<Response> {
       codeChallengeMethod satisfies never;
       throw new Error(`Unreachable code_challenge_method value: ${codeChallengeMethod}`);
     }
-  }
-
-  if (client.id !== authSession.client_id) {
-    return Response.json(
-      {
-        error: "invalid_client",
-        error_description: "The OAuth client was not found.",
-      },
-      { status: 401 },
-    );
   }
 
   const redirectUris = ctx.db
