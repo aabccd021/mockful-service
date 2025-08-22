@@ -188,6 +188,7 @@ async function validateCodeChallenge(args: {
       { status: 400 },
     );
   }
+
   if (codeChallengeMethod === "S256") {
     const hashBinary = await crypto.subtle.digest(
       "SHA-256",
@@ -208,6 +209,7 @@ async function validateCodeChallenge(args: {
       { status: 400 },
     );
   }
+
   codeChallengeMethod satisfies never;
   throw new Error(`Unreachable code_challenge_method value: ${codeChallengeMethod}`);
 }
