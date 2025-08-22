@@ -53,7 +53,6 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
     return new Response(null, { status: 404 });
   }
 
-  // TODO join header
   const staticRoute = db
     .query<{ response_body: string; response_status: bigint }, sqlite.SQLQueryBindings>(
       "SELECT response_status,response_body FROM global_static_route WHERE url = :url",
