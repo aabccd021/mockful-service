@@ -1,7 +1,6 @@
 # TODO
 
 - rename static route table name
-- use .test.ts of each file
 - authenticate discord webhook
 - paddle hosted checkout
 - Mock all authentication endpoint from OIDC discovery URL
