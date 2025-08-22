@@ -217,6 +217,7 @@ export async function handle(ctx: Context): Promise<Response> {
       `,
     )
     .get({ code });
+
   ctx.db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
 
   if (authSession === null) {
