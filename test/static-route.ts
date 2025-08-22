@@ -4,6 +4,8 @@ import * as test from "./util";
 using ctx = test.init();
 
 {
+  console.info("can serve static route");
+
   test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
