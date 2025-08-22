@@ -4,6 +4,7 @@
 - authenticate discord webhook
 - paddle hosted checkout
 - Mock all authentication endpoint from OIDC discovery URL
+- support client secret post
 
 ## LICENCE
 
