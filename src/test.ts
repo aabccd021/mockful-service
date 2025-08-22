@@ -1,10 +1,10 @@
 import * as fs from "node:fs";
 
-const testFiles = fs
-  .readdirSync(import.meta.dir, { recursive: true, encoding: "utf8" })
-  .filter((filename) => filename.endsWith(".test.ts"));
+const files = fs.readdirSync(import.meta.dir, { recursive: true, encoding: "utf8" });
 
-for (const testFile of testFiles) {
-  console.info(`\n# ${testFile}`);
-  await import(`${import.meta.dir}/${testFile}`);
+for (const filename of files) {
+  if (filename.endsWith(".test.ts")) {
+    console.info(`\n# ${filename}`);
+    await import(`${import.meta.dir}/${filename}`);
+  }
 }
