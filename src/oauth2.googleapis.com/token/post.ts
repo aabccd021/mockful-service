@@ -228,8 +228,8 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const reqRedirectUri = formData.get("redirect_uri");
-  if (reqRedirectUri === undefined) {
+  const redirectUri = formData.get("redirect_uri");
+  if (redirectUri === undefined) {
     return Response.json(
       {
         error: "invalid_request",
@@ -239,7 +239,7 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const [authErrorResponse, reqClient] = getClientFromBasicAuth(ctx);
+  const [authErrorResponse, client] = getClientFromBasicAuth(ctx);
   if (authErrorResponse !== undefined) {
     return authErrorResponse;
   }
@@ -286,7 +286,7 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  if (reqClient.id !== authSession.client_id) {
+  if (client.id !== authSession.client_id) {
     return Response.json(
       {
         error: "invalid_client",
@@ -316,7 +316,7 @@ export async function handle(ctx: Context): Promise<Response> {
           AND value = :redirectUri
       `,
     )
-    .all({ clientId: reqClient.id, redirectUri: reqRedirectUri });
+    .all({ clientId: client.id, redirectUri: redirectUri });
 
   if (validRedirectUris.length !== 1) {
     return Response.json(
@@ -330,7 +330,7 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const validSecrets = ctx.db
     .query("SELECT * FROM google_auth_client WHERE id = :id AND secret = :secret")
-    .all({ id: reqClient.id, secret: reqClient.secret });
+    .all({ id: client.id, secret: client.secret });
 
   if (validSecrets.length !== 1) {
     return Response.json(
