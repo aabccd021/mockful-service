@@ -7,6 +7,5 @@ const testFiles = fs
   .filter((filename) => !nonTestFiles.includes(filename));
 
 for (const testFile of testFiles) {
-  console.info(`\n# ${testFile}`);
   await import(`${import.meta.dir}/${testFile}`);
 }
