@@ -297,6 +297,7 @@ export async function handle(ctx: Context): Promise<Response> {
       `,
     )
     .all({ clientId: reqClient.id, redirectUri: reqRedirectUri });
+
   if (validRedirectUris.length !== 1) {
     return Response.json(
       {
@@ -310,6 +311,7 @@ export async function handle(ctx: Context): Promise<Response> {
   const validSecrets = ctx.db
     .query("SELECT * FROM google_auth_client WHERE id = :id AND secret = :secret")
     .all({ id: reqClient.id, secret: reqClient.secret });
+
   if (validSecrets.length !== 1) {
     return Response.json(
       {
