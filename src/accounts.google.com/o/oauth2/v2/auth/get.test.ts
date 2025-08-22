@@ -1,6 +1,6 @@
 import * as sqlite from "bun:sqlite";
+import * as test from "@test-util";
 import * as oauth from "openid-client";
-import * as test from "./util";
 
 using ctx = test.init();
 

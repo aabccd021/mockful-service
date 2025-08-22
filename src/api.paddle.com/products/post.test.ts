@@ -1,5 +1,5 @@
 import * as sqlite from "bun:sqlite";
-import * as test from "./util";
+import * as test from "@test-util";
 
 using ctx = test.init();
 
