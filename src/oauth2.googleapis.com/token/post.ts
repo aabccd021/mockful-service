@@ -239,9 +239,9 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const [clientErrRes, reqClient] = getClientFromBasicAuth(ctx);
-  if (clientErrRes !== undefined) {
-    return clientErrRes;
+  const [authErrorResponse, reqClient] = getClientFromBasicAuth(ctx);
+  if (authErrorResponse !== undefined) {
+    return authErrorResponse;
   }
 
   const code = formData.get("code");
@@ -297,13 +297,13 @@ export async function handle(ctx: Context): Promise<Response> {
   }
 
   if (authSession.code_challenge !== null) {
-    const validationErrorRes = await validateCodeChallenge({
+    const validationErrorResponse = await validateCodeChallenge({
       codeChallenge: authSession.code_challenge,
       codeChallengeMethod: authSession.code_challenge_method,
       codeVerifier: formData.get("code_verifier"),
     });
-    if (validationErrorRes !== undefined) {
-      return validationErrorRes;
+    if (validationErrorResponse !== undefined) {
+      return validationErrorResponse;
     }
   }
 
