@@ -172,8 +172,8 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const redirectUri = formData.get("redirect_uri");
-  if (redirectUri === undefined) {
+  const reqRedirectUri = formData.get("redirect_uri");
+  if (reqRedirectUri === undefined) {
     return Response.json(
       {
         error: "invalid_request",
@@ -183,7 +183,7 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const [clientErrRes, client] = getClientFromBasicAuth(ctx);
+  const [clientErrRes, reqClient] = getClientFromBasicAuth(ctx);
   if (clientErrRes !== undefined) {
     return clientErrRes;
   }
@@ -229,7 +229,7 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  if (client.id !== authSession.client_id) {
+  if (reqClient.id !== authSession.client_id) {
     return Response.json(
       {
         error: "invalid_client",
@@ -288,13 +288,16 @@ export async function handle(ctx: Context): Promise<Response> {
   }
 
   const validRedirectUris = ctx.db
-    .query<{ value: string }, sqlite.SQLQueryBindings>(
-      "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
+    .query(
+      `
+        SELECT * 
+        FROM google_auth_redirect_uri 
+        WHERE client_id = :clientId
+          AND value = :redirectUri
+      `,
     )
-    .all({ clientId: client.id })
-    .map((row) => row.value);
-
-  if (!validRedirectUris.includes(redirectUri)) {
+    .all({ clientId: reqClient.id, redirectUri: reqRedirectUri });
+  if (validRedirectUris.length !== 1) {
     return Response.json(
       {
         error: "redirect_uri_mismatch",
@@ -305,13 +308,9 @@ export async function handle(ctx: Context): Promise<Response> {
   }
 
   const validSecrets = ctx.db
-    .query<{ secret: string }, sqlite.SQLQueryBindings>(
-      "SELECT secret FROM google_auth_client WHERE id = $id",
-    )
-    .all({ id: client.id })
-    .map((row) => row.secret);
-
-  if (!validSecrets.includes(client.secret)) {
+    .query("SELECT * FROM google_auth_client WHERE id = :id AND secret = :secret")
+    .all({ id: reqClient.id, secret: reqClient.secret });
+  if (validSecrets.length !== 1) {
     return Response.json(
       {
         error: "invalid_client",
