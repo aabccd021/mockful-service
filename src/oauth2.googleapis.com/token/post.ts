@@ -158,6 +158,60 @@ async function createIdToken(authSession: AuthSession, accessToken: string) {
   return `${headerStr}.${payloadStr}.${signatureStr}`;
 }
 
+async function validateCodeChallenge(args: {
+  codeChallenge: string;
+  codeVerifier: string | undefined;
+  codeChallengeMethod: "S256" | "plain" | null;
+}): Promise<Response | undefined> {
+  const codeVerifier = args.codeVerifier;
+  if (codeVerifier === undefined) {
+    return Response.json(
+      {
+        error: "invalid_grant",
+        error_description: "Missing code verifier.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const codeChallengeMethod: "S256" | "plain" = args.codeChallengeMethod ?? "plain";
+
+  if (codeChallengeMethod === "plain") {
+    if (args.codeChallenge === codeVerifier) {
+      return undefined;
+    }
+    return Response.json(
+      {
+        error: "invalid_grant",
+        error_description: "Invalid code verifier.",
+      },
+      { status: 400 },
+    );
+  }
+  if (codeChallengeMethod === "S256") {
+    const hashBinary = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(codeVerifier),
+    );
+    const codeVerifierHash = new Uint8Array(hashBinary).toBase64({
+      alphabet: "base64url",
+      omitPadding: true,
+    });
+    if (args.codeChallenge === codeVerifierHash) {
+      return undefined;
+    }
+    return Response.json(
+      {
+        error: "invalid_grant",
+        error_description: "Invalid code verifier.",
+      },
+      { status: 400 },
+    );
+  }
+  codeChallengeMethod satisfies never;
+  throw new Error(`Unreachable code_challenge_method value: ${codeChallengeMethod}`);
+}
+
 export async function handle(ctx: Context): Promise<Response> {
   const formData = await getStringFormData(ctx);
 
@@ -241,50 +295,13 @@ export async function handle(ctx: Context): Promise<Response> {
   }
 
   if (authSession.code_challenge !== null) {
-    const codeVerifier = formData.get("code_verifier");
-    if (codeVerifier === undefined) {
-      return Response.json(
-        {
-          error: "invalid_grant",
-          error_description: "Missing code verifier.",
-        },
-        { status: 400 },
-      );
-    }
-
-    const codeChallengeMethod: "S256" | "plain" = authSession.code_challenge_method ?? "plain";
-
-    if (codeChallengeMethod === "plain") {
-      if (authSession.code_challenge !== codeVerifier) {
-        return Response.json(
-          {
-            error: "invalid_grant",
-            error_description: "Invalid code verifier.",
-          },
-          { status: 400 },
-        );
-      }
-    } else if (codeChallengeMethod === "S256") {
-      const hashBinary = await crypto.subtle.digest(
-        "SHA-256",
-        new TextEncoder().encode(codeVerifier),
-      );
-      const codeVerifierHash = new Uint8Array(hashBinary).toBase64({
-        alphabet: "base64url",
-        omitPadding: true,
-      });
-      if (authSession.code_challenge !== codeVerifierHash) {
-        return Response.json(
-          {
-            error: "invalid_grant",
-            error_description: "Invalid code verifier.",
-          },
-          { status: 400 },
-        );
-      }
-    } else {
-      codeChallengeMethod satisfies never;
-      throw new Error(`Unreachable code_challenge_method value: ${codeChallengeMethod}`);
+    const validationErrorRes = await validateCodeChallenge({
+      codeChallenge: authSession.code_challenge,
+      codeChallengeMethod: authSession.code_challenge_method,
+      codeVerifier: formData.get("code_verifier"),
+    });
+    if (validationErrorRes !== undefined) {
+      return validationErrorRes;
     }
   }
 
