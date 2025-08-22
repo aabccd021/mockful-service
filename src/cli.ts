@@ -11,7 +11,7 @@ import migration from "./schema.sql" with { type: "text" };
 
 type Handler = (ctx: Context, paths: string[]) => Promise<Response>;
 
-const domainHandlers: Record<string, Handler> = {
+const serviceHandlers: Record<string, Handler> = {
   "accounts.google.com": accountsGoogleCom,
   "sandbox-api.paddle.com": apiPaddleCom,
   "api.paddle.com": apiPaddleCom,
@@ -50,25 +50,21 @@ async function handle(originalReq: Request, dbPath: string): Promise<Response> {
         `,
       )
       .all({ url: translatedUrl.toString() });
-
     return new Response(staticRoute.response_body, {
       status: Number(staticRoute.response_status),
       headers: Object.fromEntries(headers.map(({ name, value }) => [name, value])),
     });
   }
 
-  const subHandle = domainHandlers[translatedUrl.hostname];
-  if (subHandle === undefined) {
+  const serviceHandler = serviceHandlers[translatedUrl.hostname];
+  if (serviceHandler === undefined) {
     return new Response(null, { status: 404 });
   }
 
   const req = new Request(translatedUrl, originalReq);
-
   const ctx: Context = { req, db };
-
   const paths = translatedUrl.pathname.split("/").filter((p) => p !== "");
-
-  return await subHandle(ctx, paths);
+  return await serviceHandler(ctx, paths);
 }
 
 async function serve(argList: string[]) {
