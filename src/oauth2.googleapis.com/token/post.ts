@@ -3,14 +3,102 @@ import type { Context } from "@util";
 import { getStringFormData } from "@util";
 
 type AuthSession = {
-  client_id: string;
-  scope: string;
-  code_challenge: string | null;
-  code_challenge_method: "S256" | "plain" | null;
-  user_sub: string;
-  user_email: string;
-  user_email_verified: "true" | "false" | null;
+  readonly client_id: string;
+  readonly scope: string;
+  readonly code_challenge: string | null;
+  readonly code_challenge_method: "S256" | "plain" | null;
+  readonly user_sub: string;
+  readonly user_email: string;
+  readonly user_email_verified: "true" | "false" | null;
 };
+
+type Client = {
+  readonly id: string;
+  readonly secret: string;
+};
+
+function getClientFromBasicAuth(ctx: Context): [undefined, Client] | [Response] {
+  const authHeader = ctx.req.headers.get("Authorization");
+  if (authHeader === null) {
+    return [
+      Response.json(
+        {
+          error: "invalid_request",
+          error_description: "Could not determine client ID from request.",
+        },
+        { status: 400 },
+      ),
+    ];
+  }
+
+  const [prefix, credentials] = authHeader.split(" ");
+
+  if (prefix === undefined) {
+    return [
+      Response.json(
+        {
+          error: "invalid_request",
+          error_description: "Could not determine client ID from request.",
+        },
+        { status: 400 },
+      ),
+    ];
+  }
+
+  if (prefix !== "Basic") {
+    return [
+      Response.json(
+        {
+          error: "invalid_request",
+          error_description: "Could not determine client ID from request.",
+        },
+        { status: 400 },
+      ),
+    ];
+  }
+
+  if (credentials === undefined) {
+    return [
+      Response.json(
+        {
+          error: "invalid_request",
+          error_description: "Bad Request",
+        },
+        { status: 400 },
+      ),
+    ];
+  }
+
+  const [idRaw, secretRaw] = atob(credentials).split(":");
+
+  if (idRaw === undefined || idRaw === "") {
+    return [
+      Response.json(
+        {
+          error: "invalid_request",
+          error_description: "Could not determine client ID from request.",
+        },
+        { status: 400 },
+      ),
+    ];
+  }
+  const id = decodeURIComponent(idRaw);
+
+  if (secretRaw === undefined || secretRaw === "") {
+    return [
+      Response.json(
+        {
+          error: "invalid_request",
+          error_description: "client_secret is missing.",
+        },
+        { status: 400 },
+      ),
+    ];
+  }
+  const secret = decodeURIComponent(secretRaw);
+
+  return [undefined, { id, secret }];
+}
 
 async function createIdToken(authSession: AuthSession, accessToken: string) {
   const scopes = authSession.scope.split(" ");
@@ -95,74 +183,10 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const authHeader = ctx.req.headers.get("Authorization");
-  if (authHeader === null) {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Could not determine client ID from request.",
-      },
-      { status: 400 },
-    );
+  const [clientErrRes, client] = getClientFromBasicAuth(ctx);
+  if (clientErrRes !== undefined) {
+    return clientErrRes;
   }
-
-  const [prefix, credentials] = authHeader.split(" ");
-
-  if (prefix === undefined) {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Could not determine client ID from request.",
-      },
-      { status: 400 },
-    );
-  }
-
-  if (prefix !== "Basic") {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Could not determine client ID from request.",
-      },
-      { status: 400 },
-    );
-  }
-
-  if (credentials === undefined) {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Bad Request",
-      },
-      { status: 400 },
-    );
-  }
-
-  const [clientIdRaw, clientSecretRaw] = atob(credentials).split(":");
-
-  if (clientIdRaw === undefined || clientIdRaw === "") {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Could not determine client ID from request.",
-      },
-      { status: 400 },
-    );
-  }
-
-  const clientId = decodeURIComponent(clientIdRaw);
-
-  if (clientSecretRaw === undefined || clientSecretRaw === "") {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "client_secret is missing.",
-      },
-      { status: 400 },
-    );
-  }
-
-  const clientSecret = decodeURIComponent(clientSecretRaw);
 
   const code = formData.get("code");
   if (code === undefined || code === "") {
@@ -253,7 +277,7 @@ export async function handle(ctx: Context): Promise<Response> {
     }
   }
 
-  if (clientId !== authSession.client_id) {
+  if (client.id !== authSession.client_id) {
     return Response.json(
       {
         error: "invalid_client",
@@ -267,7 +291,7 @@ export async function handle(ctx: Context): Promise<Response> {
     .query<{ value: string }, sqlite.SQLQueryBindings>(
       "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
     )
-    .all({ clientId: clientId });
+    .all({ clientId: client.id });
 
   const validRedirectUris = redirectUris.map((r) => r.value);
   if (!validRedirectUris.includes(redirectUri)) {
@@ -284,9 +308,9 @@ export async function handle(ctx: Context): Promise<Response> {
     .query<{ secret: string }, sqlite.SQLQueryBindings>(
       "SELECT secret FROM google_auth_client WHERE id = $id",
     )
-    .all({ id: clientId });
+    .all({ id: client.id });
 
-  const isSecretValid = clients.map((c) => c.secret).includes(clientSecret);
+  const isSecretValid = clients.map((c) => c.secret).includes(client.secret);
   if (!isSecretValid) {
     return Response.json(
       {
