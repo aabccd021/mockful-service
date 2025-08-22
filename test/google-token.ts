@@ -1,10 +1,12 @@
 import * as sqlite from "bun:sqlite";
 import * as oauth from "openid-client";
-import * as util from "./util";
+import * as test from "./util";
+
+using ctx = test.init();
 
 {
   console.info("auth header credential missing");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -25,7 +27,7 @@ import * as util from "./util";
 
 {
   console.info("auth header missing");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -46,7 +48,7 @@ import * as util from "./util";
 
 {
   console.info("auth header prefix invalid");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -68,7 +70,7 @@ import * as util from "./util";
 
 {
   console.info("client id mismatch");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -141,7 +143,7 @@ import * as util from "./util";
 
 {
   console.info("client id missing");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -163,7 +165,7 @@ import * as util from "./util";
 
 {
   console.info("client secret mismatch");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -235,7 +237,7 @@ import * as util from "./util";
 
 {
   console.info("client secret missing");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -256,7 +258,7 @@ import * as util from "./util";
 
 {
   console.info("code invalid");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -278,7 +280,7 @@ import * as util from "./util";
 
 {
   console.info("code missing");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -299,7 +301,7 @@ import * as util from "./util";
 
 {
   console.info("code verifier invalid");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -360,7 +362,7 @@ import * as util from "./util";
 
 {
   console.info("code verifier missing");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -426,7 +428,7 @@ import * as util from "./util";
 
 {
   console.info("code verifier s256 invalid");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -487,7 +489,7 @@ import * as util from "./util";
 
 {
   console.info("get");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token");
 
   if (tokenResponse.status !== 405) throw new Error();
@@ -495,7 +497,7 @@ import * as util from "./util";
 
 {
   console.info("grant type invalid");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -514,7 +516,7 @@ import * as util from "./util";
 
 {
   console.info("redirect uri mismatch");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -581,7 +583,7 @@ import * as util from "./util";
 
 {
   console.info("redirect uri missing");
-  using _ctx = util.init();
+  test.resetDb(ctx);
   const tokenResponse = await fetch("http://localhost:3001/https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: {
@@ -601,7 +603,7 @@ import * as util from "./util";
 
 {
   console.info("success no challenge method");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -658,7 +660,7 @@ import * as util from "./util";
 
 {
   console.info("success plain");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -715,7 +717,7 @@ import * as util from "./util";
 
 {
   console.info("success s256");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -773,7 +775,7 @@ import * as util from "./util";
 
 {
   console.info("success scope email");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -834,7 +836,7 @@ import * as util from "./util";
 
 {
   console.info("success scope email verified");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -895,7 +897,7 @@ import * as util from "./util";
 
 {
   console.info("success scope missing");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -954,7 +956,7 @@ import * as util from "./util";
 
 {
   console.info("success");
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');

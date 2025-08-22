@@ -1,11 +1,13 @@
 import * as sqlite from "bun:sqlite";
 import * as oauth from "openid-client";
-import * as util from "./util";
+import * as test from "./util";
+
+using ctx = test.init();
 
 {
   console.info("get base oidc");
 
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -50,7 +52,7 @@ import * as util from "./util";
 {
   console.info("get base");
 
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -75,7 +77,7 @@ import * as util from "./util";
 {
   console.info("get client id invalid");
 
-  using _ctx = util.init();
+  test.resetDb(ctx);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -98,7 +100,7 @@ import * as util from "./util";
 {
   console.info("get client id missing");
 
-  using _ctx = util.init();
+  test.resetDb(ctx);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -120,7 +122,7 @@ import * as util from "./util";
 {
   console.info("get code challenge method invalid");
 
-  using _ctx = util.init();
+  test.resetDb(ctx);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -143,7 +145,7 @@ import * as util from "./util";
 {
   console.info("get redirect uri invalid");
 
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -172,7 +174,7 @@ import * as util from "./util";
 {
   console.info("get redirect uri missing");
 
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');
@@ -199,7 +201,7 @@ import * as util from "./util";
 {
   console.info("get response type invalid");
 
-  using _ctx = util.init();
+  test.resetDb(ctx);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -221,7 +223,7 @@ import * as util from "./util";
 {
   console.info("get response type missing");
 
-  using _ctx = util.init();
+  test.resetDb(ctx);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "openid");
@@ -243,7 +245,7 @@ import * as util from "./util";
 {
   console.info("get scope invalid");
 
-  using _ctx = util.init();
+  test.resetDb(ctx);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   authUrl.searchParams.set("scope", "foo"); // changed
@@ -266,7 +268,7 @@ import * as util from "./util";
 {
   console.info("get scope missing");
 
-  using _ctx = util.init();
+  test.resetDb(ctx);
 
   const authUrl = new URL("http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth");
   // authUrl.searchParams.set("scope", "openid");
@@ -288,7 +290,7 @@ import * as util from "./util";
 {
   console.info("get state missing");
 
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO google_project (id) VALUES ('mock_project_id');

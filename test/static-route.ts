@@ -1,8 +1,10 @@
 import * as sqlite from "bun:sqlite";
-import * as util from "./util";
+import * as test from "./util";
+
+using ctx = test.init();
 
 {
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO global_static_route (url, response_status, response_body) VALUES (

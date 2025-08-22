@@ -47,7 +47,12 @@ function translateReqUrl(req: Request): URL | undefined {
   return url;
 }
 
-async function handle(originalReq: Request, db: sqlite.Database): Promise<Response> {
+async function handle(originalReq: Request, dbPath: string): Promise<Response> {
+  using db = new sqlite.Database(dbPath, { strict: true });
+  db.exec("PRAGMA journal_mode = WAL;");
+  db.exec("PRAGMA synchronous = NORMAL;");
+  db.exec("PRAGMA foreign_keys = ON;");
+
   const translatedUrl = translateReqUrl(originalReq);
   if (translatedUrl === undefined) {
     return new Response(null, { status: 404 });
@@ -123,15 +128,10 @@ async function serve(argList: string[]) {
     throw new Error("Argument --db is required.");
   }
 
-  const db = new sqlite.Database(dbPath, { strict: true });
-  db.exec("PRAGMA journal_mode = WAL;");
-  db.exec("PRAGMA synchronous = NORMAL;");
-  db.exec("PRAGMA foreign_keys = ON;");
-
   Bun.serve({
     port: Number.parseInt(port, 10),
     development: false,
-    fetch: (req) => handle(req, db),
+    fetch: (req) => handle(req, dbPath)
   });
 
   if (readyFifo !== undefined && fs.existsSync(readyFifo)) {

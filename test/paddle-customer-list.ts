@@ -1,10 +1,12 @@
 import * as sqlite from "bun:sqlite";
-import * as util from "./util";
+import * as test from "./util";
+
+using ctx = test.init();
 
 {
   console.info("by emails");
 
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -65,7 +67,7 @@ import * as util from "./util";
 {
   console.info("by email");
 
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -113,7 +115,7 @@ import * as util from "./util";
 {
   console.info("by ids");
 
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
@@ -178,7 +180,7 @@ import * as util from "./util";
 {
   console.info("success");
 
-  using ctx = util.init();
+  test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO paddle_account (id) VALUES ('mock_account_id');
