@@ -3,7 +3,7 @@
   "scripts": {
     "build": "bun build ./src/index.ts --compile --bytecode --sourcemap --outfile ./dist/mockful-service",
     "bundle": "bun build ./src/index.ts --target=bun --minify --sourcemap=inline --outfile ./dist/mockful-service.js",
-    "test": "bun run test/index.ts"
+    "test": "bun test/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",

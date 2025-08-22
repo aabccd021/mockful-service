@@ -131,7 +131,7 @@ async function serve(argList: string[]) {
   Bun.serve({
     port: Number.parseInt(port, 10),
     development: false,
-    fetch: (req) => handle(req, dbPath)
+    fetch: (req) => handle(req, dbPath),
   });
 
   if (readyFifo !== undefined && fs.existsSync(readyFifo)) {
