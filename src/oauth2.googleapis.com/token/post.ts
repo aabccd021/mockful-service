@@ -12,20 +12,6 @@ type AuthSession = {
   user_email_verified: "true" | "false" | null;
 };
 
-function emailVerifiedToBoolean(value: "true" | "false" | null): boolean {
-  if (value === "true") {
-    return true;
-  }
-  if (value === "false") {
-    return false;
-  }
-  if (value === null) {
-    throw new Error("Scope 'email' is used but email_verified is null.");
-  }
-  value satisfies never;
-  throw new Error(`Unreachable email_verified value: ${value}`);
-}
-
 async function createIdToken(authSession: AuthSession, accessToken: string) {
   const scopes = authSession.scope.split(" ");
   if (!scopes.includes("openid")) {
@@ -49,6 +35,13 @@ async function createIdToken(authSession: AuthSession, accessToken: string) {
 
   const nowEpoch = Math.floor(Date.now() / 1000);
 
+  let email_verified: boolean | undefined;
+  if (authSession.user_email_verified === "true") {
+    email_verified = true;
+  } else if (authSession.user_email_verified === "false") {
+    email_verified = false;
+  }
+
   const payload = {
     iss: "https://accounts.google.com",
     aud: authSession.client_id,
@@ -57,9 +50,7 @@ async function createIdToken(authSession: AuthSession, accessToken: string) {
     at_hash: atHash,
     sub: authSession.user_sub,
     email: scopes.includes("email") ? authSession.user_email : undefined,
-    email_verified: scopes.includes("email")
-      ? emailVerifiedToBoolean(authSession.user_email_verified)
-      : undefined,
+    email_verified,
   };
 
   const payloadStr = new TextEncoder()

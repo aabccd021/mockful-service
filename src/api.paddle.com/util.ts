@@ -15,20 +15,6 @@ function forbiddenResponse(): Response {
   );
 }
 
-function authenticationMalformedResponse(): Response {
-  return Response.json(
-    {
-      error: {
-        type: "request_error",
-        code: "authentication_malformed",
-        detail: "Authentication header included, but incorrectly formatted.",
-        documentation_url: "https://developer.paddle.com/v1/errors/shared/authentication_malformed",
-      },
-    },
-    { status: 400 },
-  );
-}
-
 export function authenticate(ctx: Context): ResponseOr<string> {
   const authHeader = ctx.req.headers.get("Authorization");
   if (authHeader === null) {
@@ -41,7 +27,20 @@ export function authenticate(ctx: Context): ResponseOr<string> {
   }
 
   if (reqApiKey === undefined) {
-    return [authenticationMalformedResponse()];
+    return [
+      Response.json(
+        {
+          error: {
+            type: "request_error",
+            code: "authentication_malformed",
+            detail: "Authentication header included, but incorrectly formatted.",
+            documentation_url:
+              "https://developer.paddle.com/v1/errors/shared/authentication_malformed",
+          },
+        },
+        { status: 400 },
+      ),
+    ];
   }
 
   const apiKey = ctx.db
