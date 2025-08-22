@@ -190,11 +190,11 @@ async function validateCodeChallenge(args: {
   }
 
   if (codeChallengeMethod === "S256") {
-    const hashBinary = await crypto.subtle.digest(
+    const codeVerifierHashBuffer = await crypto.subtle.digest(
       "SHA-256",
       new TextEncoder().encode(codeVerifier),
     );
-    const codeVerifierHash = new Uint8Array(hashBinary).toBase64({
+    const codeVerifierHash = new Uint8Array(codeVerifierHashBuffer).toBase64({
       alphabet: "base64url",
       omitPadding: true,
     });
