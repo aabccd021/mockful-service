@@ -15,39 +15,12 @@ const domainHandlers: Record<string, Handle> = {
   "oauth2.googleapis.com": oauth2GoogleapisCom,
 };
 
-function translateUrl(originalUrlStr: string): URL | undefined {
-  const originalUrl = new URL(originalUrlStr);
-  try {
-    return new URL(originalUrl.pathname.slice(1) + originalUrl.search + originalUrl.hash);
-  } catch (_) {
-    return undefined;
-  }
-}
-
-function translateReqUrl(req: Request): URL | undefined {
-  const originalTl = translateUrl(req.url);
-  if (originalTl !== undefined) {
-    return originalTl;
-  }
-
-  const referrer = req.headers.get("Referer");
-  if (referrer === null) {
-    return undefined;
-  }
-
-  const referrerTl = translateUrl(referrer);
-  if (referrerTl === undefined) {
-    return undefined;
-  }
-
-  const url = new URL(req.url);
-  url.protocol = referrerTl.protocol;
-  url.hostname = referrerTl.hostname;
-  url.port = referrerTl.port;
-  return url;
-}
-
 async function handle(originalReq: Request, dbPath: string): Promise<Response> {
+  const originalUrl = new URL(originalReq.url);
+  const translatedUrl = new URL(
+    originalUrl.pathname.slice(1) + originalUrl.search + originalUrl.hash,
+  );
+
   const dbPathExists = fs.existsSync(dbPath);
   using db = new sqlite.Database(dbPath, { strict: true, create: true });
   db.exec("PRAGMA journal_mode = WAL;");
@@ -57,16 +30,12 @@ async function handle(originalReq: Request, dbPath: string): Promise<Response> {
     db.exec(migration);
   }
 
-  const translatedUrl = translateReqUrl(originalReq);
-  if (translatedUrl === undefined) {
-    return new Response(null, { status: 404 });
-  }
-
   const staticRoute = db
     .query<{ response_body: string; response_status: bigint }, sqlite.SQLQueryBindings>(
       "SELECT response_status,response_body FROM global_static_route WHERE url = :url",
     )
     .get({ url: translatedUrl.toString() });
+
   if (staticRoute !== null) {
     const headers = db
       .query<{ name: string; value: string }, sqlite.SQLQueryBindings>(
