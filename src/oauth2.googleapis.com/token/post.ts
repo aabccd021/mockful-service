@@ -287,13 +287,13 @@ export async function handle(ctx: Context): Promise<Response> {
     }
   }
 
-  const redirectUris = ctx.db
+  const validRedirectUris = ctx.db
     .query<{ value: string }, sqlite.SQLQueryBindings>(
       "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
     )
-    .all({ clientId: client.id });
+    .all({ clientId: client.id })
+    .map((row) => row.value);
 
-  const validRedirectUris = redirectUris.map((r) => r.value);
   if (!validRedirectUris.includes(redirectUri)) {
     return Response.json(
       {
@@ -304,14 +304,14 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const clientSecrets = ctx.db
+  const validSecrets = ctx.db
     .query<{ secret: string }, sqlite.SQLQueryBindings>(
       "SELECT secret FROM google_auth_client WHERE id = $id",
     )
-    .all({ id: client.id });
+    .all({ id: client.id })
+    .map((row) => row.secret);
 
-  const isSecretValid = clientSecrets.map(({ secret }) => secret).includes(client.secret);
-  if (!isSecretValid) {
+  if (!validSecrets.includes(client.secret)) {
     return Response.json(
       {
         error: "invalid_client",
