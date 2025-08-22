@@ -304,13 +304,13 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const clients = ctx.db
+  const clientSecrets = ctx.db
     .query<{ secret: string }, sqlite.SQLQueryBindings>(
       "SELECT secret FROM google_auth_client WHERE id = $id",
     )
     .all({ id: client.id });
 
-  const isSecretValid = clients.map((c) => c.secret).includes(client.secret);
+  const isSecretValid = clientSecrets.map(({ secret }) => secret).includes(client.secret);
   if (!isSecretValid) {
     return Response.json(
       {
