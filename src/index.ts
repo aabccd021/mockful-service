@@ -48,10 +48,14 @@ function translateReqUrl(req: Request): URL | undefined {
 }
 
 async function handle(originalReq: Request, dbPath: string): Promise<Response> {
-  using db = new sqlite.Database(dbPath, { strict: true });
+  const dbPathExists = fs.existsSync(dbPath);
+  using db = new sqlite.Database(dbPath, { strict: true, create: true });
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA synchronous = NORMAL;");
   db.exec("PRAGMA foreign_keys = ON;");
+  if (!dbPathExists) {
+    db.exec(migration);
+  }
 
   const translatedUrl = translateReqUrl(originalReq);
   if (translatedUrl === undefined) {
