@@ -3,15 +3,10 @@
   "scripts": {
     "build": "bun build ./src/index.ts --compile --bytecode --sourcemap --outfile ./dist/mockful-service",
     "bundle": "bun build ./src/index.ts --target=bun --minify --sourcemap=inline --outfile ./dist/mockful-service.js",
-    "format": "biome format --error-on-warnings --indent-style=space --line-width=100",
-    "lint": "biome lint --error-on-warnings",
-    "check": "tsc",
     "test": "bun run test/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "biome": "latest",
-    "openid-client": "latest",
-    "typescript": "latest"
+    "openid-client": "latest"
   }
 }

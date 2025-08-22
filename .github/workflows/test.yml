@@ -7,10 +7,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
+      - run: nix run nixpkgs#biome check --error-on-warnings
+      - run: nix run nixpkgs#typescript
       - run: nix shell nixpkgs#bun --command bun run build
       - run: nix shell nixpkgs#bun --command bun run bundle
       - run: nix shell nixpkgs#bun --command bun install
-      - run: nix shell nixpkgs#bun --command bun run format
-      - run: nix shell nixpkgs#bun --command bun run lint
-      - run: nix shell nixpkgs#bun --command bun run check
       - run: nix shell nixpkgs#bun --command bun run test

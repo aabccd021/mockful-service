@@ -55,7 +55,7 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
 
   // TODO join header
   const staticRoute = db
-    .query<{ response_body: string; response_status: BigInt }, sqlite.SQLQueryBindings>(
+    .query<{ response_body: string; response_status: bigint }, sqlite.SQLQueryBindings>(
       "SELECT response_status,response_body FROM global_static_route WHERE url = :url",
     )
     .get({ url: translatedUrl.toString() });
@@ -73,7 +73,7 @@ async function handle(originalReq: Request, db: sqlite.Database): Promise<Respon
 
     return new Response(staticRoute.response_body, {
       status: Number(staticRoute.response_status),
-      headers: Object.fromEntries(headers.map(({name, value}) => [name, value]))
+      headers: Object.fromEntries(headers.map(({ name, value }) => [name, value])),
     });
   }
 
