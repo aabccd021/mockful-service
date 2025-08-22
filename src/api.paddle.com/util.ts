@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import type { Context, ResponseOr } from "@util";
+import type { Context } from "@util";
 
 function forbiddenResponse(): Response {
   return Response.json(
@@ -15,7 +15,11 @@ function forbiddenResponse(): Response {
   );
 }
 
-export function authenticate(ctx: Context): ResponseOr<string> {
+export type Account = {
+  readonly id: string;
+};
+
+export function authenticate(ctx: Context): [undefined, Account] | [Response] {
   const authHeader = ctx.req.headers.get("Authorization");
   if (authHeader === null) {
     return [forbiddenResponse()];
@@ -53,7 +57,11 @@ export function authenticate(ctx: Context): ResponseOr<string> {
     return [forbiddenResponse()];
   }
 
-  return [undefined, apiKey.account_id];
+  const account: Account = {
+    id: apiKey.account_id,
+  };
+
+  return [undefined, account];
 }
 
 export function generateId(): string {

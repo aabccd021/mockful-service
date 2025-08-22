@@ -13,7 +13,3 @@ export type Context = {
   db: Database;
   req: Request;
 };
-
-export type Handle = (ctx: Context, paths: string[]) => Promise<Response>;
-
-export type ResponseOr<T> = [undefined, T] | [Response];

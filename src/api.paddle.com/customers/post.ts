@@ -14,7 +14,7 @@ type Row = {
 };
 
 export async function handle(ctx: Context): Promise<Response> {
-  const [authErrorRes, accountId] = paddle.authenticate(ctx);
+  const [authErrorRes, account] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
@@ -47,7 +47,7 @@ export async function handle(ctx: Context): Promise<Response> {
       )
       .run({
         id,
-        accountId: accountId,
+        accountId: account.id,
         email: reqBody.email,
         locale: reqBody.locale ?? "en",
         createdAt: Date.now(),

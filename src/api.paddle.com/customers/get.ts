@@ -15,7 +15,7 @@ type Row = {
 };
 
 export async function handle(ctx: Context): Promise<Response> {
-  const [authErrorRes, accountId] = paddle.authenticate(ctx);
+  const [authErrorRes, account] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
@@ -35,7 +35,7 @@ export async function handle(ctx: Context): Promise<Response> {
           .query<Row, sqlite.SQLQueryBindings>(
             "SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId",
           )
-          .get({ email, accountId: accountId }),
+          .get({ email, accountId: account.id }),
       )
       .filter((val) => val !== null);
   } else if (reqQuery.id !== undefined) {
@@ -43,7 +43,7 @@ export async function handle(ctx: Context): Promise<Response> {
       .map((id) =>
         ctx.db
           .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
-          .get({ id, accountId: accountId }),
+          .get({ id, accountId: account.id }),
       )
       .filter((val) => val !== null);
   } else {
@@ -51,7 +51,7 @@ export async function handle(ctx: Context): Promise<Response> {
       .query<Row, sqlite.SQLQueryBindings>(
         "SELECT * FROM paddle_customer WHERE account_id = $accountId",
       )
-      .all({ accountId: accountId });
+      .all({ accountId: account.id });
   }
 
   const data = customers.map((customer) => ({

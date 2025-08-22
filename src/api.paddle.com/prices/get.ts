@@ -51,7 +51,7 @@ type Row = {
 };
 
 export async function handle(ctx: Context): Promise<Response> {
-  const [authErrorRes, accountId] = paddle.authenticate(ctx);
+  const [authErrorRes, account] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
     return authErrorRes;
   }
@@ -96,7 +96,7 @@ export async function handle(ctx: Context): Promise<Response> {
             END
         `,
       )
-      .all({ accountId: accountId, recurring: reqQuery.recurring });
+      .all({ accountId: account.id, recurring: reqQuery.recurring });
   }
 
   const data = prices.map((price) => {
