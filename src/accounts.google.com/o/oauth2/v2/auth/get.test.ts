@@ -6,7 +6,6 @@ using ctx = test.init();
 
 {
   console.info("get base oidc");
-
   test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`

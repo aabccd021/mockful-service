@@ -40,14 +40,17 @@ const json = {
 };
 
 export async function handle(ctx: Context): Promise<Response> {
-  return Response.json({
-    ...json,
-    issuer: ctx.urlPrefix + json.issuer,
-    authorization_endpoint: ctx.urlPrefix + json.authorization_endpoint,
-    device_authorization_endpoint: ctx.urlPrefix + json.device_authorization_endpoint,
-    token_endpoint: ctx.urlPrefix + json.token_endpoint,
-    userinfo_endpoint: ctx.urlPrefix + json.userinfo_endpoint,
-    revocation_endpoint: ctx.urlPrefix + json.revocation_endpoint,
-    jwks_uri: ctx.urlPrefix + json.jwks_uri,
-  }, { status: 200 });
+  return Response.json(
+    {
+      ...json,
+      issuer: ctx.urlPrefix + json.issuer,
+      authorization_endpoint: ctx.urlPrefix + json.authorization_endpoint,
+      device_authorization_endpoint: ctx.urlPrefix + json.device_authorization_endpoint,
+      token_endpoint: ctx.urlPrefix + json.token_endpoint,
+      userinfo_endpoint: ctx.urlPrefix + json.userinfo_endpoint,
+      revocation_endpoint: ctx.urlPrefix + json.revocation_endpoint,
+      jwks_uri: ctx.urlPrefix + json.jwks_uri,
+    },
+    { status: 200 },
+  );
 }

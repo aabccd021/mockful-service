@@ -19,22 +19,13 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const id = `txn_${paddle.generateId()}`;
 
-  const insertTransaction = ctx.db.transaction(() => {
+  ctx.db.transaction(() => {
     ctx.db
       .query(
         `
-        INSERT INTO paddle_transaction (
-          id,
-          status,
-          customer_id,
-          collection_method,
-        ) VALUES (
-          :id,
-          :status,
-          :customer_id,
-          :collection_method,
-        )
-      `,
+          INSERT INTO paddle_transaction (id, status, customer_id, collection_method) 
+          VALUES (:id, :status, :customer_id, :collection_method,)
+        `,
       )
       .run({
         id,
@@ -46,16 +37,9 @@ export async function handle(ctx: Context): Promise<Response> {
       ctx.db
         .query(
           `
-          INSERT INTO paddle_transaction_item (
-            transaction_id,
-            price_id,
-            quantity
-          ) VALUES (  
-            :transaction_id,
-            :priceId,
-            :quantity
-          )
-        `,
+            INSERT INTO paddle_transaction_item (transaction_id, price_id, quantity) 
+            VALUES (:transaction_id, :priceId, :quantity)
+          `,
         )
         .run({
           transaction_id: id,
@@ -63,8 +47,7 @@ export async function handle(ctx: Context): Promise<Response> {
           quantity: item.quantity,
         });
     }
-  });
-  insertTransaction();
+  })();
 
   const transaction = ctx.db
     .query<TransactionRow, sqlite.SQLQueryBindings>(
