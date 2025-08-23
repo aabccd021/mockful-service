@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { type Context, getStringFormData } from "@src/util.ts";
+import type { Context } from "@src/util.ts";
 
 export async function handle(ctx: Context, checkoutId: string): Promise<Response> {
   const searchParams = new URL(ctx.req.url).searchParams;
@@ -8,20 +8,20 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
     return Response.json("Missing required parameter: transaction_id", { status: 400 });
   }
 
-  const formData = await getStringFormData(ctx);
-
-  const customerId = formData.get("customer_id");
-  if (customerId === undefined) {
-    return Response.json("Missing required parameter: customer_id", { status: 400 });
-  }
-
   const customer = ctx.db
-    .query<{ email: string | null }, sqlite.SQLQueryBindings>(
-      "SELECT email FROM paddle_customer WHERE id = :customer_id",
+    .query<{ id: string; email: string }, sqlite.SQLQueryBindings>(
+      `
+  SELECT c.id, c.email
+  FROM
+    paddle_transaction t
+    JOIN paddle_customer c ON t.customer_id = c.id
+  WHERE t.id = :transaction_id
+`,
     )
-    .get({ customer_id: customerId });
+    .get({ transaction_id: transactionId });
+
   if (customer === null) {
-    return Response.json(`Customer with id ${customerId} doesn't exists`, { status: 400 });
+    throw new Error("Absurd");
   }
 
   const checkout = ctx.db
@@ -35,11 +35,9 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
   }
 
   const redirectUrl = new URL(checkout.redirect_url);
-  redirectUrl.searchParams.set("paddle_customer_id", customerId);
+  redirectUrl.searchParams.set("paddle_customer_id", customer.id);
   redirectUrl.searchParams.set("transaction_id", transactionId);
-  if (customer.email !== null) {
-    redirectUrl.searchParams.set("customer_email", customer.email);
-  }
+  redirectUrl.searchParams.set("customer_email", customer.email);
 
   return Response.redirect(redirectUrl, 303);
 }
