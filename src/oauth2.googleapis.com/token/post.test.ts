@@ -25,7 +25,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomNonce();
@@ -82,7 +81,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomNonce();
@@ -139,7 +137,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
@@ -197,7 +194,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
@@ -258,7 +254,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
@@ -319,7 +314,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
@@ -378,7 +372,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const state = oauth.randomState();
@@ -431,7 +424,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
@@ -498,7 +490,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
@@ -565,7 +556,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
@@ -643,7 +633,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
   oauth.allowInsecureRequests(invalidConfig);
 
@@ -706,7 +695,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
@@ -784,7 +772,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("invalid_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
   oauth.allowInsecureRequests(invalidConfig);
 
@@ -846,7 +833,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
@@ -957,7 +943,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
@@ -1017,7 +1002,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
@@ -1084,7 +1068,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
@@ -1152,7 +1135,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
@@ -1219,7 +1201,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
@@ -1286,7 +1267,6 @@ using ctx = test.init();
     {},
     oauth.ClientSecretBasic("mock_client_secret"),
   );
-
   oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
