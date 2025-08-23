@@ -60,18 +60,18 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const reqQuery = {
     recurring: rawQuery.get("recurring") ?? null,
-    productId: rawQuery.get("product_id")?.split(",") ?? null,
+    product_id: rawQuery.get("product_id")?.split(",") ?? null,
   };
 
   let prices = null;
-  if (reqQuery.productId !== null) {
-    prices = reqQuery.productId.flatMap((productId) =>
+  if (reqQuery.product_id !== null) {
+    prices = reqQuery.product_id.flatMap((product_id) =>
       ctx.db
         .query<Row, sqlite.SQLQueryBindings>(
           `
             SELECT * 
             FROM paddle_price
-            WHERE product_id = :productId
+            WHERE product_id = :product_id
               AND CASE 
                   WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
                   WHEN :recurring = 'false' THEN billing_cycle_frequency IS NULL
@@ -79,7 +79,7 @@ export async function handle(ctx: Context): Promise<Response> {
               END
           `,
         )
-        .all({ productId: productId, recurring: reqQuery.recurring }),
+        .all({ product_id: product_id, recurring: reqQuery.recurring }),
     );
   } else {
     prices = ctx.db
@@ -88,7 +88,7 @@ export async function handle(ctx: Context): Promise<Response> {
           SELECT paddle_price.*
           FROM paddle_price
           JOIN paddle_product ON paddle_price.product_id = paddle_product.id
-          WHERE paddle_product.account_id = :accountId
+          WHERE paddle_product.account_id = :account_id
             AND CASE 
                 WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
                 WHEN :recurring = 'false' THEN billing_cycle_frequency IS NULL
@@ -96,7 +96,7 @@ export async function handle(ctx: Context): Promise<Response> {
             END
         `,
       )
-      .all({ accountId: account.id, recurring: reqQuery.recurring });
+      .all({ account_id: account.id, recurring: reqQuery.recurring });
   }
 
   const data = prices.map((price) => {

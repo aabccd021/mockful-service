@@ -45,15 +45,15 @@ export async function handle(ctx: Context): Promise<Response> {
           .query<Row, sqlite.SQLQueryBindings>(
             "SELECT * FROM paddle_product WHERE id = :id AND status = 'active'",
           )
-          .get({ id, accountId: account.id }),
+          .get({ id, account_id: account.id }),
       )
       .filter((val) => val !== null);
   } else {
     products = ctx.db
       .query<Row, sqlite.SQLQueryBindings>(
-        "SELECT * FROM paddle_product WHERE account_id = :accountId AND status = 'active'",
+        "SELECT * FROM paddle_product WHERE account_id = :account_id AND status = 'active'",
       )
-      .all({ accountId: account.id });
+      .all({ account_id: account.id });
   }
 
   const data = products.map((product) => ({

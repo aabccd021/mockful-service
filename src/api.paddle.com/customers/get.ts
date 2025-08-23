@@ -33,9 +33,9 @@ export async function handle(ctx: Context): Promise<Response> {
       .map((email) =>
         ctx.db
           .query<Row, sqlite.SQLQueryBindings>(
-            "SELECT * FROM paddle_customer WHERE email = :email AND account_id = :accountId",
+            "SELECT * FROM paddle_customer WHERE email = :email AND account_id = :account_id",
           )
-          .get({ email, accountId: account.id }),
+          .get({ email, account_id: account.id }),
       )
       .filter((val) => val !== null);
   } else if (reqQuery.id !== undefined) {
@@ -43,15 +43,15 @@ export async function handle(ctx: Context): Promise<Response> {
       .map((id) =>
         ctx.db
           .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = :id")
-          .get({ id, accountId: account.id }),
+          .get({ id, account_id: account.id }),
       )
       .filter((val) => val !== null);
   } else {
     customers = ctx.db
       .query<Row, sqlite.SQLQueryBindings>(
-        "SELECT * FROM paddle_customer WHERE account_id = :accountId",
+        "SELECT * FROM paddle_customer WHERE account_id = :account_id",
       )
-      .all({ accountId: account.id });
+      .all({ account_id: account.id });
   }
 
   const data = customers.map((customer) => ({

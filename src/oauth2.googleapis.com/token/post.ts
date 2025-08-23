@@ -301,11 +301,11 @@ export async function handle(ctx: Context): Promise<Response> {
       `
         SELECT * 
         FROM google_auth_redirect_uri 
-        WHERE client_id = :clientId
+        WHERE client_id = :client_id
           AND value = :redirectUri
       `,
     )
-    .all({ clientId: client.id, redirectUri: redirectUri });
+    .all({ client_id: client.id, redirectUri: redirectUri });
 
   if (validRedirectUris.length !== 1) {
     return Response.json(

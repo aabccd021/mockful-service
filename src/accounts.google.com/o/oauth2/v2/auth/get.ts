@@ -108,9 +108,9 @@ export function handle(ctx: Context): Response {
 
   const redirectUris = ctx.db
     .query<{ value: string }, sqlite.SQLQueryBindings>(
-      "SELECT value FROM google_auth_redirect_uri WHERE client_id = :clientId",
+      "SELECT value FROM google_auth_redirect_uri WHERE client_id = :client_id",
     )
-    .all({ clientId: reqClientId });
+    .all({ client_id: reqClientId });
 
   const validRedirectUris = redirectUris.map((r) => r.value);
   if (!validRedirectUris.includes(reqRedirectUri)) {
