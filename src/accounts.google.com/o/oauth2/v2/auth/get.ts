@@ -148,7 +148,7 @@ export function handle(ctx: Context): Response {
     >
       Cancel
     </a>
-    <form method="post" action="?${searchParams.toString()}" style="display: flex; flex-direction: column; gap: 1rem;">
+    <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
       ${userSubmitButton} 
     </form>
   `);

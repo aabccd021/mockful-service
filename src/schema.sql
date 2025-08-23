@@ -167,3 +167,13 @@ CREATE TABLE paddle_transaction_item (
   FOREIGN KEY (transaction_id) REFERENCES paddle_transaction(id) ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY (price_id) REFERENCES paddle_price(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
+
+CREATE TABLE paddle_hosted_checkout (
+  id TEXT PRIMARY KEY,
+  redirect_url TEXT NOT NULL,
+  account_id TEXT NOT NULL,
+  CHECK (id LIKE 'hsc_%'),
+  CHECK (LENGTH(id) = 30),
+  CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
+) STRICT;
