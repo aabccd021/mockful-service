@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import type { Context } from "@util";
+import type { Context } from "@src/util.ts";
 
 const knownScopes = ["openid", "email"];
 

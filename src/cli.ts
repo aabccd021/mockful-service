@@ -1,6 +1,6 @@
 import * as sqlite from "bun:sqlite";
 import * as fs from "node:fs";
-import type { Context } from "@util";
+import type { Context } from "@src/util.ts";
 import { handle as accountsGoogleCom } from "./accounts.google.com/route.ts";
 import { handle as apiPaddleCom } from "./api.paddle.com/route.ts";
 import { handle as discordCom } from "./discord.com/route.ts";

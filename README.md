@@ -1,10 +1,9 @@
 # TODO
 
 - create error message for authenticate discord webhook
-- remove all Date.now()
 - paddle hosted checkout
-- Mock all authentication endpoint from OIDC discovery URL
-- support client secret post
+- handle oauth discovery
+- support `oauth.ClientSecretPost`
 
 ## LICENCE
 

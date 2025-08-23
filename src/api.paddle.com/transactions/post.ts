@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
-import * as paddle from "@paddle/util.ts";
-import type { Context } from "@util";
+import * as paddle from "@src/api.paddle.com/util.ts";
+import type { Context } from "@src/util.ts";
 
 type TransactionRow = {
   id: string;

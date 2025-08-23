@@ -1,4 +1,4 @@
-import type { Context } from "@util";
+import type { Context } from "@src/util.ts";
 import * as api from "./api/route.ts";
 
 export async function handle(ctx: Context, paths: string[]): Promise<Response> {

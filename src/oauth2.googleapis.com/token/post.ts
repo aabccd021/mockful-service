@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
-import type { Context } from "@util";
-import { getStringFormData } from "@util";
+import type { Context } from "@src/util.ts";
+import { getStringFormData } from "@src/util"
 
 type AuthSession = {
   readonly client_id: string;
@@ -114,6 +114,7 @@ async function createIdToken(authSession: AuthSession, accessToken: string) {
   const header = {
     alg: "RS256",
     typ: "JWT",
+  // TODO
     // kid: "todo",
   };
 
@@ -121,6 +122,7 @@ async function createIdToken(authSession: AuthSession, accessToken: string) {
     .encode(JSON.stringify(header))
     .toBase64({ alphabet: "base64url", omitPadding: true });
 
+  // TODO
   const nowEpoch = Math.floor(Date.now() / 1000);
 
   let email_verified: boolean | undefined;
