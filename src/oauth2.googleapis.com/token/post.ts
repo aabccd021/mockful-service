@@ -217,17 +217,23 @@ async function validateCodeChallenge(args: {
 export async function handle(ctx: Context): Promise<Response> {
   const formData = await getStringFormData(ctx);
 
-  const [authErrorResponse, client] = getClientFromBasicAuth(ctx);
-  if (authErrorResponse !== undefined) {
-    return authErrorResponse;
-  }
-
   const code = formData.get("code");
   if (code === undefined || code === "") {
     return Response.json(
       {
         error: "invalid_request",
         error_description: "Missing required parameter: code",
+      },
+      { status: 400 },
+    );
+  }
+
+  const redirectUri = formData.get("redirect_uri");
+  if (redirectUri === undefined) {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Missing parameter: redirect_uri",
       },
       { status: 400 },
     );
@@ -244,15 +250,9 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const redirectUri = formData.get("redirect_uri");
-  if (redirectUri === undefined) {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Missing parameter: redirect_uri",
-      },
-      { status: 400 },
-    );
+  const [authErrorResponse, client] = getClientFromBasicAuth(ctx);
+  if (authErrorResponse !== undefined) {
+    return authErrorResponse;
   }
 
   const authSession = ctx.db
@@ -296,17 +296,6 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  if (authSession.code_challenge !== null) {
-    const validationErrorResponse = await validateCodeChallenge({
-      codeChallenge: authSession.code_challenge,
-      codeChallengeMethod: authSession.code_challenge_method,
-      codeVerifier: formData.get("code_verifier"),
-    });
-    if (validationErrorResponse !== undefined) {
-      return validationErrorResponse;
-    }
-  }
-
   const validRedirectUris = ctx.db
     .query(
       `
@@ -326,6 +315,17 @@ export async function handle(ctx: Context): Promise<Response> {
       },
       { status: 400 },
     );
+  }
+
+  if (authSession.code_challenge !== null) {
+    const validationErrorResponse = await validateCodeChallenge({
+      codeChallenge: authSession.code_challenge,
+      codeChallengeMethod: authSession.code_challenge_method,
+      codeVerifier: formData.get("code_verifier"),
+    });
+    if (validationErrorResponse !== undefined) {
+      return validationErrorResponse;
+    }
   }
 
   const validSecrets = ctx.db

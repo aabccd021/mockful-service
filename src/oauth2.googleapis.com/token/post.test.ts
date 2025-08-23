@@ -412,6 +412,7 @@ using ctx = test.init();
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
   const config = new oauth.Configuration(
@@ -478,6 +479,7 @@ using ctx = test.init();
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
   const config = new oauth.Configuration(
@@ -544,6 +546,7 @@ using ctx = test.init();
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
   const config = new oauth.Configuration(
@@ -683,6 +686,7 @@ using ctx = test.init();
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
   const config = new oauth.Configuration(
@@ -821,6 +825,7 @@ using ctx = test.init();
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
   const config = new oauth.Configuration(
@@ -990,6 +995,7 @@ using ctx = test.init();
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
   const config = new oauth.Configuration(
@@ -1123,6 +1129,7 @@ using ctx = test.init();
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
   const config = new oauth.Configuration(
@@ -1189,6 +1196,7 @@ using ctx = test.init();
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
   const config = new oauth.Configuration(
@@ -1255,6 +1263,7 @@ using ctx = test.init();
     INSERT INTO google_project (id) VALUES ('mock_project_id');
     INSERT INTO google_auth_user (project_id, sub, email) VALUES ('mock_project_id', 'kita-sub', 'kita@example.com');
     INSERT INTO google_auth_client (project_id, id, secret) VALUES ('mock_project_id', 'mock_client_id', 'mock_client_secret');
+    INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
   const config = new oauth.Configuration(
