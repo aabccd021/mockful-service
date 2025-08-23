@@ -17,19 +17,7 @@ type Client = {
   readonly secret: string;
 };
 
-function getClientFromBasicAuth(ctx: Context): [undefined, Client] | [Response] {
-  const authHeader = ctx.req.headers.get("Authorization");
-  if (authHeader === null) {
-    return [
-      Response.json(
-        {
-          error: "invalid_request",
-          error_description: "Could not determine client ID from request.",
-        },
-        { status: 400 },
-      ),
-    ];
-  }
+function getClientFromBasicAuth(authHeader: string): [undefined, Client] | [Response] {
 
   const [prefix, credentials] = authHeader.split(" ");
 
@@ -252,10 +240,33 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const [authErrorResponse, client] = getClientFromBasicAuth(ctx);
-  if (authErrorResponse !== undefined) {
-    return authErrorResponse;
+
+  let client;
+  const authHeader = ctx.req.headers.get("Authorization");
+  const bodyClientId = formData.get("client_id");
+  const bodyClientSecret = formData.get("client_secret")
+  if (authHeader !== null) {
+   const [authErrorResponse, basicAuthClient] = getClientFromBasicAuth(authHeader);
+   if (authErrorResponse !== undefined) {
+     return authErrorResponse;
+   }
+   client = basicAuthClient;
   }
+  else if (bodyClientId !== undefined && bodyClientSecret !== undefined) {
+    client = {
+      id: bodyClientId,
+      secret: bodyClientSecret
+    }
+ } else {
+   return Response.json(
+     {
+       error: "invalid_request",
+       error_description: "Could not determine client ID from request.",
+     },
+     { status: 400 },
+   );
+ }
+
 
   const authSession = ctx.db
     .query<AuthSession, sqlite.SQLQueryBindings>(
