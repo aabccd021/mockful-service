@@ -36,22 +36,22 @@ export async function handle(ctx: Context): Promise<Response> {
           updated_at
         )
         VALUES (
-          $accountId, 
+          $account_id, 
           $id, 
           :email,
           :locale,
-          :createdAt,
-          :updatedAt
+          :created_at,
+          :updated_at
         )
       `,
       )
       .run({
         id,
-        accountId: account.id,
+        account_id: account.id,
         email: reqBody.email,
         locale: reqBody.locale ?? "en",
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        created_at: Date.now(),
+        updated_at: Date.now(),
       });
   } catch (err) {
     if (

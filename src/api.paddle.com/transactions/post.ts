@@ -59,14 +59,14 @@ export async function handle(ctx: Context): Promise<Response> {
             price_id,
             quantity
           ) VALUES (  
-            :transactionId,
+            :transaction_id,
             :priceId,
             :quantity
           )
         `,
         )
         .run({
-          transactionId: id,
+          transaction_id: id,
           priceId: item.price_id,
           quantity: item.quantity,
         });

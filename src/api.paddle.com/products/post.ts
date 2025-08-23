@@ -36,13 +36,13 @@ export async function handle(ctx: Context): Promise<Response> {
       `
         SELECT * 
         FROM paddle_account_tax_category_enabled 
-        WHERE account_id = $accountId 
-        AND tax_category = :taxCategory
+        WHERE account_id = $account_id 
+        AND tax_category = :tax_category
       `,
     )
     .get({
-      accountId: account.id,
-      taxCategory: reqBody.tax_category,
+      account_id: account.id,
+      tax_category: reqBody.tax_category,
     });
 
   if (enabledCategory === null) {
@@ -77,26 +77,26 @@ export async function handle(ctx: Context): Promise<Response> {
         updated_at
       )
       VALUES (
-        $accountId, 
+        $account_id, 
         $id, 
         :name,
-        :taxCategory,
+        :tax_category,
         :type,
-        :imageUrl,
-        :createdAt,
-        :updatedAt
+        :image_url,
+        :created_at,
+        :updated_at
       )
     `,
     )
     .run({
-      accountId: account.id,
+      account_id: account.id,
       id,
       name: reqBody.name,
-      taxCategory: reqBody.tax_category,
+      tax_category: reqBody.tax_category,
       type: reqBody.type ?? "standard",
-      imageUrl: reqBody.image_url ?? null,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      image_url: reqBody.image_url ?? null,
+      created_at: Date.now(),
+      updated_at: Date.now(),
     });
 
   const product = ctx.db

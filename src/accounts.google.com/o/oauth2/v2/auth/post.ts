@@ -26,21 +26,21 @@ export async function handle(ctx: Context): Promise<Response> {
       )
       VALUES (
         :code,
-        :userSub,
-        :clientId,
+        :user_sub,
+        :client_id,
         :scope,
-        :codeChallengeMethod,
-        :codeChallengeValue
+        :code_challenge_method,
+        :code_challenge_value
       )
     `,
     )
     .run({
       code,
-      userSub: formData.get("user_sub") ?? null,
-      clientId: searchParams.get("client_id") ?? null,
+      user_sub: formData.get("user_sub") ?? null,
+      client_id: searchParams.get("client_id") ?? null,
       scope: searchParams.get("scope") ?? null,
-      codeChallengeMethod: searchParams.get("code_challenge_method") ?? null,
-      codeChallengeValue: searchParams.get("code_challenge") ?? null,
+      code_challenge_method: searchParams.get("code_challenge_method") ?? null,
+      code_challenge_value: searchParams.get("code_challenge") ?? null,
     });
 
   const redirectUrl = new URL(redirectUri);
