@@ -29,8 +29,7 @@
 
     // Paths
     "paths": {
-      "@src/*": ["./src/*"],
-      "@paddle/*": ["./src/api.paddle.com/*"]
+      "@src/*": ["./src/*"]
     }
   }
 }
