@@ -15,18 +15,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);

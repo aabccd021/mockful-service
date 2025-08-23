@@ -1,7 +1,6 @@
 # TODO
 
 - paddle hosted checkout
-- handle oauth discovery
 
 ## LICENCE
 
