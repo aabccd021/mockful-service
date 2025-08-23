@@ -5,7 +5,6 @@ using ctx = test.init();
 
 {
   console.info("can send message");
-
   test.resetDb(ctx);
   new sqlite.Database(ctx.dbPath).exec(`
     INSERT INTO discord_webhook (id, token) VALUES ('mock_webhook_id', "mock_webhook_token")
@@ -15,11 +14,15 @@ using ctx = test.init();
     `http://localhost:3001/https://discord.com/api/webhooks/mock_webhook_id/mock_webhook_token`,
     {
       method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
       body: JSON.stringify({ content: "hello" }),
     },
   );
 
-  if (response.status !== 200) throw new Error();
+  if (response.status !== 204) throw new Error();
+  if ((await response.text()) !== "") throw new Error();
 
   const messages = new sqlite.Database(ctx.dbPath)
     .query<{ webhook_id: string; webhook_token: string; method: string; body: string }, []>(
@@ -40,9 +43,77 @@ using ctx = test.init();
 }
 
 {
-  console.info("error sending message if webhook is not registered");
-
+  console.info("invalid webhook token");
   test.resetDb(ctx);
+  new sqlite.Database(ctx.dbPath).exec(`
+    INSERT INTO discord_webhook (id, token) VALUES ('mock_webhook_id', "mock_webhook_token")
+  `);
+
+  const response = await fetch(
+    `http://localhost:3001/https://discord.com/api/webhooks/mock_webhook_id/invalid_webhook_token`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ content: "hello" }),
+    },
+  );
+
+  if (response.status !== 401) throw new Error();
+
+  const responseBody = await response.json();
+  if (responseBody.message !== "Invalid Webhook Token") throw new Error();
+  if (responseBody.code !== 50027) throw new Error();
+
+  const messages = new sqlite.Database(ctx.dbPath)
+    .query<{ webhook_id: string; webhook_token: string; method: string; body: string }, []>(
+      "SELECT webhook_id,webhook_token,method,body FROM discord_webhook_request",
+    )
+    .all();
+
+  if (messages.length !== 0) throw new Error();
+}
+
+{
+  console.info("unknown webhook");
+  test.resetDb(ctx);
+  new sqlite.Database(ctx.dbPath).exec(`
+    INSERT INTO discord_webhook (id, token) VALUES ('mock_webhook_id', "mock_webhook_token")
+  `);
+
+  const response = await fetch(
+    `http://localhost:3001/https://discord.com/api/webhooks/invalid_webhook_id/mock_webhook_token`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ content: "hello" }),
+    },
+  );
+
+  if (response.status !== 404) throw new Error();
+
+  const responseBody = await response.json();
+  if (responseBody.message !== "Unknown Webhook") throw new Error();
+  if (responseBody.code !== 10015) throw new Error();
+
+  const messages = new sqlite.Database(ctx.dbPath)
+    .query<{ webhook_id: string; webhook_token: string; method: string; body: string }, []>(
+      "SELECT webhook_id,webhook_token,method,body FROM discord_webhook_request",
+    )
+    .all();
+
+  if (messages.length !== 0) throw new Error();
+}
+
+{
+  console.info("missing content-type header");
+  test.resetDb(ctx);
+  new sqlite.Database(ctx.dbPath).exec(`
+    INSERT INTO discord_webhook (id, token) VALUES ('mock_webhook_id', "mock_webhook_token")
+  `);
 
   const response = await fetch(
     `http://localhost:3001/https://discord.com/api/webhooks/mock_webhook_id/mock_webhook_token`,
@@ -53,6 +124,11 @@ using ctx = test.init();
   );
 
   if (response.status !== 400) throw new Error();
+
+  const responseBody = await response.json();
+  const responseBodyMisc = responseBody._misc;
+  if (!Array.isArray(responseBodyMisc)) throw new Error();
+  if (responseBodyMisc.length !== 1) throw new Error();
 
   const messages = new sqlite.Database(ctx.dbPath)
     .query<{ webhook_id: string; webhook_token: string; method: string; body: string }, []>(
