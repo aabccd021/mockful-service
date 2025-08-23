@@ -15,8 +15,6 @@ type Row = {
     | "standard"
     | "training-services"
     | "website-hosting";
-  created_at: number;
-  updated_at: number;
   name: string;
   type: "standard" | "custom";
   image_url?: string;
@@ -72,9 +70,7 @@ export async function handle(ctx: Context): Promise<Response> {
         name,
         tax_category,
         type,
-        image_url,
-        created_at,
-        updated_at
+        image_url
       )
       VALUES (
         $account_id, 
@@ -82,9 +78,7 @@ export async function handle(ctx: Context): Promise<Response> {
         :name,
         :tax_category,
         :type,
-        :image_url,
-        :created_at,
-        :updated_at
+        :image_url
       )
     `,
     )
@@ -95,8 +89,6 @@ export async function handle(ctx: Context): Promise<Response> {
       tax_category: reqBody.tax_category,
       type: reqBody.type ?? "standard",
       image_url: reqBody.image_url ?? null,
-      created_at: Date.now(),
-      updated_at: Date.now(),
     });
 
   const product = ctx.db
@@ -112,8 +104,6 @@ export async function handle(ctx: Context): Promise<Response> {
       data: {
         id: product.id,
         tax_category: product.tax_category,
-        created_at: new Date(product.created_at).toISOString(),
-        updated_at: new Date(product.updated_at).toISOString(),
         name: product.name,
         type: product.type,
         image_url: product.image_url ?? null,

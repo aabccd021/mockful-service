@@ -44,8 +44,6 @@ type Row = {
   billing_cycle_interval: null | "day" | "week" | "month" | "year";
   tax_mode: "account_setting" | "external" | "internal";
   status: "active" | "archived";
-  created_at: number;
-  updated_at: number;
   quantity_minimum: number;
   quantity_maximum: number;
 };
@@ -74,9 +72,7 @@ export async function handle(ctx: Context): Promise<Response> {
         billing_cycle_interval,
         tax_mode,
         quantity_minimum,
-        quantity_maximum,
-        created_at,
-        updated_at
+        quantity_maximum
       )
       VALUES (
         :id,
@@ -89,9 +85,7 @@ export async function handle(ctx: Context): Promise<Response> {
         :billing_cycle_intervavl,
         :tax_mode,
         :quantity_minimum,
-        :quantity_maximum,
-        :created_at,
-        :updated_at
+        :quantity_maximum
       )
     `,
     )
@@ -107,8 +101,6 @@ export async function handle(ctx: Context): Promise<Response> {
       tax_mode: reqBody.tax_mode ?? "account_setting",
       quantity_minimum: reqBody.quantity?.minimum ?? 1,
       quantity_maximum: reqBody.quantity?.maximum ?? 100,
-      created_at: Date.now(),
-      updated_at: Date.now(),
     });
 
   const price = ctx.db
@@ -149,8 +141,6 @@ export async function handle(ctx: Context): Promise<Response> {
         },
         type: price.type,
         tax_mode: price.tax_mode,
-        created_at: new Date(price.created_at).toISOString(),
-        updated_at: new Date(price.updated_at).toISOString(),
       },
     },
     { status: 201 },

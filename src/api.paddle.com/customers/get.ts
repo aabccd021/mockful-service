@@ -10,8 +10,6 @@ type Row = {
   name: string | null;
   marketing_consent: "true" | "false";
   locale: string;
-  created_at: number;
-  updated_at: number;
 };
 
 export async function handle(ctx: Context): Promise<Response> {
@@ -62,8 +60,6 @@ export async function handle(ctx: Context): Promise<Response> {
     name: customer.name,
     locale: customer.locale,
     marketing_consent: customer.marketing_consent === "true",
-    created_at: new Date(customer.created_at).toISOString(),
-    updated_at: new Date(customer.updated_at).toISOString(),
   }));
 
   return Response.json({ data }, { status: 200 });

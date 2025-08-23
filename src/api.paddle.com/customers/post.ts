@@ -9,8 +9,6 @@ type Row = {
   status: "active" | "archived";
   marketing_consent: "true" | "false";
   locale: string;
-  created_at: number;
-  updated_at: number;
 };
 
 export async function handle(ctx: Context): Promise<Response> {
@@ -31,17 +29,13 @@ export async function handle(ctx: Context): Promise<Response> {
           account_id, 
           id, 
           email,
-          locale,
-          created_at,
-          updated_at
+          locale
         )
         VALUES (
           $account_id, 
           $id, 
           :email,
-          :locale,
-          :created_at,
-          :updated_at
+          :locale
         )
       `,
       )
@@ -50,8 +44,6 @@ export async function handle(ctx: Context): Promise<Response> {
         account_id: account.id,
         email: reqBody.email,
         locale: reqBody.locale ?? "en",
-        created_at: Date.now(),
-        updated_at: Date.now(),
       });
   } catch (err) {
     if (
@@ -88,8 +80,6 @@ export async function handle(ctx: Context): Promise<Response> {
         email: customer.email,
         status: customer.status,
         marketing_consent: customer.marketing_consent === "true",
-        created_at: new Date(customer.created_at).toISOString(),
-        updated_at: new Date(customer.updated_at).toISOString(),
         locale: customer.locale,
       },
     },

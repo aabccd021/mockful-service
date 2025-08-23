@@ -72,6 +72,4 @@ using ctx = test.init();
   if (responseBody.data.tax_category !== "saas") throw new Error();
   if (responseBody.data.status !== "active") throw new Error();
   if (responseBody.data.image_url !== null) throw new Error();
-  if (responseBody.data.created_at === undefined) throw new Error();
-  if (responseBody.data.updated_at === undefined) throw new Error();
 }

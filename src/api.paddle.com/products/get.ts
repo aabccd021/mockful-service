@@ -19,8 +19,6 @@ type Row = {
     | "website-hosting";
   image_url: string | null;
   status: "active" | "archived";
-  created_at: number;
-  updated_at: number;
 };
 
 export async function handle(ctx: Context): Promise<Response> {
@@ -63,8 +61,6 @@ export async function handle(ctx: Context): Promise<Response> {
     tax_category: product.tax_category,
     image_url: product.image_url,
     status: product.status,
-    created_at: new Date(product.created_at).toISOString(),
-    updated_at: new Date(product.updated_at).toISOString(),
   }));
 
   return Response.json({ data }, { status: 200 });

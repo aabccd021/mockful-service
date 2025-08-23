@@ -44,8 +44,6 @@ type Row = {
   billing_cycle_interval: null | "day" | "week" | "month" | "year";
   tax_mode: "account_setting" | "external" | "internal";
   status: "active" | "archived";
-  created_at: number;
-  updated_at: number;
   quantity_minimum: number;
   quantity_maximum: number;
 };
@@ -128,8 +126,6 @@ export async function handle(ctx: Context): Promise<Response> {
       },
       type: price.type,
       tax_mode: price.tax_mode,
-      created_at: new Date(price.created_at).toISOString(),
-      updated_at: new Date(price.updated_at).toISOString(),
     };
   });
 
