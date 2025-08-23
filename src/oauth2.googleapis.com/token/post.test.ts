@@ -14,16 +14,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
     "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const state = oauth.randomState();
 
@@ -66,17 +63,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const state = oauth.randomState();
 
@@ -119,17 +112,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomNonce();
   const state = oauth.randomState();
@@ -175,17 +164,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomNonce();
   const state = oauth.randomState();
@@ -231,17 +216,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
@@ -288,17 +269,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
@@ -348,17 +325,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
@@ -408,17 +381,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
@@ -466,17 +435,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -533,17 +498,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -600,17 +561,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -668,27 +625,21 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const serverMetadata = {
-    issuer: "http://localhost:3001/https://accounts.google.com",
-    token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-    authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-  };
-
-  const config = new oauth.Configuration(
-    serverMetadata,
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
 
-  const invalidConfig = new oauth.Configuration(
-    serverMetadata,
+  const invalidConfig = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "invalid_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
-  oauth.allowInsecureRequests(invalidConfig);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
@@ -740,17 +691,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -808,27 +755,21 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const serverMetadata = {
-    issuer: "http://localhost:3001/https://accounts.google.com",
-    token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-    authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-  };
-
-  const config = new oauth.Configuration(
-    serverMetadata,
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
 
-  const invalidConfig = new oauth.Configuration(
-    serverMetadata,
+  const invalidConfig = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("invalid_client_secret"),
+    "invalid_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
-  oauth.allowInsecureRequests(invalidConfig);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
@@ -879,17 +820,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -989,17 +926,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
@@ -1049,17 +982,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
@@ -1115,17 +1044,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const pkceCodeVerifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(pkceCodeVerifier);
@@ -1183,17 +1108,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -1250,17 +1171,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
@@ -1317,17 +1234,13 @@ using ctx = test.init();
     INSERT INTO google_auth_redirect_uri (client_id, value) VALUES ('mock_client_id', 'https://localhost:3000/login-callback');
   `);
 
-  const config = new oauth.Configuration(
-    {
-      issuer: "http://localhost:3001/https://accounts.google.com",
-      token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
-      authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
-    },
+  const config = await oauth.discovery(
+    new URL("http://localhost:3001/https://accounts.google.com/.well-known/openid-configuration"),
     "mock_client_id",
-    {},
-    oauth.ClientSecretBasic("mock_client_secret"),
+    "mock_client_secret",
+    undefined,
+    { execute: [oauth.allowInsecureRequests] },
   );
-  oauth.allowInsecureRequests(config);
 
   const code_verifier = oauth.randomPKCECodeVerifier();
   const code_challenge = await oauth.calculatePKCECodeChallenge(code_verifier);
