@@ -1,6 +1,6 @@
 import type * as sqlite from "bun:sqlite";
+import { getStringFormData } from "@src/util";
 import type { Context } from "@src/util.ts";
-import { getStringFormData } from "@src/util"
 
 type AuthSession = {
   readonly client_id: string;
@@ -18,7 +18,6 @@ type Client = {
 };
 
 function getClientFromBasicAuth(authHeader: string): [undefined, Client] | [Response] {
-
   const [prefix, credentials] = authHeader.split(" ");
 
   if (prefix === undefined) {
@@ -102,7 +101,7 @@ async function createIdToken(ctx: Context, authSession: AuthSession, accessToken
   const header = {
     alg: "RS256",
     typ: "JWT",
-  // TODO
+    // TODO
     // kid: "todo",
   };
 
@@ -240,33 +239,30 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-
-  let client;
+  let client: Client;
   const authHeader = ctx.req.headers.get("Authorization");
   const bodyClientId = formData.get("client_id");
-  const bodyClientSecret = formData.get("client_secret")
+  const bodyClientSecret = formData.get("client_secret");
   if (authHeader !== null) {
-   const [authErrorResponse, basicAuthClient] = getClientFromBasicAuth(authHeader);
-   if (authErrorResponse !== undefined) {
-     return authErrorResponse;
-   }
-   client = basicAuthClient;
-  }
-  else if (bodyClientId !== undefined && bodyClientSecret !== undefined) {
+    const [authErrorResponse, basicAuthClient] = getClientFromBasicAuth(authHeader);
+    if (authErrorResponse !== undefined) {
+      return authErrorResponse;
+    }
+    client = basicAuthClient;
+  } else if (bodyClientId !== undefined && bodyClientSecret !== undefined) {
     client = {
       id: bodyClientId,
-      secret: bodyClientSecret
-    }
- } else {
-   return Response.json(
-     {
-       error: "invalid_request",
-       error_description: "Could not determine client ID from request.",
-     },
-     { status: 400 },
-   );
- }
-
+      secret: bodyClientSecret,
+    };
+  } else {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Could not determine client ID from request.",
+      },
+      { status: 400 },
+    );
+  }
 
   const authSession = ctx.db
     .query<AuthSession, sqlite.SQLQueryBindings>(

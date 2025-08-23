@@ -108,8 +108,6 @@ using ctx = test.init();
   if (tokenResponse.claims().sub !== "kita-sub") throw new Error();
 }
 
-
-
 {
   console.info("success no challenge method");
   test.resetDb(ctx);
