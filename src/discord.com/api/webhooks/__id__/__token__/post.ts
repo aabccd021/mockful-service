@@ -2,21 +2,24 @@ import type { Context } from "@util";
 
 export async function handle(
   ctx: Context,
-  _webhook: { id: string; token: string },
+  webhook: { id: string; token: string },
 ): Promise<Response> {
-  const id = crypto.randomUUID();
-
-  ctx.db
-    .query(`
-    INSERT INTO discord_webhook_request (id, url, method, body) 
-    VALUES (:id, :url, :method, :body)
-  `)
-    .run({
-      id,
-      url: ctx.req.url,
-      method: ctx.req.method,
-      body: await ctx.req.text(),
-    });
+  try {
+    ctx.db
+      .query(`
+        INSERT INTO discord_webhook_request (webhook_id, webhook_token, method, body) 
+        VALUES (:webhook_id, :webhook_token, :method, :body)
+      `)
+      .run({
+        webhook_id: webhook.id,
+        webhook_token: webhook.token,
+        method: ctx.req.method,
+        body: await ctx.req.text(),
+      });
+  } catch (_err) {
+    // TODO
+    return new Response("TODO", { status: 400 });
+  }
 
   return new Response("", { status: 200 });
 }
