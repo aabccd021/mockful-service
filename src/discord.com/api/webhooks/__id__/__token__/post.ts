@@ -8,7 +8,7 @@ export async function handle(
 
   ctx.db
     .query(`
-    INSERT INTO global_captured_response (id, url, method, body) 
+    INSERT INTO discord_webhook_request (id, url, method, body) 
     VALUES (:id, :url, :method, :body)
   `)
     .run({

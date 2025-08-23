@@ -20,7 +20,7 @@ using ctx = test.init();
 
   const messages = new sqlite.Database(ctx.dbPath)
     .query<{ url: string; method: string; body: string }, []>(
-      "SELECT url,method,body FROM global_captured_response",
+      "SELECT url,method,body FROM discord_webhook_request",
     )
     .all();
 
