@@ -318,13 +318,13 @@ export async function handle(ctx: Context): Promise<Response> {
   }
 
   if (authSession.code_challenge !== null) {
-    const validationErrorResponse = await validateCodeChallenge({
+    const codeChallengeErrorResponse = await validateCodeChallenge({
       codeChallenge: authSession.code_challenge,
       codeChallengeMethod: authSession.code_challenge_method,
       codeVerifier: formData.get("code_verifier"),
     });
-    if (validationErrorResponse !== undefined) {
-      return validationErrorResponse;
+    if (codeChallengeErrorResponse !== undefined) {
+      return codeChallengeErrorResponse;
     }
   }
 
