@@ -217,6 +217,22 @@ async function validateCodeChallenge(args: {
 export async function handle(ctx: Context): Promise<Response> {
   const formData = await getStringFormData(ctx);
 
+  const [authErrorResponse, client] = getClientFromBasicAuth(ctx);
+  if (authErrorResponse !== undefined) {
+    return authErrorResponse;
+  }
+
+  const code = formData.get("code");
+  if (code === undefined || code === "") {
+    return Response.json(
+      {
+        error: "invalid_request",
+        error_description: "Missing required parameter: code",
+      },
+      { status: 400 },
+    );
+  }
+
   const grantType = formData.get("grant_type") ?? "";
   if (grantType !== "authorization_code") {
     return Response.json(
@@ -234,22 +250,6 @@ export async function handle(ctx: Context): Promise<Response> {
       {
         error: "invalid_request",
         error_description: "Missing parameter: redirect_uri",
-      },
-      { status: 400 },
-    );
-  }
-
-  const [authErrorResponse, client] = getClientFromBasicAuth(ctx);
-  if (authErrorResponse !== undefined) {
-    return authErrorResponse;
-  }
-
-  const code = formData.get("code");
-  if (code === undefined || code === "") {
-    return Response.json(
-      {
-        error: "invalid_request",
-        error_description: "Missing required parameter: code",
       },
       { status: 400 },
     );
