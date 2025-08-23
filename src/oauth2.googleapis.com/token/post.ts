@@ -88,7 +88,7 @@ function getClientFromBasicAuth(authHeader: string): [undefined, Client] | [Resp
   return [undefined, { id, secret }];
 }
 
-async function createIdToken(authSession: AuthSession, accessToken: string) {
+async function createIdToken(ctx: Context, authSession: AuthSession, accessToken: string) {
   const scopes = authSession.scope.split(" ");
   if (!scopes.includes("openid")) {
     return undefined;
@@ -121,7 +121,7 @@ async function createIdToken(authSession: AuthSession, accessToken: string) {
   }
 
   const payload = {
-    iss: "https://accounts.google.com",
+    iss: `${ctx.urlPrefix}https://accounts.google.com`,
     aud: authSession.client_id,
     iat: nowEpoch,
     exp: nowEpoch + 3600,
@@ -357,7 +357,7 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const accessToken = crypto.randomUUID();
 
-  const idToken = await createIdToken(authSession, accessToken);
+  const idToken = await createIdToken(ctx, authSession, accessToken);
 
   const responseBody: Record<string, string | number | undefined> = {
     id_token: idToken,

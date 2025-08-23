@@ -62,7 +62,9 @@ async function handle(originalReq: Request, dbPath: string): Promise<Response> {
   }
 
   const req = new Request(translatedUrl, originalReq);
-  const ctx: Context = { req, db };
+  const urlPrefix = new URL(originalUrl).origin + "/"
+  console.log({urlPrefix})
+  const ctx: Context = { req, db, urlPrefix };
   const paths = translatedUrl.pathname.split("/").filter((p) => p !== "");
   return await serviceHandler(ctx, paths);
 }

@@ -12,4 +12,5 @@ export async function getStringFormData(ctx: Context): Promise<ReadonlyMap<strin
 export type Context = {
   db: Database;
   req: Request;
+  urlPrefix: string;
 };

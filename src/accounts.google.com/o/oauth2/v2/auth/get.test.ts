@@ -17,7 +17,7 @@ using ctx = test.init();
 
   const config = new oauth.Configuration(
     {
-      issuer: "https://accounts.google.com",
+      issuer: "http://localhost:3001/https://accounts.google.com",
       token_endpoint: "http://localhost:3001/https://oauth2.googleapis.com/token",
       authorization_endpoint: "http://localhost:3001/https://accounts.google.com/o/oauth2/v2/auth",
     },
