@@ -1,10 +1,10 @@
 CREATE TABLE global_static_route(
   url TEXT PRIMARY KEY,
-  response_status INTEGER NOT NULL,
-  response_body TEXT NOT NULL
+  status INTEGER NOT NULL,
+  body TEXT NOT NULL
 ) STRICT; 
 
-CREATE TABLE global_static_route_response_header(
+CREATE TABLE global_static_route_header(
   global_static_route_url TEXT NOT NULL,
   name TEXT NOT NULL,
   value TEXT NOT NULL,

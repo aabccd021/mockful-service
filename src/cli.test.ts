@@ -9,12 +9,12 @@ using ctx = test.init();
   test.resetDb(ctx);
 
   new sqlite.Database(ctx.dbPath).exec(`
-    INSERT INTO global_static_route (url, response_status, response_body) VALUES (
+    INSERT INTO global_static_route (url, status, body) VALUES (
       'https://example.com/',
       200,
       '<div>hello</div>'
     );
-    INSERT INTO global_static_route_response_header (global_static_route_url, name, value) VALUES (
+    INSERT INTO global_static_route_header (global_static_route_url, name, value) VALUES (
       'https://example.com/',
       'x-custom-header',
       'custom-value'
