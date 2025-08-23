@@ -38,10 +38,10 @@ export async function handle(ctx: Context): Promise<Response> {
         VALUES (
           $accountId, 
           $id, 
-          $email,
-          $locale,
-          $createdAt,
-          $updatedAt
+          :email,
+          :locale,
+          :createdAt,
+          :updatedAt
         )
       `,
       )
@@ -74,7 +74,7 @@ export async function handle(ctx: Context): Promise<Response> {
   }
 
   const customer = ctx.db
-    .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
+    .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = :id")
     .get({ id });
 
   if (customer === null) {

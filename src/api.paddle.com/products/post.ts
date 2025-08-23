@@ -37,7 +37,7 @@ export async function handle(ctx: Context): Promise<Response> {
         SELECT * 
         FROM paddle_account_tax_category_enabled 
         WHERE account_id = $accountId 
-        AND tax_category = $taxCategory
+        AND tax_category = :taxCategory
       `,
     )
     .get({
@@ -79,12 +79,12 @@ export async function handle(ctx: Context): Promise<Response> {
       VALUES (
         $accountId, 
         $id, 
-        $name,
-        $taxCategory,
-        $type,
-        $imageUrl,
-        $createdAt,
-        $updatedAt
+        :name,
+        :taxCategory,
+        :type,
+        :imageUrl,
+        :createdAt,
+        :updatedAt
       )
     `,
     )
@@ -100,7 +100,7 @@ export async function handle(ctx: Context): Promise<Response> {
     });
 
   const product = ctx.db
-    .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_product WHERE id = $id")
+    .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_product WHERE id = :id")
     .get({ id });
 
   if (product === null) {

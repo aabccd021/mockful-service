@@ -71,10 +71,10 @@ export async function handle(ctx: Context): Promise<Response> {
           `
             SELECT * 
             FROM paddle_price
-            WHERE product_id = $productId
+            WHERE product_id = :productId
               AND CASE 
-                  WHEN $recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
-                  WHEN $recurring = 'false' THEN billing_cycle_frequency IS NULL
+                  WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
+                  WHEN :recurring = 'false' THEN billing_cycle_frequency IS NULL
                   ELSE TRUE
               END
           `,
@@ -88,10 +88,10 @@ export async function handle(ctx: Context): Promise<Response> {
           SELECT paddle_price.*
           FROM paddle_price
           JOIN paddle_product ON paddle_price.product_id = paddle_product.id
-          WHERE paddle_product.account_id = $accountId
+          WHERE paddle_product.account_id = :accountId
             AND CASE 
-                WHEN $recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
-                WHEN $recurring = 'false' THEN billing_cycle_frequency IS NULL
+                WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
+                WHEN :recurring = 'false' THEN billing_cycle_frequency IS NULL
                 ELSE TRUE
             END
         `,

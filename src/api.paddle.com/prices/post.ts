@@ -79,19 +79,19 @@ export async function handle(ctx: Context): Promise<Response> {
         updated_at
       )
       VALUES (
-        $id,
-        $description,
-        $productId,
-        $unitPriceAmount,
-        $unitPriceCurrencyCode,
-        $type,
-        $billingCycleFrequency,
-        $billingCycleInterval,
-        $taxMode,
-        $quantityMinimum,
-        $quantityMaximum,
-        $createdAt,
-        $updatedAt
+        :id,
+        :description,
+        :productId,
+        :unitPriceAmount,
+        :unitPriceCurrencyCode,
+        :type,
+        :billingCycleFrequency,
+        :billingCycleInterval,
+        :taxMode,
+        :quantityMinimum,
+        :quantityMaximum,
+        :createdAt,
+        :updatedAt
       )
     `,
     )
@@ -112,7 +112,7 @@ export async function handle(ctx: Context): Promise<Response> {
     });
 
   const price = ctx.db
-    .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_price WHERE id = $id")
+    .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_price WHERE id = :id")
     .get({ id });
 
   if (price === null) {

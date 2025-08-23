@@ -33,12 +33,12 @@ export async function handle(ctx: Context): Promise<Response> {
           created_at,
           updated_at
         ) VALUES (
-          $id,
-          $status,
-          $customer_id,
-          $collection_method,
-          $created_at,
-          $updated_at
+          :id,
+          :status,
+          :customer_id,
+          :collection_method,
+          :created_at,
+          :updated_at
         )
       `,
       )
@@ -59,9 +59,9 @@ export async function handle(ctx: Context): Promise<Response> {
             price_id,
             quantity
           ) VALUES (  
-            $transactionId,
-            $priceId,
-            $quantity
+            :transactionId,
+            :priceId,
+            :quantity
           )
         `,
         )
@@ -76,7 +76,7 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const transaction = ctx.db
     .query<TransactionRow, sqlite.SQLQueryBindings>(
-      "SELECT * FROM paddle_transaction WHERE id = $id",
+      "SELECT * FROM paddle_transaction WHERE id = :id",
     )
     .get({ id });
 

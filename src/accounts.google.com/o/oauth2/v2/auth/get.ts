@@ -87,7 +87,7 @@ export function handle(ctx: Context): Response {
   }
 
   const client = ctx.db
-    .query("SELECT id FROM google_auth_client WHERE id = $id")
+    .query("SELECT id FROM google_auth_client WHERE id = :id")
     .get({ id: reqClientId });
   if (client === null) {
     return page(`
@@ -108,7 +108,7 @@ export function handle(ctx: Context): Response {
 
   const redirectUris = ctx.db
     .query<{ value: string }, sqlite.SQLQueryBindings>(
-      "SELECT value FROM google_auth_redirect_uri WHERE client_id = $clientId",
+      "SELECT value FROM google_auth_redirect_uri WHERE client_id = :clientId",
     )
     .all({ clientId: reqClientId });
 

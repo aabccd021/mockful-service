@@ -269,12 +269,12 @@ export async function handle(ctx: Context): Promise<Response> {
         FROM google_auth_session s
         JOIN google_auth_user u 
           ON s.user_sub = u.sub
-        WHERE code = $code
+        WHERE code = :code
       `,
     )
     .get({ code });
 
-  ctx.db.query("DELETE FROM google_auth_session WHERE code = $code").run({ code });
+  ctx.db.query("DELETE FROM google_auth_session WHERE code = :code").run({ code });
 
   if (authSession === null) {
     return Response.json(

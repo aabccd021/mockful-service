@@ -25,12 +25,12 @@ export async function handle(ctx: Context): Promise<Response> {
         code_challenge
       )
       VALUES (
-        $code,
-        $userSub,
-        $clientId,
-        $scope,
-        $codeChallengeMethod,
-        $codeChallengeValue
+        :code,
+        :userSub,
+        :clientId,
+        :scope,
+        :codeChallengeMethod,
+        :codeChallengeValue
       )
     `,
     )

@@ -33,7 +33,7 @@ export async function handle(ctx: Context): Promise<Response> {
       .map((email) =>
         ctx.db
           .query<Row, sqlite.SQLQueryBindings>(
-            "SELECT * FROM paddle_customer WHERE email = $email AND account_id = $accountId",
+            "SELECT * FROM paddle_customer WHERE email = :email AND account_id = :accountId",
           )
           .get({ email, accountId: account.id }),
       )
@@ -42,14 +42,14 @@ export async function handle(ctx: Context): Promise<Response> {
     customers = reqQuery.id
       .map((id) =>
         ctx.db
-          .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = $id")
+          .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = :id")
           .get({ id, accountId: account.id }),
       )
       .filter((val) => val !== null);
   } else {
     customers = ctx.db
       .query<Row, sqlite.SQLQueryBindings>(
-        "SELECT * FROM paddle_customer WHERE account_id = $accountId",
+        "SELECT * FROM paddle_customer WHERE account_id = :accountId",
       )
       .all({ accountId: account.id });
   }

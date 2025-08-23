@@ -49,7 +49,7 @@ export function authenticate(ctx: Context): [undefined, Account] | [Response] {
 
   const apiKey = ctx.db
     .query<{ account_id: string }, sqlite.SQLQueryBindings>(
-      "SELECT account_id FROM paddle_api_key WHERE key = $key",
+      "SELECT account_id FROM paddle_api_key WHERE key = :key",
     )
     .get({ key: reqApiKey });
 
