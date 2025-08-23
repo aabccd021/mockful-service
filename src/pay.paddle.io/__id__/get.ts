@@ -18,7 +18,9 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
         <meta name="color-scheme" content="light dark">
       </head>
       <body style="max-width: 30rem">
-        <button style="height: 2rem" type="submit" name="action" value="pay">Pay</button>,
+        <label for="customer_id">Customer ID</label>
+        <input type="customer_id" name="customer_id" id="customer_id"/>
+        <button style="height: 2rem" type="submit">Pay</button>,
       </body>
     </html>
   `;

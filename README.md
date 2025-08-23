@@ -1,6 +1,4 @@
-# TODO
-
-- paddle hosted checkout
+# Mockful Service
 
 ## LICENCE
 
