@@ -3,7 +3,6 @@
 - create error message for authenticate discord webhook
 - paddle hosted checkout
 - handle oauth discovery
-- support `oauth.ClientSecretPost`
 
 ## LICENCE
 

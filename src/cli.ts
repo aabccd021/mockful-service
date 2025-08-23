@@ -24,9 +24,13 @@ const serviceHandlers: Record<string, Handler> = {
 
 async function handle(originalReq: Request, dbPath: string): Promise<Response> {
   const originalUrl = new URL(originalReq.url);
-  const translatedUrl = new URL(
-    originalUrl.pathname.slice(1) + originalUrl.search + originalUrl.hash,
-  );
+
+  let translatedUrl: URL;
+  try {
+    translatedUrl = new URL(originalUrl.pathname.slice(1) + originalUrl.search + originalUrl.hash);
+  } catch (_err) {
+    return new Response("Not found", { status: 404 });
+  }
 
   const dbPathExists = fs.existsSync(dbPath);
   using db = new sqlite.Database(dbPath, { strict: true, create: true });
