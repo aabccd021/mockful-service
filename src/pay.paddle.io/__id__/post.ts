@@ -11,12 +11,11 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
   const customer = ctx.db
     .query<{ id: string; email: string }, sqlite.SQLQueryBindings>(
       `
-  SELECT c.id, c.email
-  FROM
-    paddle_transaction t
-    JOIN paddle_customer c ON t.customer_id = c.id
-  WHERE t.id = :transaction_id
-`,
+        SELECT c.id, c.email
+        FROM paddle_transaction t
+          JOIN paddle_customer c ON t.customer_id = c.id
+        WHERE t.id = :transaction_id
+      `,
     )
     .get({ transaction_id: transactionId });
 
