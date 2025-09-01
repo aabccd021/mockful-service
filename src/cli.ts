@@ -1,3 +1,5 @@
+#!/usr/bin/env bun
+
 import * as sqlite from "bun:sqlite";
 import * as fs from "node:fs";
 import type { Context } from "@src/util.ts";
@@ -7,7 +9,7 @@ import { handle as discordCom } from "./discord.com/route.ts";
 import { handle as oauth2GoogleapisCom } from "./oauth2.googleapis.com/route.ts";
 import { handle as payPaddleIo } from "./pay.paddle.io/route.ts";
 
-// @ts-ignore
+// @ts-expect-error
 import migration from "./schema.sql" with { type: "text" };
 
 type Handler = (ctx: Context, paths: string[]) => Promise<Response>;
