@@ -9,7 +9,7 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - run: nix run nixpkgs#biome -- check --error-on-warnings
       - run: nix run nixpkgs#typescript
-      - run: nix shell nixpkgs#bun --command bun run build
-      - run: nix shell nixpkgs#bun --command bun run bundle
       - run: nix shell nixpkgs#bun --command bun install
       - run: nix shell nixpkgs#bun --command bun run test
+      - run: nix shell nixpkgs#bun --command bun run build
+      - run: nix shell nixpkgs#bun --command bun run bundle

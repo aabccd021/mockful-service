@@ -2,8 +2,6 @@ import * as child_process from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 
-const cmd = `${import.meta.dir}/../dist/mockful-service`;
-
 type TestContext = {
   dbPath: string;
 };
@@ -15,8 +13,18 @@ export function init(): TestContext & Disposable {
 
   child_process.execSync(`mkfifo ${readyFifoPath}`, { stdio: "ignore" });
   const server = child_process.spawn(
-    cmd,
-    ["serve", "--port", "3001", "--db", dbPath, "--ready-fifo", readyFifoPath],
+    "bun",
+    [
+      "run",
+      `${import.meta.dir}/cli.ts`,
+      "serve",
+      "--port",
+      "3001",
+      "--db",
+      dbPath,
+      "--ready-fifo",
+      readyFifoPath,
+    ],
     {
       stdio: "inherit",
     },
@@ -42,5 +50,5 @@ export function resetDb(ctx: TestContext) {
   if (fs.existsSync(ctx.dbPath)) {
     fs.rmSync(ctx.dbPath);
   }
-  child_process.execSync(`${cmd} migrate --db ${ctx.dbPath}`);
+  child_process.execSync(`bun run ${import.meta.dir}/cli.ts migrate --db ${ctx.dbPath}`);
 }
