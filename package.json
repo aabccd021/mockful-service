@@ -2,7 +2,7 @@
   "name": "mockful-service",
   "scripts": {
     "build": "bun build ./src/cli.ts --compile --bytecode --sourcemap --outfile ./dist/mockful-service",
-    "bundle": "bun build ./src/cli.ts --target=bun --minify --sourcemap=inline --outfile ./dist/mockful-service.js && chmod +x ./dist/mockful-service.js",
+    "bundle": "bun build ./src/cli.ts --target=bun --minify --sourcemap=inline --outfile ./dist/mockful-service.js",
     "test": "bun src/test.ts"
   },
   "devDependencies": {
