@@ -24,7 +24,7 @@ export async function handle(ctx: Context): Promise<Response> {
       .query(
         `
           INSERT INTO paddle_transaction (id, status, customer_id, collection_method) 
-          VALUES (:id, :status, :customer_id, :collection_method,)
+          VALUES (:id, :status, :customer_id, :collection_method)
         `,
       )
       .run({
