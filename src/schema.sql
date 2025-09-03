@@ -177,3 +177,27 @@ CREATE TABLE paddle_hosted_checkout (
   CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
+
+CREATE TRIGGER enforce_account_match
+BEFORE INSERT ON paddle_transaction_item
+FOR EACH ROW
+BEGIN
+  WITH
+    customer_account AS (
+      SELECT c.account_id AS customer_account_id
+      FROM paddle_transaction t
+      JOIN paddle_customer c ON t.customer_id = c.id
+      WHERE t.id = NEW.transaction_id
+    ),
+    price_account AS (
+      SELECT p.account_id AS price_account_id
+      FROM paddle_price pr
+      JOIN paddle_product p ON pr.product_id = p.id
+      WHERE pr.id = NEW.price_id
+    )
+  SELECT
+    CASE
+      WHEN (SELECT customer_account_id FROM customer_account) != (SELECT price_account_id FROM price_account)
+      THEN RAISE(ABORT, 'Account mismatch: transaction customer and price must belong to the same account')
+    END;
+END;
