@@ -21,12 +21,10 @@ export async function handle(ctx: Context): Promise<Response> {
 
   ctx.db.transaction(() => {
     ctx.db
-      .query(
-        `
-          INSERT INTO paddle_transaction (id, status, customer_id, collection_method) 
-          VALUES (:id, :status, :customer_id, :collection_method)
-        `,
-      )
+      .query(`
+        INSERT INTO paddle_transaction (id, status, customer_id, collection_method) 
+        VALUES (:id, :status, :customer_id, :collection_method)
+      `)
       .run({
         id,
         status: "draft",
@@ -35,12 +33,10 @@ export async function handle(ctx: Context): Promise<Response> {
       });
     for (const item of reqBody.items) {
       ctx.db
-        .query(
-          `
-            INSERT INTO paddle_transaction_item (transaction_id, price_id, quantity) 
-            VALUES (:transaction_id, :priceId, :quantity)
-          `,
-        )
+        .query(`
+          INSERT INTO paddle_transaction_item (transaction_id, price_id, quantity) 
+          VALUES (:transaction_id, :priceId, :quantity)
+        `)
         .run({
           transaction_id: id,
           priceId: item.price_id,
