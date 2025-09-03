@@ -16,7 +16,8 @@ export async function handle(ctx: Context, transactionId: string): Promise<Respo
   const transaction = ctx.db
     .query<Row, sqlite.SQLQueryBindings>(`
     SELECT 
-      paddle_transaction.id AS id
+      paddle_transaction.id AS id,
+      paddle_transaction.status AS status
     FROM paddle_transaction
     INNER JOIN paddle_customer
       ON paddle_transaction.customer_id = paddle_customer.id
