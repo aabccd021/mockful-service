@@ -85,12 +85,10 @@ CREATE TABLE paddle_transaction (
   id TEXT PRIMARY KEY,
   status TEXT NOT NULL DEFAULT 'draft',
   customer_id TEXT NOT NULL,
-  collection_mode TEXT NOT NULL DEFAULT 'automatic',
   CHECK (id LIKE 'txn_%'),
   CHECK (LENGTH(id) = 30),
   CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
   CHECK (status IN ('draft', 'ready', 'billed', 'paid', 'completed', 'canceled', 'past_due')),
-  CHECK (collection_mode IN ('automatic', 'manual')),
   FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 

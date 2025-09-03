@@ -6,7 +6,6 @@ type TransactionRow = {
   id: string;
   status: "draft" | "ready" | "billed" | "paid" | "completed" | "canceled" | "past_due";
   customer_id: string | null;
-  collection_method: "automatic" | "manual";
 };
 
 export async function handle(ctx: Context): Promise<Response> {
@@ -22,14 +21,13 @@ export async function handle(ctx: Context): Promise<Response> {
   ctx.db.transaction(() => {
     ctx.db
       .query(`
-        INSERT INTO paddle_transaction (id, status, customer_id, collection_method) 
-        VALUES (:id, :status, :customer_id, :collection_method)
+        INSERT INTO paddle_transaction (id, status, customer_id) 
+        VALUES (:id, :status, :customer_id)
       `)
       .run({
         id,
         status: "draft",
         customer_id: reqBody.customer_id ?? null,
-        collection_method: reqBody.collection_method ?? "automatic",
       });
     for (const item of reqBody.items) {
       ctx.db

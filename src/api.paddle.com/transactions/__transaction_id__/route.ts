@@ -7,7 +7,7 @@ export async function handle(
   transactionId: string,
 ): Promise<Response> {
   const [path] = paths;
-  if (path !== undefined) {
+  if (path === undefined) {
     if (ctx.req.method === "GET") {
       return get.handle(ctx, transactionId);
     }
