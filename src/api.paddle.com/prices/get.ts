@@ -67,17 +67,19 @@ export async function handle(ctx: Context): Promise<Response> {
       ctx.db
         .query<Row, sqlite.SQLQueryBindings>(
           `
-            SELECT * 
-            FROM paddle_price
-            WHERE product_id = :product_id
-              AND CASE 
-                  WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
-                  WHEN :recurring = 'false' THEN billing_cycle_frequency IS NULL
-                  ELSE TRUE
-              END
-          `,
+        SELECT paddle_price.*
+        FROM paddle_price
+        JOIN paddle_product ON paddle_price.product_id = paddle_product.id
+        WHERE paddle_price.product_id = :product_id
+          AND paddle_product.account_id = :account_id
+          AND CASE 
+              WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
+              WHEN :recurring = 'false' THEN billing_cycle_frequency IS NULL
+              ELSE TRUE
+          END
+      `,
         )
-        .all({ product_id: product_id, recurring: reqQuery.recurring }),
+        .all({ product_id: product_id, account_id: account.id, recurring: reqQuery.recurring }),
     );
   } else {
     prices = ctx.db
