@@ -106,8 +106,8 @@ CREATE TABLE paddle_hosted_checkout (
   redirect_url TEXT NOT NULL,
   account_id TEXT NOT NULL,
   CHECK (id LIKE 'hsc_%'),
-  CHECK (LENGTH(id) = 30),
-  CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CHECK (LENGTH(id) = 63),
+  CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9_]*'),
   FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
