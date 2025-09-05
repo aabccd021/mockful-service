@@ -95,6 +95,7 @@ using ctx = test.init();
   const transactionGetBody = await transactionGet.json();
   if (transactionGetBody.data.id !== transactionId) throw new Error();
   if (transactionGetBody.data.status !== "draft") throw new Error();
+  if (transactionGetBody.data.customer_id !== customerId) throw new Error();
 }
 
 {

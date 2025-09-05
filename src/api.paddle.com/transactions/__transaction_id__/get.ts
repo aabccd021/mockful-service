@@ -5,6 +5,7 @@ import type { Context } from "@src/util.ts";
 type Row = {
   id: string;
   status: "draft" | "ready" | "billed" | "paid" | "completed" | "canceled" | "past_due";
+  customer_id: string;
 };
 
 export async function handle(ctx: Context, transactionId: string): Promise<Response> {
@@ -17,7 +18,8 @@ export async function handle(ctx: Context, transactionId: string): Promise<Respo
     .query<Row, sqlite.SQLQueryBindings>(`
     SELECT 
       paddle_transaction.id AS id,
-      paddle_transaction.status AS status
+      paddle_transaction.status AS status,
+      paddle_transaction.customer_id AS customer_id
     FROM paddle_transaction
     INNER JOIN paddle_customer
       ON paddle_transaction.customer_id = paddle_customer.id
