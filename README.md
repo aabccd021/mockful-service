@@ -4,6 +4,9 @@
 
 - Generate paddle id on sqlite instead of app
 - test paddle id, should fail if not [a-z0-9], currently i think it's wrong and we should use `NOT GLOB` instead of `GLOB`
+- use bun test
+- use function for test instead of binary
+- implement cgi
 
 ## LICENCE
 
