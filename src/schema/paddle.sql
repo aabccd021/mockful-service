@@ -29,7 +29,7 @@ CREATE TABLE paddle_customer (
   UNIQUE (account_id, email),
   CHECK (id LIKE 'ctm_%'),
   CHECK (LENGTH(id) = 30),
-  CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CHECK (id GLOB '[a-z0-9]*'),
   CHECK (status IN ('active', 'archived')),
   CHECK (marketing_consent IN ('true', 'false')),
   FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -45,7 +45,7 @@ CREATE TABLE paddle_product (
   account_id TEXT NOT NULL,
   CHECK (id LIKE 'pro_%'),
   CHECK (LENGTH(id) = 30),
-  CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CHECK (id GLOB '[a-z0-9]*'),
   CHECK (tax_category IN ('digital-goods', 'ebooks', 'implementation-services', 'professional-services', 'saas', 'software-programming-services', 'standard', 'training-services', 'website-hosting')),
   CHECK (type IN ('standard', 'custom')),
   CHECK (status IN ('active', 'archived')),
@@ -67,7 +67,7 @@ CREATE TABLE paddle_price (
   status TEXT NOT NULL DEFAULT 'active',
   CHECK (id LIKE 'pri_%'),
   CHECK (LENGTH(id) = 30),
-  CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CHECK (id GLOB '[a-z0-9]*'),
   CHECK (unit_price_amount >= 0),
   CHECK (unit_price_currency_code IN ( 'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'HKD', 'SGD', 'SEK', 'ARS', 'BRL', 'CNY', 'COP', 'CZK', 'DKK', 'HUF', 'ILS', 'INR', 'KRW', 'MXN', 'NOK', 'NZD', 'PLN', 'RUB', 'THB', 'TRY', 'TWD', 'UAH', 'VND', 'ZAR')),
   CHECK (type IN ('standard', 'custom')),
@@ -87,7 +87,7 @@ CREATE TABLE paddle_transaction (
   customer_id TEXT NOT NULL,
   CHECK (id LIKE 'txn_%'),
   CHECK (LENGTH(id) = 30),
-  CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9]*'),
+  CHECK (id GLOB '[a-z0-9]*'),
   CHECK (status IN ('draft', 'ready', 'billed', 'paid', 'completed', 'canceled', 'past_due')),
   FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
@@ -107,7 +107,7 @@ CREATE TABLE paddle_hosted_checkout (
   account_id TEXT NOT NULL,
   CHECK (id LIKE 'hsc_%'),
   CHECK (LENGTH(id) = 63),
-  CHECK (SUBSTR(id, 5, 26) GLOB '[a-z0-9_]*'),
+  CHECK (id GLOB '[a-z0-9_]*'),
   FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
