@@ -18,7 +18,8 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
         <meta name="color-scheme" content="light dark">
       </head>
       <body style="max-width: 30rem">
-        <form method="POST">
+        <h1>Paddle Hosted Checkout</h1>
+        <form method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
           <button style="height: 2rem" name="next-status" value="paid">Set transaction status to "paid"</button><br>
           <button style="height: 2rem" name="next-status" value="completed">Set transaction status to "completed"</button><br>
         </form>
