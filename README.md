@@ -2,6 +2,7 @@
 
 ## TODO
 
+- use mocket time
 - test hosted checkout
 - test transaction items
 - Generate paddle id on sqlite instead of app
