@@ -2,10 +2,15 @@ import type * as sqlite from "bun:sqlite";
 import * as paddle from "@src/api.paddle.com/util.ts";
 import type { Context } from "@src/util.ts";
 
-type Row = {
+type TransactionRow = {
   id: string;
   status: "draft" | "ready" | "billed" | "paid" | "completed" | "canceled" | "past_due";
   customer_id: string;
+};
+
+type TransactionItemRow = {
+  price_id: string;
+  quantity: number;
 };
 
 export async function handle(ctx: Context, transactionId: string): Promise<Response> {
@@ -14,8 +19,8 @@ export async function handle(ctx: Context, transactionId: string): Promise<Respo
     return authErrorRes;
   }
 
-  const transaction = ctx.db
-    .query<Row, sqlite.SQLQueryBindings>(`
+  const transactionRow = ctx.db
+    .query<TransactionRow, sqlite.SQLQueryBindings>(`
     SELECT 
       paddle_transaction.id AS id,
       paddle_transaction.status AS status,
@@ -28,9 +33,29 @@ export async function handle(ctx: Context, transactionId: string): Promise<Respo
   `)
     .get({ transaction_id: transactionId, account_id: account.id });
 
-  if (transaction === null) {
+  if (transactionRow === null) {
     return Response.json({}, { status: 404 });
   }
 
-  return Response.json({ data: transaction });
+  const transactionItemRows = ctx.db
+    .query<TransactionItemRow, sqlite.SQLQueryBindings>(`
+    SELECT 
+      price_id,
+      quantity
+    FROM paddle_transaction_item
+    WHERE transaction_id = :transaction_id
+  `)
+    .all({ transaction_id: transactionId });
+
+  const data = {
+    id: transactionRow.id,
+    status: transactionRow.status,
+    customer_id: transactionRow.customer_id,
+    items: transactionItemRows.map((item) => ({
+      price_id: item.price_id,
+      quantity: item.quantity,
+    })),
+  };
+
+  return Response.json({ data });
 }
