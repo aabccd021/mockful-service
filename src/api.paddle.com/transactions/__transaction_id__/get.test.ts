@@ -73,7 +73,7 @@ using ctx = test.init();
         items: [
           {
             price_id: priceId,
-            quantity: 1,
+            quantity: 3,
           },
         ],
       }),
@@ -96,6 +96,9 @@ using ctx = test.init();
   if (transactionGetBody.data.id !== transactionId) throw new Error();
   if (transactionGetBody.data.status !== "draft") throw new Error();
   if (transactionGetBody.data.customer_id !== customerId) throw new Error();
+  if (transactionGetBody.data.items.length !== 1) throw new Error();
+  if (transactionGetBody.data.items[0].price_id !== priceId) throw new Error();
+  if (transactionGetBody.data.items[0].quantity !== 3) throw new Error();
 }
 
 {
