@@ -111,7 +111,7 @@ CREATE TABLE paddle_hosted_checkout (
   FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
-CREATE TRIGGER enforce_account_match
+CREATE TRIGGER paddle_transaction_item_account_match
 BEFORE INSERT ON paddle_transaction_item
 FOR EACH ROW
 BEGIN
