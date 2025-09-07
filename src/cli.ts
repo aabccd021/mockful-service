@@ -9,12 +9,13 @@ import { handle as discordCom } from "./discord.com/route.ts";
 import { handle as oauth2GoogleapisCom } from "./oauth2.googleapis.com/route.ts";
 import { handle as payPaddleIo } from "./pay.paddle.io/route.ts";
 
+import configSchema from "./schema/config.sql" with { type: "text" };
 import discordSchema from "./schema/discord.sql" with { type: "text" };
 import globalSchema from "./schema/global.sql" with { type: "text" };
 import googleSchema from "./schema/google.sql" with { type: "text" };
 import paddleSchema from "./schema/paddle.sql" with { type: "text" };
 
-const schemas = [discordSchema, googleSchema, paddleSchema, globalSchema];
+const schemas = [configSchema, discordSchema, googleSchema, paddleSchema, globalSchema];
 
 type Handler = (ctx: Context, paths: string[]) => Promise<Response>;
 

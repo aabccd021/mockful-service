@@ -1,4 +1,4 @@
-import type { Database } from "bun:sqlite";
+import type * as sqlite from "bun:sqlite";
 
 export async function getStringFormData(ctx: Context): Promise<ReadonlyMap<string, string>> {
   const formDataRaw = await ctx.req.formData();
@@ -9,8 +9,18 @@ export async function getStringFormData(ctx: Context): Promise<ReadonlyMap<strin
   return data;
 }
 
+export function dateNow(ctx: Context): Date {
+  const row = ctx.db
+    .query<{ value: string }, []>("SELECT value FROM config WHERE name = 'now'")
+    .get();
+  if (row === null) {
+    return new Date();
+  }
+  return new Date(row.value);
+}
+
 export type Context = {
-  db: Database;
-  req: Request;
-  urlPrefix: string;
+  readonly db: sqlite.Database;
+  readonly req: Request;
+  readonly urlPrefix: string;
 };

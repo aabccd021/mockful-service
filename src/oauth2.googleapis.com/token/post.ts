@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { getStringFormData } from "@src/util";
+import * as util from "@src/util";
 import type { Context } from "@src/util.ts";
 
 type AuthSession = {
@@ -17,7 +17,10 @@ type Client = {
   readonly secret: string;
 };
 
-function getClientFromBasicAuth(authHeader: string): [undefined, Client] | [Response] {
+function getClientFromBasicAuth(
+  _ctx: Context,
+  authHeader: string,
+): [undefined, Client] | [Response] {
   const [prefix, credentials] = authHeader.split(" ");
 
   if (prefix === undefined) {
@@ -109,8 +112,7 @@ async function createIdToken(ctx: Context, authSession: AuthSession, accessToken
     .encode(JSON.stringify(header))
     .toBase64({ alphabet: "base64url", omitPadding: true });
 
-  // TODO
-  const nowEpoch = Math.floor(Date.now() / 1000);
+  const nowEpoch = Math.floor(util.dateNow(ctx).getTime() / 1000);
 
   let email_verified: boolean | undefined;
   if (authSession.user_email_verified === "true") {
@@ -204,7 +206,7 @@ async function validateCodeChallenge(args: {
 }
 
 export async function handle(ctx: Context): Promise<Response> {
-  const formData = await getStringFormData(ctx);
+  const formData = await util.getStringFormData(ctx);
 
   const code = formData.get("code");
   if (code === undefined || code === "") {
@@ -244,7 +246,7 @@ export async function handle(ctx: Context): Promise<Response> {
   const bodyClientId = formData.get("client_id");
   const bodyClientSecret = formData.get("client_secret");
   if (authHeader !== null) {
-    const [authErrorResponse, basicAuthClient] = getClientFromBasicAuth(authHeader);
+    const [authErrorResponse, basicAuthClient] = getClientFromBasicAuth(ctx, authHeader);
     if (authErrorResponse !== undefined) {
       return authErrorResponse;
     }
