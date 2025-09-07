@@ -206,9 +206,10 @@ async function validateCodeChallenge(args: {
 }
 
 export async function handle(ctx: Context): Promise<Response> {
-  const formData = await util.getStringFormData(ctx);
+  const formData = await ctx.req.formData();
+  const stringFormData = new Map(formData.entries());
 
-  const code = formData.get("code");
+  const code = stringFormData.get("code");
   if (code === undefined || code === "") {
     return Response.json(
       {
@@ -219,7 +220,7 @@ export async function handle(ctx: Context): Promise<Response> {
     );
   }
 
-  const redirectUri = formData.get("redirect_uri");
+  const redirectUri = stringFormData.get("redirect_uri");
   if (redirectUri === undefined) {
     return Response.json(
       {
@@ -243,8 +244,8 @@ export async function handle(ctx: Context): Promise<Response> {
 
   let client: Client;
   const authHeader = ctx.req.headers.get("Authorization");
-  const bodyClientId = formData.get("client_id");
-  const bodyClientSecret = formData.get("client_secret");
+  const bodyClientId = stringFormData.get("client_id");
+  const bodyClientSecret = stringFormData.get("client_secret");
   if (authHeader !== null) {
     const [authErrorResponse, basicAuthClient] = getClientFromBasicAuth(ctx, authHeader);
     if (authErrorResponse !== undefined) {
@@ -332,7 +333,7 @@ export async function handle(ctx: Context): Promise<Response> {
     const codeChallengeErrorResponse = await validateCodeChallenge({
       codeChallenge: authSession.code_challenge,
       codeChallengeMethod: authSession.code_challenge_method,
-      codeVerifier: formData.get("code_verifier"),
+      codeVerifier: stringFormData.get("code_verifier"),
     });
     if (codeChallengeErrorResponse !== undefined) {
       return codeChallengeErrorResponse;

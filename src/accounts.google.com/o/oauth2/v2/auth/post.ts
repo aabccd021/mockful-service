@@ -1,5 +1,4 @@
 import type { Context } from "@src/util.ts";
-import { getStringFormData } from "@src/util.ts";
 
 export async function handle(ctx: Context): Promise<Response> {
   const searchParams = new URL(ctx.req.url).searchParams;
@@ -9,7 +8,8 @@ export async function handle(ctx: Context): Promise<Response> {
     throw new Error("Missing required parameter: redirect_uri");
   }
 
-  const formData = await getStringFormData(ctx);
+  const formData = await ctx.req.formData();
+  const stringFormData = new Map(formData.entries());
 
   const code = crypto.randomUUID();
 
@@ -36,11 +36,11 @@ export async function handle(ctx: Context): Promise<Response> {
     )
     .run({
       code,
-      user_sub: formData.get("user_sub") ?? null,
-      client_id: searchParams.get("client_id") ?? null,
-      scope: searchParams.get("scope") ?? null,
-      code_challenge_method: searchParams.get("code_challenge_method") ?? null,
-      code_challenge_value: searchParams.get("code_challenge") ?? null,
+      user_sub: stringFormData.get("user_sub") ?? null,
+      client_id: searchParams.get("client_id"),
+      scope: searchParams.get("scope"),
+      code_challenge_method: searchParams.get("code_challenge_method"),
+      code_challenge_value: searchParams.get("code_challenge"),
     });
 
   const redirectUrl = new URL(redirectUri);

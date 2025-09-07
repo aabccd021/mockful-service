@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { type Context, getStringFormData } from "@src/util.ts";
+import type { Context } from "@src/util.ts";
 
 export async function handle(ctx: Context, checkoutId: string): Promise<Response> {
   const searchParams = new URL(ctx.req.url).searchParams;
@@ -33,11 +33,11 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
     throw new Error("Absurd");
   }
 
-  const formData = await getStringFormData(ctx);
-  const status = formData.get("next-status");
+  const formData = await ctx.req.formData();
+  const stringFormData = new Map(formData.entries());
 
   ctx.db.query("UPDATE paddle_transaction SET status = :status WHERE id = :transaction_id").run({
-    status: status ?? null,
+    status: stringFormData.get("next-status") ?? null,
     transaction_id: transactionId,
   });
 
