@@ -2,7 +2,8 @@
 
 ## TODO
 
-- use mocket time
+- mocked time all ms
+- use view for config to simplify application dateNow/dateIso
 - test hosted checkout
 - test transaction items
 - Generate paddle id on sqlite instead of app
