@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import type { Context } from "@src/util.ts";
+import { type Context, dateNow } from "@src/util.ts";
 
 export async function handle(ctx: Context, checkoutId: string): Promise<Response> {
   const searchParams = new URL(ctx.req.url).searchParams;
@@ -36,14 +36,22 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
   const formData = await ctx.req.formData();
   const stringFormData = new Map(formData.entries());
 
+  const nextStatus = stringFormData.get("next_status");
+  if (nextStatus !== "paid" && nextStatus !== "completed") {
+    return Response.json("Invalid next_status", { status: 400 });
+  }
+
+  const billedAt = nextStatus === "completed" ? dateNow(ctx).toISOString() : null;
+
   ctx.db
     .query(`
       UPDATE paddle_transaction 
-      SET status = :status 
+      SET status = :status, billed_at = :billed_at
       WHERE id = :transaction_id
     `)
     .run({
-      status: stringFormData.get("next-status") ?? null,
+      status: nextStatus,
+      billed_at: billedAt,
       transaction_id: transactionId,
     });
 
