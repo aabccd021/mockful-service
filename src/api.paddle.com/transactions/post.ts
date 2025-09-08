@@ -18,13 +18,14 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const id = `txn_${paddle.generateId()}`;
 
-  ctx.db.transaction(() => {
-    ctx.db
-      .query(`
+  const transaction = ctx.db.transaction(() => {
+    const transaction = ctx.db
+      .query<TransactionRow, sqlite.SQLQueryBindings>(`
         INSERT INTO paddle_transaction (id, status, customer_id) 
         VALUES (:id, :status, :customer_id)
+        RETURNING *
       `)
-      .run({
+      .get({
         id,
         status: "draft",
         customer_id: reqBody.customer_id ?? null,
@@ -41,15 +42,10 @@ export async function handle(ctx: Context): Promise<Response> {
           quantity: item.quantity,
         });
     }
+    return transaction;
   })();
 
-  const transaction = ctx.db
-    .query<TransactionRow, sqlite.SQLQueryBindings>(
-      "SELECT * FROM paddle_transaction WHERE id = :id",
-    )
-    .get({ id });
-
-  if (transaction === null) {
+  if (transaction == null) {
     throw new Error("Unreachable");
   }
 
