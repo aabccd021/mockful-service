@@ -86,11 +86,13 @@ CREATE TABLE paddle_transaction (
   status TEXT NOT NULL DEFAULT 'draft',
   customer_id TEXT NOT NULL,
   created_at TEXT NOT NULL,
+  billed_at TEXT,
   CHECK (id LIKE 'txn_%'),
   CHECK (LENGTH(id) = 30),
   CHECK (id GLOB '[a-z0-9]*'),
   CHECK (status IN ('draft', 'ready', 'billed', 'paid', 'completed', 'canceled', 'past_due')),
   CHECK (created_at GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]Z'),
+  CHECK ((status IN ('completed', 'billed') AND billed_at IS NOT NULL) OR (status NOT IN ('completed', 'billed') AND billed_at IS NULL) OR (billed_at IS NULL)),
   FOREIGN KEY (customer_id) REFERENCES paddle_customer(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
