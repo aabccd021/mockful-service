@@ -1,6 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import * as util from "@src/util";
-import type { Context } from "@src/util.ts";
+import { type Context, nowIso } from "@src/util.ts";
 
 type AuthSession = {
   readonly client_id: string;
@@ -112,7 +111,7 @@ async function createIdToken(ctx: Context, authSession: AuthSession, accessToken
     .encode(JSON.stringify(header))
     .toBase64({ alphabet: "base64url", omitPadding: true });
 
-  const nowEpoch = Math.floor(util.dateNow(ctx).getTime() / 1000);
+  const nowEpoch = Math.floor(new Date(nowIso(ctx)).getTime() / 1000);
 
   let email_verified: boolean | undefined;
   if (authSession.user_email_verified === "true") {

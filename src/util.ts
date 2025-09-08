@@ -1,13 +1,13 @@
 import type * as sqlite from "bun:sqlite";
 
-export function dateNow(ctx: Context): Date {
+export function nowIso(ctx: Context): string {
   const row = ctx.db
     .query<{ value: string }, []>("SELECT value FROM config WHERE name = 'now'")
     .get();
   if (row === null) {
-    return new Date();
+    return new Date().toISOString();
   }
-  return new Date(row.value);
+  return row.value;
 }
 
 export type Context = {

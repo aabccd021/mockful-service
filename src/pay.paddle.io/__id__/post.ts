@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { type Context, dateNow } from "@src/util.ts";
+import { type Context, nowIso } from "@src/util.ts";
 
 export async function handle(ctx: Context, checkoutId: string): Promise<Response> {
   const searchParams = new URL(ctx.req.url).searchParams;
@@ -41,7 +41,7 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
     return Response.json("Invalid next_status", { status: 400 });
   }
 
-  const billedAt = nextStatus === "completed" ? dateNow(ctx).toISOString() : null;
+  const billedAt = nextStatus === "completed" ? nowIso(ctx) : null;
 
   ctx.db
     .query(`

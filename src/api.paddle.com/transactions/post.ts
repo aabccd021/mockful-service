@@ -1,7 +1,6 @@
 import type * as sqlite from "bun:sqlite";
 import * as paddle from "@src/api.paddle.com/util.ts";
-import type { Context } from "@src/util.ts";
-import * as util from "@src/util.ts";
+import { type Context, nowIso } from "@src/util.ts";
 
 type TransactionRow = {
   id: string;
@@ -19,7 +18,7 @@ export async function handle(ctx: Context): Promise<Response> {
   const reqBody = await ctx.req.json();
 
   const id = `txn_${paddle.generateId()}`;
-  const now = util.dateNow(ctx).toISOString();
+  const now = nowIso(ctx);
 
   const transaction = ctx.db.transaction(() => {
     const transaction = ctx.db
