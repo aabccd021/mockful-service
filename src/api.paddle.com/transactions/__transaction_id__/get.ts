@@ -20,7 +20,7 @@ export async function handle(ctx: Context, transactionId: string): Promise<Respo
     return authErrorRes;
   }
 
-  const transactionRow = ctx.db
+  const transaction = ctx.db
     .query<TransactionRow, sqlite.SQLQueryBindings>(`
     SELECT 
       paddle_transaction.id AS id,
@@ -35,11 +35,11 @@ export async function handle(ctx: Context, transactionId: string): Promise<Respo
   `)
     .get({ transaction_id: transactionId, account_id: account.id });
 
-  if (transactionRow === null) {
+  if (transaction === null) {
     return Response.json({}, { status: 404 });
   }
 
-  const transactionItemRows = ctx.db
+  const transactionItems = ctx.db
     .query<TransactionItemRow, sqlite.SQLQueryBindings>(`
     SELECT 
       price_id,
@@ -50,11 +50,11 @@ export async function handle(ctx: Context, transactionId: string): Promise<Respo
     .all({ transaction_id: transactionId });
 
   const data = {
-    id: transactionRow.id,
-    status: transactionRow.status,
-    customer_id: transactionRow.customer_id,
-    created_at: transactionRow.created_at,
-    items: transactionItemRows.map((item) => ({
+    id: transaction.id,
+    status: transaction.status,
+    customer_id: transaction.customer_id,
+    created_at: transaction.created_at,
+    items: transactionItems.map((item) => ({
       price_id: item.price_id,
       quantity: item.quantity,
     })),
