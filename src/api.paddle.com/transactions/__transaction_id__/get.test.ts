@@ -15,7 +15,7 @@ using ctx = test.init();
     );
     INSERT INTO paddle_account_tax_category_enabled (account_id, tax_category) 
       VALUES ('mock_account_id', 'saas');
-    INSERT INTO config (name, value) VALUES ('now', '2024-01-01T00:00:00Z');
+    INSERT INTO config_integer (name, value) VALUES ('now_epoch_millis', '${new Date("2024-01-01T00:00:00Z").getTime()}');
   `);
 
   const customer = await fetch("http://localhost:3001/https://sandbox-api.paddle.com/customers", {
@@ -94,7 +94,7 @@ using ctx = test.init();
   );
   if (transactionGet.status !== 200) throw new Error();
   const transactionGetBody = await transactionGet.json();
-  if (transactionGetBody.data.created_at !== "2024-01-01T00:00:00Z") throw new Error();
+  if (transactionGetBody.data.created_at !== "2024-01-01T00:00:00.000Z") throw new Error();
   if (transactionGetBody.data.id !== transactionId) throw new Error();
   if (transactionGetBody.data.status !== "draft") throw new Error();
   if (transactionGetBody.data.customer_id !== customerId) throw new Error();

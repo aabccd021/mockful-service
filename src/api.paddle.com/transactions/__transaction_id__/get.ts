@@ -6,7 +6,7 @@ type TransactionRow = {
   id: string;
   status: "draft" | "ready" | "billed" | "paid" | "completed" | "canceled" | "past_due";
   customer_id: string;
-  created_at: string;
+  created_at_epoch_ms: number;
 };
 
 type TransactionItemRow = {
@@ -26,7 +26,7 @@ export async function handle(ctx: Context, transactionId: string): Promise<Respo
       paddle_transaction.id AS id,
       paddle_transaction.status AS status,
       paddle_transaction.customer_id AS customer_id,
-      paddle_transaction.created_at AS created_at
+      paddle_transaction.created_at_epoch_ms AS created_at_epoch_ms
     FROM paddle_transaction
     INNER JOIN paddle_customer
       ON paddle_transaction.customer_id = paddle_customer.id
@@ -53,7 +53,7 @@ export async function handle(ctx: Context, transactionId: string): Promise<Respo
     id: transaction.id,
     status: transaction.status,
     customer_id: transaction.customer_id,
-    created_at: transaction.created_at,
+    created_at: new Date(transaction.created_at_epoch_ms).toISOString(),
     items: transactionItems.map((item) => ({
       price_id: item.price_id,
       quantity: item.quantity,

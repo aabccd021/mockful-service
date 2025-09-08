@@ -1,5 +1,5 @@
 import type * as sqlite from "bun:sqlite";
-import { type Context, nowIso } from "@src/util.ts";
+import { type Context, dateNow } from "@src/util.ts";
 
 export async function handle(ctx: Context, checkoutId: string): Promise<Response> {
   const searchParams = new URL(ctx.req.url).searchParams;
@@ -11,13 +11,13 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
   const customer = ctx.db
     .query<{ id: string; email: string }, sqlite.SQLQueryBindings>(
       `
-        SELECT c.id, c.email
-        FROM paddle_transaction t
-          JOIN paddle_customer c ON t.customer_id = c.id
-        WHERE t.id = :transaction_id
+        SELECT paddle_customer.id, paddle_customer.email
+        FROM paddle_transaction
+          JOIN paddle_customer ON transaction.customer_id = c.id
+        WHERE transaction.id = :transactionId
       `,
     )
-    .get({ transaction_id: transactionId });
+    .get({ transactionId });
 
   if (customer === null) {
     throw new Error("Absurd");
@@ -36,24 +36,20 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
   const formData = await ctx.req.formData();
   const stringFormData = new Map(formData.entries());
 
-  const nextStatus = stringFormData.get("next-status");
-  if (nextStatus !== "paid" && nextStatus !== "completed") {
-    return Response.json(`Invalid next-status: ${nextStatus}`, { status: 400 });
+  const status = stringFormData.get("status");
+  if (status !== "paid" && status !== "completed") {
+    return Response.json(`Invalid status: ${status}`, { status: 400 });
   }
 
-  const billedAt = nextStatus === "completed" ? nowIso(ctx) : null;
+  const billedAtEpochMs = status === "completed" ? dateNow(ctx).getTime() : null;
 
   ctx.db
     .query(`
       UPDATE paddle_transaction 
-      SET status = :status, billed_at = :billed_at
-      WHERE id = :transaction_id
+      SET status = :status, billed_at_epoch_ms = :billedAtEpochMs
+      WHERE id = :transactionId
     `)
-    .run({
-      status: nextStatus,
-      billed_at: billedAt,
-      transaction_id: transactionId,
-    });
+    .run({ status, billedAtEpochMs, transactionId });
 
   const redirectUrl = new URL(checkout.redirect_url);
   redirectUrl.searchParams.set("paddle_customer_id", customer.id);

@@ -1,12 +1,12 @@
 import type * as sqlite from "bun:sqlite";
 import * as paddle from "@src/api.paddle.com/util.ts";
-import { type Context, nowIso } from "@src/util.ts";
+import { type Context, dateNow } from "@src/util.ts";
 
 type TransactionRow = {
   id: string;
   status: "draft" | "ready" | "billed" | "paid" | "completed" | "canceled" | "past_due";
   customer_id: string | null;
-  created_at: string;
+  created_at_epoch_ms: number;
 };
 
 export async function handle(ctx: Context): Promise<Response> {
@@ -18,17 +18,17 @@ export async function handle(ctx: Context): Promise<Response> {
   const reqBody = await ctx.req.json();
 
   const id = `txn_${paddle.generateId()}`;
-  const now = nowIso(ctx);
+  const now = dateNow(ctx);
 
   const transaction = ctx.db.transaction(() => {
     const transaction = ctx.db
       .query<TransactionRow, sqlite.SQLQueryBindings>(`
-        INSERT INTO paddle_transaction (created_at, id, status, customer_id) 
-        VALUES (:created_at, :id, :status, :customer_id)
+        INSERT INTO paddle_transaction (created_at_epoch_ms, id, status, customer_id) 
+        VALUES (:created_at_epoch_ms, :id, :status, :customer_id)
         RETURNING *
       `)
       .get({
-        created_at: now,
+        created_at_epoch_ms: now.getTime(),
         id,
         status: "draft",
         customer_id: reqBody.customer_id ?? null,
@@ -58,7 +58,7 @@ export async function handle(ctx: Context): Promise<Response> {
         id: transaction.id,
         status: transaction.status,
         customer_id: transaction.customer_id,
-        created_at: transaction.created_at,
+        created_at: new Date(transaction.created_at_epoch_ms).toISOString(),
       },
     },
     { status: 201 },

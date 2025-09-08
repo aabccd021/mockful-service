@@ -1,13 +1,16 @@
 import type * as sqlite from "bun:sqlite";
 
-export function nowIso(ctx: Context): string {
-  const row = ctx.db
-    .query<{ value: string }, []>("SELECT value FROM config WHERE name = 'now'")
-    .get();
-  if (row === null) {
-    return new Date().toISOString();
+export function dateNow(ctx: Context): Date {
+  const row = ctx.db.query("SELECT epoch_millis FROM config_now_view 'now'").get();
+  if (
+    row === null ||
+    typeof row !== "object" ||
+    !("epoch_millis" in row) ||
+    typeof row.epoch_millis !== "number"
+  ) {
+    throw new Error(`Absurd 'now' epoch_millis in config table: ${JSON.stringify(row)}`);
   }
-  return row.value;
+  return new Date(row.epoch_millis);
 }
 
 export type Context = {
