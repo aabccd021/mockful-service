@@ -36,9 +36,9 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
   const formData = await ctx.req.formData();
   const stringFormData = new Map(formData.entries());
 
-  const nextStatus = stringFormData.get("next_status");
+  const nextStatus = stringFormData.get("next-status");
   if (nextStatus !== "paid" && nextStatus !== "completed") {
-    return Response.json(`Invalid next_status: ${nextStatus}`, { status: 400 });
+    return Response.json(`Invalid next-status: ${nextStatus}`, { status: 400 });
   }
 
   const billedAt = nextStatus === "completed" ? nowIso(ctx) : null;
