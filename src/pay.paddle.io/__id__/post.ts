@@ -13,8 +13,9 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
       `
         SELECT paddle_customer.id, paddle_customer.email
         FROM paddle_transaction
-          JOIN paddle_customer ON transaction.customer_id = c.id
-        WHERE transaction.id = :transactionId
+        JOIN paddle_customer 
+          ON paddle_transaction.customer_id = paddle_customer.id
+        WHERE paddle_transaction.id = :transactionId
       `,
     )
     .get({ transactionId });
