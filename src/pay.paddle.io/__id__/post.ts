@@ -36,10 +36,16 @@ export async function handle(ctx: Context, checkoutId: string): Promise<Response
   const formData = await ctx.req.formData();
   const stringFormData = new Map(formData.entries());
 
-  ctx.db.query("UPDATE paddle_transaction SET status = :status WHERE id = :transaction_id").run({
-    status: stringFormData.get("next-status") ?? null,
-    transaction_id: transactionId,
-  });
+  ctx.db
+    .query(`
+      UPDATE paddle_transaction 
+      SET status = :status 
+      WHERE id = :transaction_id
+    `)
+    .run({
+      status: stringFormData.get("next-status") ?? null,
+      transaction_id: transactionId,
+    });
 
   const redirectUrl = new URL(checkout.redirect_url);
   redirectUrl.searchParams.set("paddle_customer_id", customer.id);
