@@ -14,8 +14,6 @@ CREATE TABLE paddle_account_tax_category_enabled (
 CREATE TABLE paddle_api_key (
   key TEXT PRIMARY KEY,
   account_id TEXT NOT NULL,
-  CHECK (key LIKE 'pdl_live_apikey_%' OR key LIKE 'pdl_sdbx_apikey_%'), -- https://developer.paddle.com/api-reference/about/api-keys#format
-  CHECK (LENGTH(key) = 69),
   FOREIGN KEY (account_id) REFERENCES paddle_account(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
 
