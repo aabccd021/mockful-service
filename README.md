@@ -2,6 +2,7 @@
 
 ## TODO
 
+- implement api key permission (transaction read/write, customer read/write, etc) 
 - test hosted checkout
 - test google auth login page
 - use bun test + cgi
