@@ -20,19 +20,20 @@ export async function handle(ctx: Context): Promise<Response> {
   const id = `txn_${paddle.generateId()}`;
   const now = dateNow(ctx);
 
-  const transaction = ctx.db.transaction(() => {
-    const transaction = ctx.db
+  const transaction = {
+    id,
+    status: "draft",
+    customer_id: reqBody.customer_id ?? null,
+    created_at_epoch_ms: now.getTime(),
+  };
+
+  ctx.db.transaction(() => {
+    ctx.db
       .query<TransactionRow, sqlite.SQLQueryBindings>(`
         INSERT INTO paddle_transaction (created_at_epoch_ms, id, status, customer_id) 
         VALUES (:created_at_epoch_ms, :id, :status, :customer_id)
-        RETURNING *
       `)
-      .get({
-        created_at_epoch_ms: now.getTime(),
-        id,
-        status: "draft",
-        customer_id: reqBody.customer_id ?? null,
-      });
+      .get(transaction);
     for (const item of reqBody.items) {
       ctx.db
         .query(`
@@ -45,12 +46,7 @@ export async function handle(ctx: Context): Promise<Response> {
           quantity: item.quantity,
         });
     }
-    return transaction;
   })();
-
-  if (transaction == null) {
-    throw new Error("Unreachable");
-  }
 
   return Response.json(
     {
@@ -59,6 +55,7 @@ export async function handle(ctx: Context): Promise<Response> {
         status: transaction.status,
         customer_id: transaction.customer_id,
         created_at: new Date(transaction.created_at_epoch_ms).toISOString(),
+        items: reqBody.items,
       },
     },
     { status: 201 },
