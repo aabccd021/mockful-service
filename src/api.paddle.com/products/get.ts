@@ -30,8 +30,6 @@ export async function handle(ctx: Context): Promise<Response> {
   const rawQuery = new URL(ctx.req.url).searchParams;
 
   const reqQuery = {
-    // after: rawQuery.get("after") ?? undefined,
-    // order_by: rawQuery.get("order_by") ?? undefined,
     id: rawQuery.get("id")?.split(","),
   };
 
