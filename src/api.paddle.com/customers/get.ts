@@ -25,32 +25,43 @@ export async function handle(ctx: Context): Promise<Response> {
     id: rawQuery.get("id")?.split(","),
   };
 
-  let customers = null;
-  if (reqQuery.email !== undefined) {
-    customers = reqQuery.email
-      .map((email) =>
-        ctx.db
-          .query<Row, sqlite.SQLQueryBindings>(
-            "SELECT * FROM paddle_customer WHERE email = :email AND account_id = :account_id",
-          )
-          .get({ email, account_id: account.id }),
-      )
-      .filter((val) => val !== null);
-  } else if (reqQuery.id !== undefined) {
-    customers = reqQuery.id
-      .map((id) =>
-        ctx.db
-          .query<Row, sqlite.SQLQueryBindings>("SELECT * FROM paddle_customer WHERE id = :id")
-          .get({ id, account_id: account.id }),
-      )
-      .filter((val) => val !== null);
-  } else {
-    customers = ctx.db
+  // let customers = [];
+  // TODO
+  // [ foo_id ] + [] = [ foo ]
+  // [ ] + [ foo_email ] = [ foo ]
+  // [ foo_id ] + [ foo_email ] = [ foo ]
+  //
+  // [ bar_id ] + [] = [ bar ]
+  // [ ] + [ bar_email ] = [ bar ]
+  // [ bar_id ] + [ bar_email ] = [ bar ]
+  //
+  // [ foo_id, bar_id ] + [] = [ foo, bar ]
+  // [ ] + [ foo_email, bar_email ] = [ foo, bar ]
+  //
+  // [ foo_id ] + [ bar_email ] = []
+  // [ bar_id ] + [ foo_email ] = []
+  //
+  // [ foo_id ] + [ foo_email, bar_email ] = [ foo ]
+  // [ bar_id ] + [ foo_email, bar_email ] = [ bar ]
+  //
+  // [ foo_id, bar_id ] + [ foo_email ] = [ foo ]
+  // [ foo_id, bar_id ] + [ bar_email ] = [ bar ]
+
+  const argCombinations = (reqQuery.email ?? [null]).flatMap((email) =>
+    (reqQuery.id ?? [null]).map((id) => ({ email, id })),
+  );
+
+  const customers = argCombinations.flatMap(({ email, id }) => {
+    return ctx.db
       .query<Row, sqlite.SQLQueryBindings>(
-        "SELECT * FROM paddle_customer WHERE account_id = :account_id",
+        `SELECT * FROM paddle_customer 
+       WHERE account_id = :account_id
+       AND (:email IS NULL OR email = :email)
+       AND (:id IS NULL OR id = :id)
+      `,
       )
-      .all({ account_id: account.id });
-  }
+      .all({ account_id: account.id, email, id });
+  });
 
   const data = customers.map((customer) => ({
     id: customer.id,
