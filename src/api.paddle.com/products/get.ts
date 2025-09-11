@@ -30,29 +30,25 @@ export async function handle(ctx: Context): Promise<Response> {
   const rawQuery = new URL(ctx.req.url).searchParams;
 
   const reqQuery = {
-    after: rawQuery.get("after") ?? undefined,
+    // after: rawQuery.get("after") ?? undefined,
+    // order_by: rawQuery.get("order_by") ?? undefined,
     id: rawQuery.get("id")?.split(","),
-    order_by: rawQuery.get("order_by") ?? undefined,
   };
 
-  let products = null;
-  if (reqQuery.id !== undefined) {
-    products = reqQuery.id
-      .map((id) =>
-        ctx.db
-          .query<Row, sqlite.SQLQueryBindings>(
-            "SELECT * FROM paddle_product WHERE id = :id AND status = 'active'",
-          )
-          .get({ id, account_id: account.id }),
-      )
-      .filter((val) => val !== null);
-  } else {
-    products = ctx.db
+  const argCombinations = (reqQuery.id ?? [null]).map((id) => ({ id }));
+
+  const products = argCombinations.flatMap(({ id }) => {
+    return ctx.db
       .query<Row, sqlite.SQLQueryBindings>(
-        "SELECT * FROM paddle_product WHERE account_id = :account_id AND status = 'active'",
+        `
+        SELECT * FROM paddle_product 
+        WHERE account_id = :account_id
+        AND (:id IS NULL OR id = :id)
+        AND status = 'active'
+      `,
       )
-      .all({ account_id: account.id });
-  }
+      .all({ account_id: account.id, id });
+  });
 
   const data = products.map((product) => ({
     id: product.id,
