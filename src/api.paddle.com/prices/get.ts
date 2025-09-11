@@ -58,46 +58,27 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const reqQuery = {
     recurring: rawQuery.get("recurring") ?? null,
-    product_id: rawQuery.get("product_id")?.split(",") ?? null,
+    product_id: rawQuery.get("product_id")?.split(","),
   };
 
-  let prices = null;
-  if (reqQuery.product_id !== null) {
-    prices = reqQuery.product_id.flatMap((product_id) =>
-      ctx.db
-        .query<Row, sqlite.SQLQueryBindings>(
-          `
+  const argCombinations = (reqQuery.product_id ?? [null]).map((product_id) => ({ product_id }));
+
+  const prices = argCombinations.flatMap(({ product_id }) =>
+    ctx.db
+      .query<Row, sqlite.SQLQueryBindings>(`
         SELECT paddle_price.*
         FROM paddle_price
         JOIN paddle_product ON paddle_price.product_id = paddle_product.id
-        WHERE paddle_price.product_id = :product_id
-          AND paddle_product.account_id = :account_id
+        WHERE paddle_product.account_id = :account_id
+          AND (:product_id IS NULL OR paddle_price.product_id = :product_id)
           AND CASE 
               WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
               WHEN :recurring = 'false' THEN billing_cycle_frequency IS NULL
               ELSE TRUE
           END
-      `,
-        )
-        .all({ product_id: product_id, account_id: account.id, recurring: reqQuery.recurring }),
-    );
-  } else {
-    prices = ctx.db
-      .query<Row, sqlite.SQLQueryBindings>(
-        `
-          SELECT paddle_price.*
-          FROM paddle_price
-          JOIN paddle_product ON paddle_price.product_id = paddle_product.id
-          WHERE paddle_product.account_id = :account_id
-            AND CASE 
-                WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
-                WHEN :recurring = 'false' THEN billing_cycle_frequency IS NULL
-                ELSE TRUE
-            END
-        `,
-      )
-      .all({ account_id: account.id, recurring: reqQuery.recurring });
-  }
+      `)
+      .all({ account_id: account.id, recurring: reqQuery.recurring, product_id: product_id }),
+  );
 
   const data = prices.map((price) => {
     let priceBillingCycle = null;
