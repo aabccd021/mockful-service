@@ -25,8 +25,7 @@ export async function handle(ctx: Context): Promise<Response> {
     id: rawQuery.get("id")?.split(","),
   };
 
-  // let customers = [];
-  // TODO
+  // TODO test this
   // [ foo_id ] + [] = [ foo ]
   // [ ] + [ foo_email ] = [ foo ]
   // [ foo_id ] + [ foo_email ] = [ foo ]
