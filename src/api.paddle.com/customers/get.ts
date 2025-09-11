@@ -53,13 +53,12 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const customers = argCombinations.flatMap(({ email, id }) => {
     return ctx.db
-      .query<Row, sqlite.SQLQueryBindings>(
-        `SELECT * FROM paddle_customer 
-       WHERE account_id = :account_id
-       AND (:email IS NULL OR email = :email)
-       AND (:id IS NULL OR id = :id)
-      `,
-      )
+      .query<Row, sqlite.SQLQueryBindings>(`
+        SELECT * FROM paddle_customer 
+        WHERE account_id = :account_id
+        AND (:email IS NULL OR email = :email)
+        AND (:id IS NULL OR id = :id)
+      `)
       .all({ account_id: account.id, email, id });
   });
 
