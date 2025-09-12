@@ -25,23 +25,6 @@ export async function handle(ctx: Context): Promise<Response> {
     id: rawQuery.get("id")?.split(",") ?? [null],
   };
 
-  // TODO test this
-  // foo_email => foo
-  // bar_email => bar
-  // foo_email + bar_email => foo,bar
-  // foo_id => foo
-  // foo_id & foo_email => foo
-  // foo_id & bar_email =>
-  // foo_id & foo_email + bar_email => foo
-  // bar_id => bar_email
-  // bar_id & foo_email =>
-  // bar_id & bar_email => bar
-  // bar_id & foo_email + bar_email => bar
-  // foo_id + bar_id => foo,bar
-  // foo_id + bar_id & foo_email => foo
-  // foo_id + bar_id & bar_email => bar
-  // foo_id + bar_id & foo_email + bar_email => foo,bar
-
   const argCombinations = reqQuery.email.flatMap((email) =>
     reqQuery.id.map((id) => ({ email, id })),
   );
