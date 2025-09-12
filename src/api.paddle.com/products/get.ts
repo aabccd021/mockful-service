@@ -30,10 +30,10 @@ export async function handle(ctx: Context): Promise<Response> {
   const rawQuery = new URL(ctx.req.url).searchParams;
 
   const reqQuery = {
-    id: rawQuery.get("id")?.split(","),
+    id: rawQuery.get("id")?.split(",") ?? [null],
   };
 
-  const argCombinations = (reqQuery.id ?? [null]).map((id) => ({ id }));
+  const argCombinations = reqQuery.id.map((id) => ({ id }));
 
   const products = argCombinations.flatMap(({ id }) => {
     return ctx.db

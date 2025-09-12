@@ -21,8 +21,8 @@ export async function handle(ctx: Context): Promise<Response> {
   const rawQuery = new URL(ctx.req.url).searchParams;
 
   const reqQuery = {
-    email: rawQuery.get("email")?.split(","),
-    id: rawQuery.get("id")?.split(","),
+    email: rawQuery.get("email")?.split(",") ?? [null],
+    id: rawQuery.get("id")?.split(",") ?? [null],
   };
 
   // TODO test this
@@ -46,8 +46,8 @@ export async function handle(ctx: Context): Promise<Response> {
   // [ foo_id, bar_id ] + [ foo_email ] = [ foo ]
   // [ foo_id, bar_id ] + [ bar_email ] = [ bar ]
 
-  const argCombinations = (reqQuery.email ?? [null]).flatMap((email) =>
-    (reqQuery.id ?? [null]).map((id) => ({ email, id })),
+  const argCombinations = reqQuery.email.flatMap((email) =>
+    reqQuery.id.map((id) => ({ email, id })),
   );
 
   const customers = argCombinations.flatMap(({ email, id }) => {

@@ -58,10 +58,10 @@ export async function handle(ctx: Context): Promise<Response> {
 
   const reqQuery = {
     recurring: rawQuery.get("recurring") ?? null,
-    product_id: rawQuery.get("product_id")?.split(","),
+    product_id: rawQuery.get("product_id")?.split(",") ?? [null],
   };
 
-  const argCombinations = (reqQuery.product_id ?? [null]).map((product_id) => ({ product_id }));
+  const argCombinations = reqQuery.product_id.map((product_id) => ({ product_id }));
 
   const prices = argCombinations.flatMap(({ product_id }) =>
     ctx.db
