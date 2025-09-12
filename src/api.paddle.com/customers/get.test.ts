@@ -225,22 +225,6 @@ using ctx = test.init();
   if (customers[0]?.locale !== "en") throw new Error();
 }
 
-// kita_email => kita
-// yamada_email => yamada
-// kita_email + yamada_email => kita,yamada
-// kita_id => kita
-// kita_id & kita_email => kita
-// kita_id & yamada_email =>
-// kita_id & kita_email + yamada_email => kita
-// yamada_id => yamada_email
-// yamada_id & kita_email =>
-// yamada_id & yamada_email => yamada
-// yamada_id & kita_email + yamada_email => yamada
-// kita_id + yamada_id => kita,yamada
-// kita_id + yamada_id & kita_email => kita
-// kita_id + yamada_id & yamada_email => yamada
-// kita_id + yamada_id & kita_email + yamada_email => kita,yamada
-
 const parameters = [
   { email: ["kita"], result: ["kita"] },
   { email: ["yamada"], result: ["yamada"] },
