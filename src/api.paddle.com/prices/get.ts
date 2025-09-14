@@ -61,23 +61,23 @@ export async function handle(ctx: Context): Promise<Response> {
     product_id: rawQuery.get("product_id")?.split(",") ?? [null],
   };
 
-  const argCombinations = reqQuery.product_id.map((product_id) => ({ product_id }));
+  const argCombinations = reqQuery.product_id.map((productId) => ({ productId }));
 
-  const prices = argCombinations.flatMap(({ product_id }) =>
+  const prices = argCombinations.flatMap(({ productId }) =>
     ctx.db
       .query<Row, sqlite.SQLQueryBindings>(`
         SELECT paddle_price.*
         FROM paddle_price
         JOIN paddle_product ON paddle_price.product_id = paddle_product.id
         WHERE paddle_product.account_id = :account_id
-          AND (:product_id IS NULL OR paddle_price.product_id = :product_id)
+          AND (:productId IS NULL OR paddle_price.product_id = :productId)
           AND CASE 
               WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
               WHEN :recurring = 'false' THEN billing_cycle_frequency IS NULL
               ELSE TRUE
           END
       `)
-      .all({ account_id: account.id, recurring: reqQuery.recurring, product_id: product_id }),
+      .all({ account_id: account.id, recurring: reqQuery.recurring, productId }),
   );
 
   const data = prices.map((price) => {

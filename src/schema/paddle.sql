@@ -103,7 +103,6 @@ CREATE TABLE paddle_transaction_item (
   transaction_id TEXT NOT NULL,
   price_id TEXT NOT NULL,
   quantity INTEGER NOT NULL,
-  PRIMARY KEY (transaction_id, price_id),
   FOREIGN KEY (transaction_id) REFERENCES paddle_transaction(id) ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY (price_id) REFERENCES paddle_price(id) ON UPDATE CASCADE ON DELETE CASCADE
 ) STRICT;
