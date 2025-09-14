@@ -69,7 +69,7 @@ export async function handle(ctx: Context): Promise<Response> {
         SELECT paddle_price.*
         FROM paddle_price
         JOIN paddle_product ON paddle_price.product_id = paddle_product.id
-        WHERE paddle_product.account_id = :account_id
+        WHERE paddle_product.account_id = :accountId
           AND (:productId IS NULL OR paddle_price.product_id = :productId)
           AND CASE 
               WHEN :recurring = 'true' THEN billing_cycle_frequency IS NOT NULL
@@ -77,7 +77,7 @@ export async function handle(ctx: Context): Promise<Response> {
               ELSE TRUE
           END
       `)
-      .all({ account_id: account.id, recurring: reqQuery.recurring, productId }),
+      .all({ accountId: account.id, recurring: reqQuery.recurring, productId }),
   );
 
   const data = prices.map((price) => {
