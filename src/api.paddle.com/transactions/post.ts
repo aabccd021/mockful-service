@@ -9,6 +9,19 @@ type TransactionRow = {
   created_at_epoch_ms: number;
 };
 
+// TODO:L
+// {
+//   "error": {
+//     "type": "request_error",
+//     "code": "transaction_default_checkout_url_not_set",
+//     "detail": "A Default Payment Link has not yet been defined within the Paddle Dashboard for this account, find this under checkout settings. ",
+//     "documentation_url": "https://developer.paddle.com/v1/errors/transactions/transaction_default_checkout_url_not_set"
+//   },
+//   "meta": {
+//     "request_id": "46921b47-b4f1-4eae-974d-ab7cb9590c42"
+//   }
+// }
+
 export async function handle(ctx: Context): Promise<Response> {
   const [authErrorRes] = paddle.authenticate(ctx);
   if (authErrorRes !== undefined) {
