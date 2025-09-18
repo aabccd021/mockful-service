@@ -9,7 +9,7 @@ type TransactionRow = {
   created_at_epoch_ms: number;
 };
 
-// TODO:L
+// TODO
 // {
 //   "error": {
 //     "type": "request_error",
